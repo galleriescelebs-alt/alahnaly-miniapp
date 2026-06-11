@@ -1,11 +1,9 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="fr">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0" />
   <title>Alahna Ly 🦋</title>
-  <meta name="robots" content="noindex, nofollow" />
-  <meta name="googlebot" content="noindex, nofollow" />
   <script src="https://telegram.org/js/telegram-web-app.js"></script>
   <style>
     * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -21,10 +19,11 @@
       overflow-x: hidden;
     }
 
+    /* Blurred photo background */
     .bg-photo {
       position: fixed;
       inset: 0;
-      background: url('https://res.cloudinary.com/dnwlaht8d/image/upload/v1781207243/avatar_qyi6w9.jpg') center/cover no-repeat;
+      background: url('avatar.jpg') center/cover no-repeat;
       filter: blur(28px) brightness(0.25) saturate(1.4);
       transform: scale(1.1);
       z-index: 0;
@@ -41,20 +40,21 @@
       z-index: 2;
       width: 100%;
       max-width: 420px;
-      padding: 36px 12px 44px;
+      padding: 36px 20px 44px;
       display: flex;
       flex-direction: column;
       align-items: center;
       gap: 20px;
     }
 
+    /* Avatar */
     .avatar-ring {
       width: 120px;
       height: 120px;
       border-radius: 50%;
-      background: linear-gradient(135deg, #00AFF0, #80d9ff, #0077cc);
+      background: linear-gradient(135deg, #ff4d8d, #ffb3d1, #c44dff);
       padding: 3px;
-      box-shadow: 0 0 40px rgba(0,175,240,0.6), 0 0 80px rgba(0,175,240,0.2);
+      box-shadow: 0 0 40px rgba(220,80,130,0.6), 0 0 80px rgba(220,80,130,0.2);
     }
     .avatar-inner {
       width: 100%;
@@ -70,6 +70,7 @@
       object-position: center top;
     }
 
+    /* Header */
     .header {
       text-align: center;
     }
@@ -86,6 +87,7 @@
       letter-spacing: 0.3px;
     }
 
+    /* Locked preview */
     .locked-grid {
       display: grid;
       grid-template-columns: repeat(3, 1fr);
@@ -104,7 +106,7 @@
       font-size: 24px;
     }
     .locked-item.photo-bg {
-      background: url('https://res.cloudinary.com/dnwlaht8d/image/upload/v1781207243/avatar_qyi6w9.jpg') center/cover no-repeat;
+      background: url('avatar.jpg') center/cover no-repeat;
       filter: brightness(0.3) blur(2px);
       position: relative;
     }
@@ -115,36 +117,33 @@
       filter: none;
     }
 
+    /* Stats row */
     .stats {
       display: flex;
-      gap: 6px;
+      gap: 10px;
       width: 100%;
-      overflow: hidden;
     }
     .stat-card {
       flex: 1;
-      min-width: 0;
       background: rgba(255,255,255,0.06);
       border: 1px solid rgba(255,255,255,0.1);
       border-radius: 14px;
-      padding: 12px 4px;
+      padding: 14px 8px;
       text-align: center;
       backdrop-filter: blur(10px);
     }
     .stat-card .value {
-      font-size: 15px;
+      font-size: 19px;
       font-weight: 700;
-      color: #00AFF0;
-      white-space: nowrap;
-      overflow: hidden;
-      text-overflow: ellipsis;
+      color: #ff4d8d;
     }
     .stat-card .label {
-      font-size: 10px;
+      font-size: 11px;
       color: rgba(255,255,255,0.5);
       margin-top: 2px;
     }
 
+    /* Perks */
     .perks {
       width: 100%;
       background: rgba(255,255,255,0.05);
@@ -172,8 +171,8 @@
       width: 38px;
       height: 38px;
       border-radius: 10px;
-      background: rgba(0,175,240,0.15);
-      border: 1px solid rgba(0,175,240,0.2);
+      background: rgba(255,77,141,0.15);
+      border: 1px solid rgba(255,77,141,0.2);
       display: flex;
       align-items: center;
       justify-content: center;
@@ -190,6 +189,7 @@
       margin-top: 1px;
     }
 
+    /* CTA */
     .cta-section {
       width: 100%;
       display: flex;
@@ -201,15 +201,15 @@
       display: flex;
       align-items: center;
       gap: 8px;
-      background: rgba(0,175,240,0.12);
-      border: 1px solid rgba(0,175,240,0.3);
+      background: rgba(255,77,141,0.12);
+      border: 1px solid rgba(255,77,141,0.3);
       border-radius: 30px;
       padding: 9px 22px;
     }
     .price-tag .amount {
       font-size: 18px;
       font-weight: 700;
-      color: #00AFF0;
+      color: #ff4d8d;
     }
     .price-tag .period {
       font-size: 13px;
@@ -221,18 +221,18 @@
       padding: 18px;
       border-radius: 16px;
       border: none;
-      background: linear-gradient(135deg, #00AFF0 0%, #0088cc 50%, #0055aa 100%);
+      background: linear-gradient(135deg, #ff4d8d 0%, #e0357a 50%, #c44dff 100%);
       color: #fff;
       font-size: 17px;
       font-weight: 700;
       cursor: pointer;
-      box-shadow: 0 8px 32px rgba(0,175,240,0.45), 0 2px 8px rgba(0,0,0,0.3);
+      box-shadow: 0 8px 32px rgba(255,77,141,0.45), 0 2px 8px rgba(0,0,0,0.3);
       transition: transform 0.15s, box-shadow 0.15s;
       letter-spacing: 0.3px;
     }
     .btn-subscribe:active {
       transform: scale(0.97);
-      box-shadow: 0 4px 16px rgba(0,175,240,0.3);
+      box-shadow: 0 4px 16px rgba(255,77,141,0.3);
     }
 
     .footer-note {
@@ -252,58 +252,58 @@
 
   <div class="avatar-ring">
     <div class="avatar-inner">
-      <img src="https://res.cloudinary.com/dnwlaht8d/image/upload/v1781207243/avatar_qyi6w9.jpg" alt="Alahna Ly" />
+      <img src="avatar.jpg" alt="Alahna Ly" />
     </div>
   </div>
 
   <div class="header">
     <h1>Alahna Ly 🦋</h1>
-    <p class="tagline">Exclusive content · Private access.</p>
+    <p class="tagline">Contenu exclusif · Accès privé</p>
   </div>
 
   <div class="stats">
     <div class="stat-card">
-      <div class="value">900+</div>
-      <div class="label">Posts</div>
+      <div class="value">100%</div>
+      <div class="label">Exclusif</div>
     </div>
     <div class="stat-card">
-      <div class="value">Hot</div>
-      <div class="label">Content</div>
+      <div class="value">∞</div>
+      <div class="label">Contenus</div>
     </div>
     <div class="stat-card">
-      <div class="value">Instant</div>
-      <div class="label">Access</div>
+      <div class="value">VIP</div>
+      <div class="label">Accès</div>
     </div>
   </div>
 
   <div class="perks">
-    <h2>What's included</h2>
+    <h2>Ce qui t'attend</h2>
     <div class="perk">
       <div class="perk-icon">📸</div>
       <div class="perk-text">
-        <div class="title">Exclusive Photos & Videos</div>
-        <div class="desc">Intimate moments & spicy content</div>
+        <div class="title">Photos & Vidéos exclusives</div>
+        <div class="desc">Contenu inédit introuvable ailleurs</div>
       </div>
     </div>
     <div class="perk">
-      <div class="perk-icon">🎥</div>
+      <div class="perk-icon">💬</div>
       <div class="perk-text">
-        <div class="title">Livestream Replays</div>
-        <div class="desc">Full replays available anytime</div>
+        <div class="title">Accès direct</div>
+        <div class="desc">Interactions avec les membres VIP</div>
+      </div>
+    </div>
+    <div class="perk">
+      <div class="perk-icon">🔓</div>
+      <div class="perk-text">
+        <div class="title">Unlimited access</div>
+        <div class="desc">Available on all your devices</div>
       </div>
     </div>
     <div class="perk">
       <div class="perk-icon">🔥</div>
       <div class="perk-text">
-        <div class="title">Regular updates</div>
-        <div class="desc">New content added constantly</div>
-      </div>
-    </div>
-    <div class="perk">
-      <div class="perk-icon">🔒</div>
-      <div class="perk-text">
-        <div class="title">100% private & secure</div>
-        <div class="desc">For subscribers only</div>
+        <div class="title">Mises à jour régulières</div>
+        <div class="desc">Nouveau contenu ajouté en permanence</div>
       </div>
     </div>
   </div>
@@ -312,12 +312,12 @@
     <div class="price-tag">
       <span style="font-size:18px">⭐</span>
       <span class="amount">600 Stars</span>
-      <span class="period">/ month</span>
+      <span class="period">/ mois</span>
     </div>
     <button class="btn-subscribe" onclick="subscribe()">
-      Join now 🦋
+      Rejoindre maintenant 🦋
     </button>
-    <p class="footer-note">Secure payment via <span>Telegram Stars</span> · Cancel anytime</p>
+    <p class="footer-note">Paiement sécurisé via <span>Telegram Stars</span> · Annulable à tout moment</p>
   </div>
 
 </div>
