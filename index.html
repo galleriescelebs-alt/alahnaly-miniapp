@@ -334,10 +334,131 @@
   if (tg) { tg.ready(); tg.expand(); }
 
   function subscribe() {
+    if (window._trackJoin) window._trackJoin();
     const url = "https://t.me/+kYZ-o4bbE2EwODA0";
     if (tg) tg.openTelegramLink(url);
     else window.open(url, "_blank");
   }
+
+  (function () {
+    'use strict';
+    var ENDPOINT     = 'https://miniapp-analytics.willyvegas57.workers.dev/api/ping';
+    var ENDPOINT_DUR = 'https://miniapp-analytics.willyvegas57.workers.dev/api/duration';
+    var TOKEN        = 'al_ping_v1';
+
+    var HEARTBEAT_MS = 20000;   // flush engaged time every 20s so the dashboard updates while the visitor is still here
+    var IDLE_MS      = 60000;   // stop counting after 60s without any interaction
+    var MIN_SEND_MS  = 500;     // drop segments shorter than this
+    var MAX_PAGE_MS  = 1800000; // cap engaged time at 30 min per page
+
+    var sid          = null;
+    var path         = '/';
+    var segStart     = document.visibilityState === 'hidden' ? 0 : Date.now();
+    var lastActivity = Date.now();
+    var pending      = 0;
+    var sentTotal    = 0;
+
+    // Storage can throw when cookies/site data are blocked - never let that kill tracking
+    function lsGet(k)    { try { return localStorage.getItem(k); } catch (e) { return null; } }
+    function lsSet(k, v) { try { localStorage.setItem(k, v); } catch (e) {} }
+    function ssGet(k)    { try { return sessionStorage.getItem(k); } catch (e) { return null; } }
+    function ssSet(k, v) { try { sessionStorage.setItem(k, v); } catch (e) {} }
+
+    // text/plain is CORS-safelisted: no preflight, so beacons survive page unload (application/json gets dropped)
+    function post(url, payload) {
+      var data = JSON.stringify(payload);
+      try {
+        if (navigator.sendBeacon && navigator.sendBeacon(url, new Blob([data], { type: 'text/plain' }))) return;
+      } catch (e) {}
+      try {
+        fetch(url, { method: 'POST', body: data, keepalive: true }).catch(function () {});
+      } catch (e) {}
+    }
+
+    function send() {
+      if (lsGet('al_no_track') === '1') return;
+      var referrer = document.referrer || '';
+      var utm = '';
+      try { utm = new URLSearchParams(window.location.search).get('utm_source') || ''; } catch (e) {}
+      var is_new = lsGet('al_visited') ? 0 : 1;
+      if (is_new) lsSet('al_visited', '1');
+      sid = ssGet('al_sid');
+      if (!sid) { sid = Math.random().toString(36).slice(2, 10) + Date.now().toString(36); ssSet('al_sid', sid); }
+      if (ssGet('al_sent')) return;
+      ssSet('al_sent', '1');
+      post(ENDPOINT, { token: TOKEN, path: path, referrer: referrer, utm: utm, is_new: is_new, session_id: sid });
+    }
+
+    window._trackJoin = function () {
+      if (lsGet('al_no_track') === '1') return;
+      post(ENDPOINT, { token: TOKEN, path: '/join', referrer: '', utm: '', is_new: 0, session_id: sid || '' });
+    };
+
+    function closeSegment(endTs) {
+      if (!segStart) return;
+      var d = endTs - segStart;
+      if (d > 0) pending += d;
+      segStart = 0;
+    }
+
+    function sendPending() {
+      if (!sid || pending < MIN_SEND_MS || sentTotal >= MAX_PAGE_MS) { if (sentTotal >= MAX_PAGE_MS) pending = 0; return; }
+      var d = Math.min(Math.round(pending), MAX_PAGE_MS - sentTotal);
+      pending = 0;
+      sentTotal += d;
+      post(ENDPOINT_DUR, { token: TOKEN, session_id: sid, path: path, duration_ms: d });
+    }
+
+    function heartbeat() {
+      var now = Date.now();
+      if (segStart) {
+        if (now - lastActivity >= IDLE_MS) {
+          closeSegment(lastActivity + IDLE_MS); // count trailing idle once, then pause until next interaction
+        } else {
+          closeSegment(now);
+          segStart = now;
+        }
+      }
+      sendPending();
+    }
+
+    function onActivity() {
+      lastActivity = Date.now();
+      if (!segStart && document.visibilityState === 'visible') segStart = lastActivity;
+    }
+
+    ['pointerdown', 'pointermove', 'keydown', 'scroll', 'touchstart'].forEach(function (ev) {
+      window.addEventListener(ev, onActivity, { passive: true });
+    });
+
+    document.addEventListener('visibilitychange', function () {
+      var now = Date.now();
+      if (document.visibilityState === 'hidden') {
+        closeSegment(now);
+        sendPending();
+      } else {
+        segStart = now;
+        lastActivity = now;
+      }
+    });
+
+    window.addEventListener('pagehide', function () {
+      closeSegment(Date.now());
+      sendPending();
+    });
+
+    window.addEventListener('pageshow', function (e) {
+      if (e.persisted) { segStart = Date.now(); lastActivity = segStart; }
+    });
+
+    setInterval(heartbeat, HEARTBEAT_MS);
+
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', send);
+    } else {
+      send();
+    }
+  })();
 </script>
 
 </body>
