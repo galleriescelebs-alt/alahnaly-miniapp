@@ -351,31 +351,38 @@
 
     const invite = httpsUrl.split("/+")[1] || "";
     const ua = navigator.userAgent || "";
+    const isAndroid = /android/i.test(ua);
+    const isIOS = /iphone|ipad|ipod/i.test(ua);
 
-    // Android: an intent:// URL opens the Telegram app directly and escapes most
-    // in-app webviews; if Telegram isn't installed it uses the web fallback URL.
-    if (invite && /android/i.test(ua)) {
-      window.location.href =
-        "intent://join?invite=" + invite +
+    // Desktop / unknown invite: just open the web page (offers app + download).
+    if (!invite || (!isAndroid && !isIOS)) {
+      window.open(httpsUrl, "_blank");
+      return;
+    }
+
+    // Native deep link: intent:// on Android (lets the OS reach the app / Play
+    // Store), tg:// on iOS. Some in-app browsers (Pinterest, Instagram...) ignore
+    // these schemes silently, so we ALWAYS arm a timed fallback to the web page:
+    // if the page is still visible shortly after, the deep link didn't take, so
+    // we load t.me. This keeps the button from ever doing nothing.
+    const appUrl = isAndroid
+      ? "intent://join?invite=" + invite +
         "#Intent;scheme=tg;package=org.telegram.messenger;" +
-        "S.browser_fallback_url=" + encodeURIComponent(httpsUrl) + ";end";
-      return;
-    }
+        "S.browser_fallback_url=" + encodeURIComponent(httpsUrl) + ";end"
+      : "tg://join?invite=" + invite;
 
-    // iOS: try the tg:// app scheme; if we're still on the page after ~1.5s the
-    // app didn't open (not installed), so load the web page instead.
-    if (invite && /iphone|ipad|ipod/i.test(ua)) {
-      const timer = setTimeout(function () { window.location.href = httpsUrl; }, 1500);
-      const onHide = function () {
-        if (document.hidden) { clearTimeout(timer); document.removeEventListener("visibilitychange", onHide); }
-      };
-      document.addEventListener("visibilitychange", onHide);
-      window.location.href = "tg://join?invite=" + invite;
-      return;
-    }
+    const timer = setTimeout(function () { window.location.href = httpsUrl; }, 1200);
+    const onHide = function () {
+      if (document.hidden) { clearTimeout(timer); document.removeEventListener("visibilitychange", onHide); }
+    };
+    document.addEventListener("visibilitychange", onHide);
 
-    // Desktop / anything else: open the web page (offers "Open in Telegram" + download).
-    window.open(httpsUrl, "_blank");
+    try {
+      window.location.href = appUrl;
+    } catch (e) {
+      clearTimeout(timer);
+      window.location.href = httpsUrl;
+    }
   }
 
   (function () {
