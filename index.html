@@ -248,6 +248,66 @@
       text-align: center;
     }
     .footer-note span { color: rgba(255,255,255,0.5); }
+
+    /* "Open in browser" hint — shown only inside in-app browsers (Pinterest,
+       Instagram...) where Telegram and the t.me page can't be reached. */
+    .bh-overlay {
+      position: fixed;
+      inset: 0;
+      z-index: 50;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      padding: 24px;
+      background: rgba(0,0,0,0.8);
+      -webkit-backdrop-filter: blur(6px);
+      backdrop-filter: blur(6px);
+    }
+    .bh-overlay.show { display: flex; }
+    .bh-card {
+      width: 100%;
+      max-width: 340px;
+      background: #161616;
+      border: 1px solid rgba(255,255,255,0.08);
+      border-radius: 20px;
+      padding: 28px 22px 20px;
+      text-align: center;
+      box-shadow: 0 20px 60px rgba(0,0,0,0.6);
+    }
+    .bh-emoji { font-size: 34px; margin-bottom: 10px; }
+    .bh-title { font-size: 19px; font-weight: 700; margin-bottom: 10px; }
+    .bh-text {
+      font-size: 14px;
+      line-height: 1.55;
+      color: rgba(255,255,255,0.7);
+      margin-bottom: 20px;
+    }
+    .bh-text b { color: #00AFF0; font-weight: 700; }
+    .bh-btn {
+      width: 100%;
+      padding: 15px;
+      border: none;
+      border-radius: 14px;
+      background: linear-gradient(135deg, #00AFF0 0%, #0088cc 50%, #0055aa 100%);
+      color: #fff;
+      font-size: 15px;
+      font-weight: 700;
+      cursor: pointer;
+      box-shadow: 0 6px 24px rgba(0,175,240,0.4);
+      transition: transform 0.15s;
+    }
+    .bh-btn:active { transform: scale(0.97); }
+    .bh-close {
+      width: 100%;
+      margin-top: 8px;
+      padding: 12px;
+      border: none;
+      border-radius: 14px;
+      background: transparent;
+      color: rgba(255,255,255,0.4);
+      font-size: 14px;
+      cursor: pointer;
+    }
   </style>
 </head>
 <body>
@@ -329,6 +389,19 @@
 
 </div>
 
+<div id="browserHint" class="bh-overlay" aria-hidden="true">
+  <div class="bh-card">
+    <div class="bh-emoji">🦋</div>
+    <h3 class="bh-title">Open in your browser</h3>
+    <p class="bh-text" id="bhText">
+      This in-app browser can't open Telegram. Tap the <b>⋮</b> menu at the top,
+      then <b>“Open in browser”</b>.
+    </p>
+    <button class="bh-btn" id="bhCopy">Copy channel link</button>
+    <button class="bh-close" id="bhClose">Close</button>
+  </div>
+</div>
+
 <script>
   const tg = window.Telegram?.WebApp;
   if (tg) { tg.ready(); tg.expand(); }
@@ -349,6 +422,15 @@
       return;
     }
 
+    // Known in-app browsers (Pinterest, Instagram...) sandbox navigation: tg://,
+    // intent:// and even the t.me page are dead, and trying them can blank our
+    // page. So go straight to the "open in your browser" guide — the only path
+    // that reliably works there (the user taps the host app's menu themselves).
+    if (inAppBrowser()) {
+      showBrowserHint(httpsUrl);
+      return;
+    }
+
     const invite = httpsUrl.split("/+")[1] || "";
     const ua = navigator.userAgent || "";
     const isAndroid = /android/i.test(ua);
@@ -361,10 +443,8 @@
     }
 
     // Native deep link: intent:// on Android (lets the OS reach the app / Play
-    // Store), tg:// on iOS. Some in-app browsers (Pinterest, Instagram...) ignore
-    // these schemes silently, so we ALWAYS arm a timed fallback to the web page:
-    // if the page is still visible shortly after, the deep link didn't take, so
-    // we load t.me. This keeps the button from ever doing nothing.
+    // Store), tg:// on iOS. Arm a timed fallback to the web page in case the app
+    // isn't installed, so the button never does nothing.
     const appUrl = isAndroid
       ? "intent://join?invite=" + invite +
         "#Intent;scheme=tg;package=org.telegram.messenger;" +
@@ -383,6 +463,70 @@
       clearTimeout(timer);
       window.location.href = httpsUrl;
     }
+  }
+
+  // Known in-app browsers that sandbox navigation and can't open Telegram or
+  // escape to the native browser on their own.
+  function inAppBrowser() {
+    return /Pinterest|Instagram|FBAN|FBAV|FB_IAB|Messenger|Snapchat|TikTok|musical_ly|BytedanceWebview|Twitter|LinkedInApp|Line\/|MicroMessenger/i
+      .test(navigator.userAgent || "");
+  }
+
+  // Reveal the "open in your browser" overlay with OS-tailored instructions and
+  // a copy-link button as a last resort.
+  function showBrowserHint(httpsUrl) {
+    const el = document.getElementById("browserHint");
+    if (!el) { window.location.href = httpsUrl; return; }
+
+    const txt = document.getElementById("bhText");
+    if (txt) {
+      txt.innerHTML = /iphone|ipad|ipod/i.test(navigator.userAgent || "")
+        ? 'This in-app browser can’t open Telegram. Tap the <b>↑</b> share (or <b>…</b>) icon at the top, then <b>“Open in Safari”</b>.'
+        : 'This in-app browser can’t open Telegram. Tap the <b>⋮</b> menu at the top-right, then <b>“Open in browser”</b>.';
+    }
+
+    const copyBtn = document.getElementById("bhCopy");
+    if (copyBtn) copyBtn.onclick = function () { copyLink(httpsUrl, copyBtn); };
+
+    const closeBtn = document.getElementById("bhClose");
+    if (closeBtn) closeBtn.onclick = function () {
+      el.classList.remove("show");
+      el.setAttribute("aria-hidden", "true");
+    };
+
+    el.classList.add("show");
+    el.setAttribute("aria-hidden", "false");
+  }
+
+  function copyLink(text, btn) {
+    const flash = function () {
+      if (!btn) return;
+      const original = btn.textContent;
+      btn.textContent = "Link copied ✓";
+      setTimeout(function () { btn.textContent = original; }, 1800);
+    };
+    try {
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(text).then(flash, function () { legacyCopy(text); flash(); });
+        return;
+      }
+    } catch (e) {}
+    legacyCopy(text);
+    flash();
+  }
+
+  function legacyCopy(text) {
+    try {
+      const ta = document.createElement("textarea");
+      ta.value = text;
+      ta.style.position = "fixed";
+      ta.style.opacity = "0";
+      document.body.appendChild(ta);
+      ta.focus();
+      ta.select();
+      document.execCommand("copy");
+      document.body.removeChild(ta);
+    } catch (e) {}
   }
 
   (function () {
