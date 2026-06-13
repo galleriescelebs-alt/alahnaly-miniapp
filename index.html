@@ -335,9 +335,47 @@
 
   function subscribe() {
     if (window._trackJoin) window._trackJoin();
-    const url = "https://t.me/+kYZ-o4bbE2EwODA0";
-    if (tg) tg.openTelegramLink(url);
-    else window.open(url, "_blank");
+    openTelegram("https://t.me/+kYZ-o4bbE2EwODA0");
+  }
+
+  // Open the channel: hand off to the native Telegram app when possible,
+  // otherwise fall back to the web page so the click is never wasted.
+  function openTelegram(httpsUrl) {
+    // Inside the real Telegram app/WebApp -> let Telegram route it natively.
+    // platform is "unknown" when the page is just loaded in a normal browser,
+    // so this check avoids the broken t.me web preview seen outside Telegram.
+    if (tg && tg.platform && tg.platform !== "unknown" && typeof tg.openTelegramLink === "function") {
+      tg.openTelegramLink(httpsUrl);
+      return;
+    }
+
+    const invite = httpsUrl.split("/+")[1] || "";
+    const ua = navigator.userAgent || "";
+
+    // Android: an intent:// URL opens the Telegram app directly and escapes most
+    // in-app webviews; if Telegram isn't installed it uses the web fallback URL.
+    if (invite && /android/i.test(ua)) {
+      window.location.href =
+        "intent://join?invite=" + invite +
+        "#Intent;scheme=tg;package=org.telegram.messenger;" +
+        "S.browser_fallback_url=" + encodeURIComponent(httpsUrl) + ";end";
+      return;
+    }
+
+    // iOS: try the tg:// app scheme; if we're still on the page after ~1.5s the
+    // app didn't open (not installed), so load the web page instead.
+    if (invite && /iphone|ipad|ipod/i.test(ua)) {
+      const timer = setTimeout(function () { window.location.href = httpsUrl; }, 1500);
+      const onHide = function () {
+        if (document.hidden) { clearTimeout(timer); document.removeEventListener("visibilitychange", onHide); }
+      };
+      document.addEventListener("visibilitychange", onHide);
+      window.location.href = "tg://join?invite=" + invite;
+      return;
+    }
+
+    // Desktop / anything else: open the web page (offers "Open in Telegram" + download).
+    window.open(httpsUrl, "_blank");
   }
 
   (function () {
