@@ -629,7 +629,8 @@
   async function buildUsdtMessage(d, sender) {
     const core = await import("https://esm.sh/@ton/core@0.59.0");
     const beginCell = core.beginCell, Address = core.Address;
-    const jettonWallet = await resolveJettonWallet(sender, d.jetton_master);
+    const jettonWalletRaw = await resolveJettonWallet(sender, d.jetton_master);
+    const jettonWallet = Address.parse(jettonWalletRaw).toString(); // SDK requires user-friendly
     const forward = beginCell().storeUint(0, 32).storeStringTail(d.comment).endCell();
     const body = beginCell()
       .storeUint(0x0f8a7ea5, 32)              // jetton transfer op
