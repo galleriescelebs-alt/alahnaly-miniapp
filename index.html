@@ -572,8 +572,10 @@
   // Payment backend (Cloudflare Worker). Set to your deployed worker URL
   // (no trailing slash). See ton-connect-worker/README.md.
   const CRYPTO_API = "https://ton-connect-worker.willyvegas57.workers.dev";
-  // Manifest is served by the worker itself — derived from CRYPTO_API, nothing to set.
-  const TONCONNECT_MANIFEST = CRYPTO_API + "/tonconnect-manifest.json";
+  // Manifest is hosted on THIS Pages site (same domain as the page) so the wallet
+  // shows this domain — not the worker. Bitget rejects the manifest unless its host
+  // matches the manifest's `url` field domain (both galleriescelebs-alt.github.io).
+  const TONCONNECT_MANIFEST = "https://galleriescelebs-alt.github.io/alahnaly-miniapp/tonconnect-manifest.json";
 
   // Preview the in-app-browser guide from any browser: add ?hint=1 to the URL.
   if (/[?&]hint=1(&|$)/.test(location.search)) showBrowserHint(CHANNEL_URL);
