@@ -528,7 +528,7 @@
     <button class="btn-crypto" onclick="chooseCrypto()">💎 Pay with Crypto</button>
     <div id="cryptoChoice" class="crypto-choice" style="display:none">
       <button class="btn-crypto-sm" onclick="cryptoPay('TON')">💎 TON</button>
-      <button class="btn-crypto-sm" onclick="cryptoPay('USDT')">💵 USDT</button>
+      <button class="btn-crypto-sm" onclick="cryptoPay('USDT')">💵 USDT (TON)</button>
     </div>
     <p id="cryptoStatus" class="crypto-status" style="display:none"></p>
     <p class="footer-note">Secure payment via <span>Telegram Stars</span> or <span>crypto</span> · Cancel anytime</p>
@@ -606,7 +606,7 @@
         message: "Choose your currency:",
         buttons: [
           { id: "TON", type: "default", text: "💎 TON" },
-          { id: "USDT", type: "default", text: "💵 USDT" }
+          { id: "USDT", type: "default", text: "💵 USDT (TON)" }
         ]
       }, function (id) {
         if (id === "TON" || id === "USDT") cryptoPay(id);
@@ -667,7 +667,7 @@
         body: JSON.stringify({ initData: tg.initData, asset: asset })
       });
       const d = await r.json();
-      if (!r.ok || !d.address) throw new Error(d.error || "create failed");
+      if (!r.ok || !d.address) throw new Error(d.error || ("HTTP " + r.status));
 
       const ui = tonUI();
       // Ensure a wallet is connected first; otherwise open the wallet picker.
@@ -695,7 +695,7 @@
       pollPayment(d.payment_id);
     } catch (e) {
       setBtns(false);
-      setStatus(status, "Payment cancelled or failed — tap to try again.");
+      setStatus(status, "Failed: " + ((e && e.message) || "unknown") + " — tap to try again.");
     }
   }
 
