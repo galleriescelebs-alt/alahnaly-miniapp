@@ -530,6 +530,7 @@
       <button class="btn-crypto-sm" onclick="cryptoPay('TON')">💎 TON</button>
       <button class="btn-crypto-sm" onclick="cryptoPay('USDT')">💵 USDT (TON)</button>
     </div>
+    <button onclick="switchWallet()" style="display:block;margin:2px auto 0;background:none;border:none;color:rgba(255,255,255,0.4);font-size:12px;text-decoration:underline;cursor:pointer">Use another wallet</button>
     <p id="cryptoStatus" class="crypto-status" style="display:none"></p>
     <p class="footer-note">Secure payment via <span>Telegram Stars</span> or <span>crypto</span> · Cancel anytime</p>
   </div>
@@ -598,6 +599,13 @@
 
   // Single "Pay with Crypto" entry → choose TON or USDT (native Telegram popup,
   // with an inline fallback for older clients).
+  // Disconnect the current wallet so the next payment lets you pick another
+  // (e.g. switch from the empty native wallet to a funded external one).
+  async function switchWallet() {
+    try { await tonUI().disconnect(); } catch (e) {}
+    setStatus(document.getElementById("cryptoStatus"), "Wallet disconnected — tap “Pay with Crypto” to choose another.");
+  }
+
   function chooseCrypto() {
     if (!tg || !tg.initData) { openTelegram(CHANNEL_URL); return; }
     if (typeof tg.showPopup === "function") {
