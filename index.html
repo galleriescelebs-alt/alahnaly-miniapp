@@ -7,6 +7,7 @@
   <meta name="robots" content="noindex, nofollow" />
   <meta name="googlebot" content="noindex, nofollow" />
   <script src="https://telegram.org/js/telegram-web-app.js"></script>
+  <script src="https://unpkg.com/@tonconnect/ui@2/dist/tonconnect-ui.min.js"></script>
   <style>
     * { margin: 0; padding: 0; box-sizing: border-box; }
 
@@ -240,6 +241,49 @@
     .btn-subscribe:active {
       transform: scale(0.97);
       box-shadow: 0 4px 16px rgba(0,175,240,0.3);
+    }
+
+    /* Secondary CTA: pay in TON crypto */
+    .btn-crypto {
+      width: 100%;
+      padding: 16px;
+      border-radius: 16px;
+      border: 1px solid rgba(0,175,240,0.35);
+      background: rgba(255,255,255,0.04);
+      color: #fff;
+      font-size: 16px;
+      font-weight: 700;
+      cursor: pointer;
+      transition: transform 0.15s, background 0.15s;
+      letter-spacing: 0.3px;
+    }
+    .btn-crypto:active { transform: scale(0.97); background: rgba(0,175,240,0.12); }
+    .btn-crypto:disabled { opacity: 0.6; cursor: default; }
+    /* Inline fallback choice (when Telegram's native popup isn't available) */
+    .crypto-choice {
+      display: flex;
+      gap: 8px;
+      width: 100%;
+    }
+    .btn-crypto-sm {
+      flex: 1;
+      padding: 14px;
+      border-radius: 14px;
+      border: 1px solid rgba(0,175,240,0.35);
+      background: rgba(255,255,255,0.04);
+      color: #fff;
+      font-size: 15px;
+      font-weight: 700;
+      cursor: pointer;
+      transition: transform 0.15s, background 0.15s;
+    }
+    .btn-crypto-sm:active { transform: scale(0.97); background: rgba(0,175,240,0.12); }
+    .btn-crypto-sm:disabled { opacity: 0.6; cursor: default; }
+    .crypto-status {
+      font-size: 13px;
+      color: #00AFF0;
+      text-align: center;
+      line-height: 1.4;
     }
 
     .footer-note {
@@ -481,7 +525,13 @@
     <button class="btn-subscribe" onclick="subscribe()">
       Join now 🦋
     </button>
-    <p class="footer-note">Secure payment via <span>Telegram Stars</span> · Cancel anytime</p>
+    <button class="btn-crypto" onclick="chooseCrypto()">💎 Pay with Crypto</button>
+    <div id="cryptoChoice" class="crypto-choice" style="display:none">
+      <button class="btn-crypto-sm" onclick="cryptoPay('TON')">💎 TON</button>
+      <button class="btn-crypto-sm" onclick="cryptoPay('USDT')">💵 USDT</button>
+    </div>
+    <p id="cryptoStatus" class="crypto-status" style="display:none"></p>
+    <p class="footer-note">Secure payment via <span>Telegram Stars</span> or <span>crypto</span> · Cancel anytime</p>
   </div>
 
 </div>
@@ -518,12 +568,196 @@
 
   const CHANNEL_URL = "https://t.me/+kYZ-o4bbE2EwODA0";
 
+  // Payment backend (Cloudflare Worker). Set to your deployed worker URL
+  // (no trailing slash). See ton-connect-worker/README.md.
+  const CRYPTO_API = "https://ton-connect-worker.willyvegas57.workers.dev";
+  // Manifest is served by the worker itself — derived from CRYPTO_API, nothing to set.
+  const TONCONNECT_MANIFEST = CRYPTO_API + "/tonconnect-manifest.json";
+
   // Preview the in-app-browser guide from any browser: add ?hint=1 to the URL.
   if (/[?&]hint=1(&|$)/.test(location.search)) showBrowserHint(CHANNEL_URL);
+
+  // Resume verifying a payment left in flight if the app was closed then reopened.
+  resumePending();
 
   function subscribe() {
     if (window._trackJoin) window._trackJoin();
     openTelegram(CHANNEL_URL);
+  }
+
+  // ---- TON Connect checkout (pay from the native Telegram wallet) ----
+  // Needs the Telegram context: initData lets the worker verify the real buyer.
+  let _tonUI = null;
+  function tonUI() {
+    if (!_tonUI) _tonUI = new TON_CONNECT_UI.TonConnectUI({ manifestUrl: TONCONNECT_MANIFEST });
+    return _tonUI;
+  }
+
+  function cryptoButtons() { return document.querySelectorAll(".btn-crypto, .btn-crypto-sm"); }
+  function setBtns(disabled) { cryptoButtons().forEach(function (b) { b.disabled = disabled; }); }
+
+  // Single "Pay with Crypto" entry → choose TON or USDT (native Telegram popup,
+  // with an inline fallback for older clients).
+  function chooseCrypto() {
+    if (!tg || !tg.initData) { openTelegram(CHANNEL_URL); return; }
+    if (typeof tg.showPopup === "function") {
+      tg.showPopup({
+        title: "Pay with Crypto",
+        message: "Choose your currency:",
+        buttons: [
+          { id: "TON", type: "default", text: "💎 TON" },
+          { id: "USDT", type: "default", text: "💵 USDT" }
+        ]
+      }, function (id) {
+        if (id === "TON" || id === "USDT") cryptoPay(id);
+      });
+    } else {
+      var c = document.getElementById("cryptoChoice");
+      if (c) c.style.display = (c.style.display === "flex") ? "none" : "flex";
+    }
+  }
+
+  // Build the BoC payload for a plain text comment (op 0x00000000 + UTF-8 text).
+  async function commentPayload(text) {
+    const { beginCell } = await import("https://esm.sh/@ton/core@0.59.0");
+    const boc = beginCell().storeUint(0, 32).storeStringTail(text).endCell().toBoc();
+    return btoa(String.fromCharCode.apply(null, new Uint8Array(boc)));
+  }
+
+  // Build a USDT (jetton) transfer: from the buyer's USDT jetton wallet to our
+  // address, carrying the unique comment in the forward payload.
+  async function buildUsdtMessage(d, sender) {
+    const core = await import("https://esm.sh/@ton/core@0.59.0");
+    const beginCell = core.beginCell, Address = core.Address;
+    const jettonWallet = await resolveJettonWallet(sender, d.jetton_master);
+    const forward = beginCell().storeUint(0, 32).storeStringTail(d.comment).endCell();
+    const body = beginCell()
+      .storeUint(0x0f8a7ea5, 32)              // jetton transfer op
+      .storeUint(0, 64)                       // query_id
+      .storeCoins(BigInt(d.amount))           // USDT units
+      .storeAddress(Address.parse(d.address)) // destination = our address
+      .storeAddress(Address.parse(sender))    // response destination = buyer
+      .storeBit(false)                        // no custom payload
+      .storeCoins(BigInt(d.forward_ton))      // forward TON (carries the comment)
+      .storeBit(true)                         // forward payload as ref
+      .storeRef(forward)
+      .endCell();
+    const payload = btoa(String.fromCharCode.apply(null, new Uint8Array(body.toBoc())));
+    return { address: jettonWallet, amount: d.attach_ton, payload: payload };
+  }
+
+  async function resolveJettonWallet(owner, jettonMaster) {
+    const r = await fetch("https://tonapi.io/v2/accounts/" + owner + "/jettons/" + jettonMaster);
+    const d = await r.json();
+    if (d && d.wallet_address && d.wallet_address.address) return d.wallet_address.address;
+    throw new Error("no USDT wallet for this account");
+  }
+
+  async function cryptoPay(asset) {
+    if (!tg || !tg.initData) { openTelegram(CHANNEL_URL); return; }
+    const status = document.getElementById("cryptoStatus");
+    const choice = document.getElementById("cryptoChoice");
+    if (choice) choice.style.display = "none";
+    setBtns(true);
+    setStatus(status, "Preparing payment…");
+    try {
+      const r = await fetch(CRYPTO_API + "/api/create-payment", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ initData: tg.initData, asset: asset })
+      });
+      const d = await r.json();
+      if (!r.ok || !d.address) throw new Error(d.error || "create failed");
+
+      const ui = tonUI();
+      // Ensure a wallet is connected first; otherwise open the wallet picker.
+      if (!ui.account) {
+        setStatus(status, "Connect your wallet…");
+        await ui.connectWallet();
+      }
+      const sender = ui.account && ui.account.address;
+      if (!sender) throw new Error("wallet not connected");
+
+      let message;
+      if (d.asset === "USDT") {
+        setStatus(status, "Building USDT transfer…");
+        message = await buildUsdtMessage(d, sender);
+      } else {
+        const payload = await commentPayload(d.comment);
+        message = { address: d.address, amount: d.amount, payload: payload };
+      }
+
+      setStatus(status, "Confirm the payment in your wallet…");
+      await ui.sendTransaction({ validUntil: d.valid_until, messages: [message] });
+
+      if (window._trackJoin) window._trackJoin();
+      setStatus(status, "Payment sent — verifying… ⏳ Please keep this app open until your access appears.");
+      pollPayment(d.payment_id);
+    } catch (e) {
+      setBtns(false);
+      setStatus(status, "Payment cancelled or failed — tap to try again.");
+    }
+  }
+
+  // Persist the in-flight payment so we can resume verification if the app is
+  // closed/reopened before the on-chain payment is detected.
+  function rememberPending(id) { try { localStorage.setItem("al_pay_pending", JSON.stringify({ id: id, ts: Date.now() })); } catch (e) {} }
+  function clearPending() { try { localStorage.removeItem("al_pay_pending"); } catch (e) {} }
+  function resumePending() {
+    if (!tg || !tg.initData) return;
+    var raw; try { raw = localStorage.getItem("al_pay_pending"); } catch (e) { return; }
+    if (!raw) return;
+    try {
+      var p = JSON.parse(raw);
+      if (p && p.id && (Date.now() - p.ts) < 86400000) {
+        setStatus(document.getElementById("cryptoStatus"), "Checking your payment…");
+        pollPayment(p.id);
+      } else { clearPending(); }
+    } catch (e) { clearPending(); }
+  }
+
+  function pollPayment(paymentId) {
+    const status = document.getElementById("cryptoStatus");
+    rememberPending(paymentId);
+    const started = Date.now();
+    const timer = setInterval(async function () {
+      if (Date.now() - started > 600000) {            // give up after 10 min
+        clearInterval(timer);
+        setBtns(false);
+        setStatus(status, "Payment not detected yet. Reopen to retry.");
+        return;
+      }
+      try {
+        const r = await fetch(CRYPTO_API + "/api/payment-status", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ initData: tg.initData, payment_id: paymentId })
+        });
+        const d = await r.json();
+        if (d.status === "granted" && d.invite_link) {
+          clearInterval(timer);
+          clearPending();
+          setBtns(false);
+          setStatus(status, "✅ Access unlocked! Opening the channel…");
+          openLink(d.invite_link);
+        }
+      } catch (e) {}
+    }, 3000);
+  }
+
+  function setStatus(el, msg) {
+    if (!el) return;
+    el.textContent = msg;
+    el.style.display = "block";
+  }
+
+  // Open Telegram links natively when inside Telegram; otherwise a new tab.
+  function openLink(url) {
+    if (tg && typeof tg.openTelegramLink === "function" && /^(https:\/\/t\.me\/|tg:)/.test(url)) {
+      tg.openTelegramLink(url);
+    } else {
+      window.open(url, "_blank");
+    }
   }
 
   // Open the channel: hand off to the native Telegram app when possible,
