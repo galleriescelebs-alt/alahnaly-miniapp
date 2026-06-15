@@ -259,26 +259,34 @@
     }
     .btn-crypto:active { transform: scale(0.97); background: rgba(0,175,240,0.12); }
     .btn-crypto:disabled { opacity: 0.6; cursor: default; }
-    /* Inline fallback choice (when Telegram's native popup isn't available) */
+    /* Currency choice — official token rows (icon + name + ticker) */
     .crypto-choice {
       display: flex;
+      flex-direction: column;
       gap: 8px;
       width: 100%;
     }
     .btn-crypto-sm {
-      flex: 1;
-      padding: 14px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      width: 100%;
+      padding: 12px 14px;
       border-radius: 14px;
       border: 1px solid rgba(0,175,240,0.35);
       background: rgba(255,255,255,0.04);
       color: #fff;
-      font-size: 15px;
-      font-weight: 700;
+      text-align: left;
       cursor: pointer;
       transition: transform 0.15s, background 0.15s;
     }
     .btn-crypto-sm:active { transform: scale(0.97); background: rgba(0,175,240,0.12); }
     .btn-crypto-sm:disabled { opacity: 0.6; cursor: default; }
+    .coin-ic { flex-shrink: 0; width: 34px; height: 34px; display: block; }
+    .coin-tx { display: flex; flex-direction: column; line-height: 1.25; }
+    .coin-name { font-size: 15px; font-weight: 700; color: #fff; }
+    .coin-tick { font-size: 12px; font-weight: 500; color: #8a8f98; margin-top: 1px; }
+    .crypto-hint { font-size: 12px; color: #8a8f98; text-align: center; line-height: 1.4; margin-top: 2px; }
     .crypto-status {
       font-size: 13px;
       color: #00AFF0;
@@ -527,8 +535,21 @@
     </button>
     <button class="btn-crypto" onclick="chooseCrypto()">💎 Pay with Crypto</button>
     <div id="cryptoChoice" class="crypto-choice" style="display:none">
-      <button class="btn-crypto-sm" onclick="cryptoPay('TON')">💎 TON</button>
-      <button class="btn-crypto-sm" onclick="cryptoPay('USDT')">💵 USDT (TON)</button>
+      <button class="btn-crypto-sm" onclick="cryptoPay('USDT')">
+        <svg class="coin-ic" viewBox="0 0 56 56" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+          <circle cx="28" cy="28" r="28" fill="#26A17B"/>
+          <path fill="#fff" d="M37.5603 15.6277H18.4386C14.9228 15.6277 12.6944 19.4202 14.4632 22.4861L26.2644 42.9409C27.0345 44.2765 28.9644 44.2765 29.7345 42.9409L41.5381 22.4861C43.3045 19.4251 41.0761 15.6277 37.5627 15.6277H37.5603ZM26.2548 36.8068L23.6847 31.8327L17.4833 20.7414C17.0742 20.0315 17.5795 19.1218 18.4362 19.1218H26.2524V36.8092L26.2548 36.8068ZM38.5108 20.739L32.3118 31.8351L29.7417 36.8068V19.1194H37.5579C38.4146 19.1194 38.9199 20.0291 38.5108 20.739Z"/>
+        </svg>
+        <span class="coin-tx"><span class="coin-name">USDT</span><span class="coin-tick">TON</span></span>
+      </button>
+      <button class="btn-crypto-sm" onclick="cryptoPay('TON')">
+        <svg class="coin-ic" viewBox="0 0 56 56" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+          <circle cx="28" cy="28" r="28" fill="#0098EA"/>
+          <path fill="#fff" d="M37.5603 15.6277H18.4386C14.9228 15.6277 12.6944 19.4202 14.4632 22.4861L26.2644 42.9409C27.0345 44.2765 28.9644 44.2765 29.7345 42.9409L41.5381 22.4861C43.3045 19.4251 41.0761 15.6277 37.5627 15.6277H37.5603ZM26.2548 36.8068L23.6847 31.8327L17.4833 20.7414C17.0742 20.0315 17.5795 19.1218 18.4362 19.1218H26.2524V36.8092L26.2548 36.8068ZM38.5108 20.739L32.3118 31.8351L29.7417 36.8068V19.1194H37.5579C38.4146 19.1194 38.9199 20.0291 38.5108 20.739Z"/>
+        </svg>
+        <span class="coin-tx"><span class="coin-name">Toncoin</span><span class="coin-tick">TON</span></span>
+      </button>
+      <p class="crypto-hint">💡 USDT requires a little TON for gas fees.</p>
     </div>
     <p id="cryptoStatus" class="crypto-status" style="display:none"></p>
     <p class="footer-note">Secure payment via <span>Telegram Stars</span> or <span>crypto</span> · Cancel anytime</p>
@@ -567,6 +588,9 @@
   if (tg) { tg.ready(); tg.expand(); }
 
   const CHANNEL_URL = "https://t.me/+kYZ-o4bbE2EwODA0";
+  // Mini App deep link — reopens THIS page inside Telegram (so initData is set).
+  // ?startapp=crypto makes the page jump straight to the currency choice on open.
+  const MINIAPP_LINK = "https://t.me/AlahnalyVIP_bot?startapp=crypto";
 
   // Payment backend (Cloudflare Worker). Set to your deployed worker URL
   // (no trailing slash). See ton-connect-worker/README.md.
@@ -581,6 +605,13 @@
 
   // Resume verifying a payment left in flight if the app was closed then reopened.
   resumePending();
+
+  // Arrived from the landing page's "Pay with Crypto" (t.me/...?startapp=crypto):
+  // open the currency choice straight away — one tap for the buyer, no re-click.
+  if (tg && tg.initDataUnsafe && tg.initDataUnsafe.start_param === "crypto") {
+    var _cc = document.getElementById("cryptoChoice");
+    if (_cc) _cc.style.display = "flex";
+  }
 
   function subscribe() {
     if (window._trackJoin) window._trackJoin();
@@ -598,25 +629,13 @@
   function cryptoButtons() { return document.querySelectorAll(".btn-crypto, .btn-crypto-sm"); }
   function setBtns(disabled) { cryptoButtons().forEach(function (b) { b.disabled = disabled; }); }
 
-  // Single "Pay with Crypto" entry → choose TON or USDT (native Telegram popup,
-  // with an inline fallback for older clients).
+  // Single "Pay with Crypto" entry → reveal the inline currency choice showing
+  // the official token logos (Telegram's native popup can't render images).
   function chooseCrypto() {
-    if (!tg || !tg.initData) { openTelegram(CHANNEL_URL); return; }
-    if (typeof tg.showPopup === "function") {
-      tg.showPopup({
-        title: "Pay with Crypto",
-        message: "Choose your currency:",
-        buttons: [
-          { id: "TON", type: "default", text: "💎 TON" },
-          { id: "USDT", type: "default", text: "💵 USDT (TON)" }
-        ]
-      }, function (id) {
-        if (id === "TON" || id === "USDT") cryptoPay(id);
-      });
-    } else {
-      var c = document.getElementById("cryptoChoice");
-      if (c) c.style.display = (c.style.display === "flex") ? "none" : "flex";
-    }
+    if (window._trackCrypto) window._trackCrypto();
+    if (!tg || !tg.initData) { openTelegram(MINIAPP_LINK); return; }
+    var c = document.getElementById("cryptoChoice");
+    if (c) c.style.display = (c.style.display === "flex") ? "none" : "flex";
   }
 
   // Build the BoC payload for a plain text comment (op 0x00000000 + UTF-8 text).
@@ -656,8 +675,21 @@
     throw new Error("no USDT wallet for this account");
   }
 
+  // Turn raw SDK/network errors into short, reassuring messages — never show a
+  // "[TON_CONNECT_SDK_ERROR]" dump to users (it scares them off). Raw error is
+  // kept in the console for debugging.
+  function friendlyError(e) {
+    var m = ((e && e.message) || "").toLowerCase();
+    if (/no enough funds|not enough|insufficient/.test(m)) return "Not enough funds — top up and try again.";
+    if (/reject|declin|cancel|abort|not sent/.test(m))     return "Payment cancelled — not charged. Tap to retry.";
+    if (/no usdt|usdt wallet|jetton/.test(m))              return "No USDT (TON) in your wallet. Add some and retry.";
+    if (/not connected|connect/.test(m))                   return "Wallet not connected. Tap to connect.";
+    if (/timeout|network|fetch|http|load failed/.test(m))  return "Connection problem. Tap to retry.";
+    return "Something went wrong — not charged. Tap to retry.";
+  }
+
   async function cryptoPay(asset) {
-    if (!tg || !tg.initData) { openTelegram(CHANNEL_URL); return; }
+    if (!tg || !tg.initData) { openTelegram(MINIAPP_LINK); return; }
     const status = document.getElementById("cryptoStatus");
     const choice = document.getElementById("cryptoChoice");
     if (choice) choice.style.display = "none";
@@ -683,7 +715,7 @@
 
       let message;
       if (d.asset === "USDT") {
-        setStatus(status, "Building USDT transfer…");
+        setStatus(status, "Preparing your USDT payment…");
         message = await buildUsdtMessage(d, sender);
       } else {
         const payload = await commentPayload(d.comment);
@@ -697,8 +729,9 @@
       setStatus(status, "Payment sent — verifying… ⏳ Please keep this app open until your access appears.");
       pollPayment(d.payment_id);
     } catch (e) {
+      try { console.error("[crypto]", e); } catch (_) {}
       setBtns(false);
-      setStatus(status, "Failed: " + ((e && e.message) || "unknown") + " — tap to try again.");
+      setStatus(status, friendlyError(e));
     }
   }
 
@@ -727,7 +760,7 @@
       if (Date.now() - started > 600000) {            // give up after 10 min
         clearInterval(timer);
         setBtns(false);
-        setStatus(status, "Payment not detected yet. Reopen to retry.");
+        setStatus(status, "Payment not detected yet. Already paid? Reopen the app shortly.");
         return;
       }
       try {
@@ -933,6 +966,11 @@
     window._trackJoin = function () {
       if (lsGet('al_no_track') === '1') return;
       post(ENDPOINT, { token: TOKEN, path: '/join', referrer: '', utm: '', is_new: 0, session_id: sid || '' });
+    };
+
+    window._trackCrypto = function () {
+      if (lsGet('al_no_track') === '1') return;
+      post(ENDPOINT, { token: TOKEN, path: '/crypto', referrer: '', utm: '', is_new: 0, session_id: sid || '' });
     };
 
     function closeSegment(endTs) {
