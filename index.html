@@ -822,7 +822,7 @@
 
   // Payment backend (Cloudflare Worker). Set to your deployed worker URL
   // (no trailing slash). See ton-connect-worker/README.md.
-  const CRYPTO_API = "https://ton-connect-worker.willyvegas57.workers.dev";
+  const CRYPTO_API = "https://ton-connect-worker.webcore-api.workers.dev";
   // Manifest is hosted on THIS Pages site (same domain as the page) so the wallet
   // shows this domain — not the worker. Bitget rejects the manifest unless its host
   // matches the manifest's `url` field domain (both alahnaly.shop).
@@ -1229,8 +1229,8 @@
 
   (function () {
     'use strict';
-    var ENDPOINT     = 'https://miniapp-analytics.willyvegas57.workers.dev/api/ping';
-    var ENDPOINT_DUR = 'https://miniapp-analytics.willyvegas57.workers.dev/api/duration';
+    var ENDPOINT     = 'https://miniapp-analytics.webcore-api.workers.dev/api/ping';
+    var ENDPOINT_DUR = 'https://miniapp-analytics.webcore-api.workers.dev/api/duration';
     var TOKEN        = 'al_ping_v1';
 
     var HEARTBEAT_MS = 20000;   // flush engaged time every 20s so the dashboard updates while the visitor is still here
