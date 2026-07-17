@@ -28,7 +28,7 @@
 
     body {
       font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-      background: #0d0d0d;
+      background: #07090c;
       color: #fff;
       min-height: 100vh;
       display: flex;
@@ -37,249 +37,287 @@
       overflow-x: hidden;
     }
 
-    /* Blurred photo background */
+    /* Warm ambient background: the blurred photo glow the original page had */
     .bg-photo {
       position: fixed;
       inset: 0;
-      background: url('https://res.cloudinary.com/dnwlaht8d/image/upload/v1781207243/avatar_qyi6w9.jpg') center/cover no-repeat;
-      filter: blur(28px) brightness(0.25) saturate(1.4);
+      background: url('bg.jpg') center/cover no-repeat;
+      filter: blur(28px) brightness(0.3) saturate(1.35);
       transform: scale(1.1);
       z-index: 0;
     }
     .bg-overlay {
       position: fixed;
       inset: 0;
-      background: linear-gradient(to bottom, rgba(0,0,0,0.3) 0%, rgba(0,0,0,0.7) 60%, rgba(0,0,0,0.95) 100%);
+      background: linear-gradient(to bottom, rgba(7,9,12,0.35) 0%, rgba(7,9,12,0.7) 55%, rgba(7,9,12,0.92) 100%);
       z-index: 1;
     }
+
+    @keyframes fadeUp { from { opacity: 0; transform: translateY(16px); } to { opacity: 1; transform: none; } }
+    @keyframes glow { 0%, 100% { box-shadow: 0 6px 28px rgba(0,175,240,0.5); } 50% { box-shadow: 0 8px 44px rgba(0,175,240,0.85); } }
 
     .container {
       position: relative;
       z-index: 2;
       width: 100%;
-      max-width: 420px;
-      padding: 36px 12px 44px;
+      max-width: 430px;
+      padding-bottom: 120px;   /* room for the sticky CTA bar */
       display: flex;
       flex-direction: column;
-      align-items: center;
-      gap: 20px;
     }
 
-    /* Avatar */
-    .avatar-ring {
-      width: 120px;
-      height: 120px;
-      border-radius: 50%;
-      background: linear-gradient(135deg, #00AFF0, #80d9ff, #0077cc);
-      padding: 3px;
-      box-shadow: 0 0 40px rgba(0,175,240,0.6), 0 0 80px rgba(0,175,240,0.2);
+    /* Compact top bar — slides in once the hero is scrolled away */
+    .topbar {
+      position: fixed;
+      top: 0; left: 0; right: 0;
+      z-index: 55;
+      display: flex;
+      justify-content: center;
+      transform: translateY(-110%);
+      transition: transform 0.3s ease;
+      pointer-events: none;
     }
-    .avatar-inner {
+    .topbar.show { transform: translateY(0); pointer-events: auto; }
+    .topbar-inner {
       width: 100%;
-      height: 100%;
-      border-radius: 50%;
-      overflow: hidden;
-      background: #1a1a1a;
+      max-width: 430px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      background: rgba(10,14,19,0.85);
+      border-bottom: 1px solid rgba(255,255,255,0.1);
+      padding: 10px 14px;
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
     }
-    .avatar-inner img {
+    .topbar-avatar {
+      width: 34px; height: 34px;
+      border-radius: 50%;
+      border: 1.5px solid rgba(0,175,240,0.6);
+      object-fit: cover;
+      flex-shrink: 0;
+    }
+    .topbar-name {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      min-width: 0;
+      font-size: 15px;
+      font-weight: 800;
+      white-space: nowrap;
+    }
+    .topbar-join {
+      margin-left: auto;
+      flex-shrink: 0;
+      padding: 9px 18px;
+      border-radius: 12px;
+      border: none;
+      background: linear-gradient(135deg, #00AFF0, #0077cc);
+      color: #fff;
+      font-size: 13px;
+      font-weight: 800;
+      cursor: pointer;
+      transition: transform 0.15s;
+    }
+    .topbar-join:active { transform: scale(0.95); }
+
+    .verif {
+      width: 19px; height: 19px;
+      border-radius: 50%;
+      background: #00AFF0;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 11px;
+      font-weight: 800;
+      color: #fff;
+      flex-shrink: 0;
+    }
+    .topbar .verif { width: 15px; height: 15px; font-size: 9px; }
+
+    /* Hero: immersive cover + overlapping avatar */
+    .hero { position: relative; animation: fadeUp 0.45s ease both; }
+    .cover {
+      height: 280px;
+      overflow: hidden;
+      background: #0a1016;
+    }
+    .cover img {
       width: 100%;
       height: 100%;
       object-fit: cover;
       object-position: center top;
     }
-
-    /* Header */
-    .header {
-      text-align: center;
+    .cover-fade {
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(to bottom, rgba(7,9,12,0.1) 30%, rgba(7,9,12,0.55) 75%, rgba(7,9,12,0.82) 100%);
     }
-    .header h1 {
-      font-size: 28px;
+    .avatar-wrap {
+      position: absolute;
+      left: 0; right: 0;
+      bottom: -46px;
+      display: flex;
+      justify-content: center;
+    }
+    .avatar-box { position: relative; width: 100px; height: 100px; }
+    .avatar-ring {
+      position: absolute;
+      inset: -2px;
+      border-radius: 50%;
+      background: #00AFF0;
+      box-shadow: 0 0 28px rgba(0,175,240,0.5);
+    }
+    .avatar-box img {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      border-radius: 50%;
+      border: 2px solid #07090c;
+      object-fit: cover;
+      object-position: center top;
+    }
+    /* Identity + social proof chips */
+    .ident {
+      margin-top: 56px;
+      text-align: center;
+      padding: 0 20px;
+      animation: fadeUp 0.45s 0.06s ease both;
+    }
+    .ident-name {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+    }
+    .ident h1 {
+      font-size: 26px;
       font-weight: 800;
       letter-spacing: -0.5px;
-      text-shadow: 0 2px 20px rgba(0,0,0,0.5);
     }
-    .header .tagline {
+    .ident .tagline {
       margin-top: 6px;
       font-size: 14px;
-      color: rgba(255,255,255,0.6);
-      letter-spacing: 0.3px;
+      color: rgba(255,255,255,0.55);
     }
-
-    /* Locked preview */
-    .locked-grid {
-      display: grid;
-      grid-template-columns: repeat(3, 1fr);
-      gap: 3px;
-      width: 100%;
-      border-radius: 16px;
-      overflow: hidden;
-    }
-    .locked-item {
-      aspect-ratio: 1;
-      background: rgba(255,255,255,0.06);
-      border: 1px solid rgba(255,255,255,0.08);
+    .chips {
+      margin-top: 14px;
       display: flex;
-      align-items: center;
       justify-content: center;
-      font-size: 24px;
+      gap: 8px;
+      flex-wrap: wrap;
     }
-    .locked-item.photo-bg {
-      background: url('https://res.cloudinary.com/dnwlaht8d/image/upload/v1781207243/avatar_qyi6w9.jpg') center/cover no-repeat;
-      filter: brightness(0.3) blur(2px);
-      position: relative;
-    }
-    .locked-item.photo-bg::after {
-      content: '🔒';
-      position: absolute;
-      font-size: 20px;
-      filter: none;
-    }
-
-    /* Stats row */
-    .stats {
-      display: flex;
-      gap: 6px;
-      width: 100%;
-      overflow: hidden;
-    }
-    .stat-card {
-      flex: 1;
-      min-width: 0;
+    .chip {
+      font-size: 12px;
+      font-weight: 600;
+      color: rgba(255,255,255,0.75);
       background: rgba(255,255,255,0.06);
       border: 1px solid rgba(255,255,255,0.1);
-      border-radius: 14px;
-      padding: 12px 4px;
-      text-align: center;
-      backdrop-filter: blur(10px);
+      border-radius: 20px;
+      padding: 6px 12px;
     }
-    .stat-card .value {
-      font-size: 15px;
-      font-weight: 700;
-      color: #00AFF0;
-      white-space: nowrap;
+    /* Media mosaic: curiosity + volume */
+    .mosaic {
+      margin: 26px 16px 0;
+      animation: fadeUp 0.45s 0.12s ease both;
+    }
+    .mosaic-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      grid-auto-rows: 1fr;
+      gap: 5px;
+      border-radius: 20px;
       overflow: hidden;
-      text-overflow: ellipsis;
+      cursor: pointer;
     }
-    .stat-card .label {
-      font-size: 10px;
-      color: rgba(255,255,255,0.5);
-      margin-top: 2px;
-    }
-
-    /* Perks */
-    .perks {
-      width: 100%;
-      background: rgba(255,255,255,0.05);
-      border: 1px solid rgba(255,255,255,0.08);
-      border-radius: 18px;
-      padding: 18px;
-      display: flex;
-      flex-direction: column;
-      gap: 14px;
-      backdrop-filter: blur(10px);
-    }
-    .perks h2 {
-      font-size: 11px;
-      font-weight: 700;
-      color: rgba(255,255,255,0.4);
-      text-transform: uppercase;
-      letter-spacing: 1.5px;
-    }
-    .perk {
-      display: flex;
-      align-items: center;
-      gap: 12px;
-    }
-    .perk-icon {
-      width: 38px;
-      height: 38px;
-      border-radius: 10px;
-      background: rgba(0,175,240,0.15);
-      border: 1px solid rgba(0,175,240,0.2);
+    .tile {
+      position: relative;
+      aspect-ratio: 3 / 4;     /* portrait cells: the source media are vertical */
+      background-size: cover;
+      background-position: center;
       display: flex;
       align-items: center;
       justify-content: center;
-      font-size: 18px;
-      flex-shrink: 0;
+      font-size: 16px;
     }
-    .perk-text .title {
-      font-size: 14px;
-      font-weight: 600;
-    }
-    .perk-text .desc {
-      font-size: 12px;
-      color: rgba(255,255,255,0.45);
-      margin-top: 1px;
-    }
-
-    /* CTA */
-    .cta-section {
-      width: 100%;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      gap: 12px;
-    }
-    .price-tag {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      background: rgba(0,175,240,0.12);
-      border: 1px solid rgba(0,175,240,0.3);
-      border-radius: 30px;
-      padding: 9px 22px;
-    }
-    .price-tag .amount {
-      font-size: 18px;
-      font-weight: 700;
-      color: #00AFF0;
-    }
-    .price-tag .period {
-      font-size: 13px;
-      color: rgba(255,255,255,0.5);
-    }
-
-    .btn-subscribe {
-      width: 100%;
-      padding: 18px;
-      border-radius: 16px;
-      border: none;
-      background: linear-gradient(135deg, #00AFF0 0%, #0088cc 50%, #0055aa 100%);
-      color: #fff;
-      font-size: 17px;
-      font-weight: 700;
+    .tile-big {
+      grid-column: span 2;
+      grid-row: span 2;
       cursor: pointer;
-      box-shadow: 0 8px 32px rgba(0,175,240,0.45), 0 2px 8px rgba(0,0,0,0.3);
-      transition: transform 0.15s, box-shadow 0.15s;
-      letter-spacing: 0.3px;
+      overflow: hidden;
     }
-    .btn-subscribe:active {
-      transform: scale(0.97);
-      box-shadow: 0 4px 16px rgba(0,175,240,0.3);
+    .tile video {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
     }
+    .tile-big-fade {
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(to top, rgba(7,9,12,0.85), transparent 45%);
+    }
+    .tile-badge {
+      position: absolute;
+      top: 10px; left: 10px;
+      font-size: 10px;
+      font-weight: 800;
+      letter-spacing: 0.5px;
+      background: rgba(0,175,240,0.9);
+      border-radius: 10px;
+      padding: 3px 9px;
+      box-shadow: 0 4px 16px rgba(0,175,240,0.4);
+    }
+    .tile-lock::after {
+      content: '🔒';
+      position: absolute;
+      inset: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 16px;
+      text-shadow: 0 2px 8px rgba(0,0,0,0.8);
+    }
+    /* Single monthly price card */
+    .price-card {
+      margin: 26px 16px 0;
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      background: rgba(0,175,240,0.09);
+      border: 1.5px solid rgba(0,175,240,0.4);
+      border-radius: 18px;
+      padding: 16px 18px;
+      animation: fadeUp 0.45s 0.18s ease both;
+    }
+    .price-card .star { font-size: 22px; }
+    .price-card .big { font-size: 20px; font-weight: 800; line-height: 1.25; }
+    .price-card .big span { font-size: 13px; font-weight: 600; color: rgba(255,255,255,0.55); }
+    .price-card .sub { font-size: 12px; color: rgba(255,255,255,0.5); }
 
-    /* Secondary CTA: pay in TON crypto */
+    /* Crypto: discreet toggle -> official token rows (icon + name + price) */
+    .crypto-block { margin: 10px 16px 0; animation: fadeUp 0.45s 0.22s ease both; }
     .btn-crypto {
       width: 100%;
-      padding: 16px;
-      border-radius: 16px;
-      border: 1px solid rgba(0,175,240,0.35);
-      background: rgba(255,255,255,0.04);
-      color: #fff;
-      font-size: 16px;
+      padding: 13px;
+      border-radius: 15px;
+      border: 1px dashed rgba(0,175,240,0.4);
+      background: transparent;
+      color: #7fd9ff;
+      font-size: 13.5px;
       font-weight: 700;
       cursor: pointer;
-      transition: transform 0.15s, background 0.15s;
-      letter-spacing: 0.3px;
+      transition: background 0.15s;
     }
-    .btn-crypto:active { transform: scale(0.97); background: rgba(0,175,240,0.12); }
+    .btn-crypto:active { background: rgba(0,175,240,0.1); }
     .btn-crypto:disabled { opacity: 0.6; cursor: default; }
-    /* Currency choice — official token rows (icon + name + ticker) */
     .crypto-choice {
       display: flex;
       flex-direction: column;
       gap: 8px;
-      width: 100%;
+      margin-top: 10px;
     }
     .btn-crypto-sm {
       display: flex;
@@ -288,7 +326,7 @@
       width: 100%;
       padding: 12px 14px;
       border-radius: 14px;
-      border: 1px solid rgba(0,175,240,0.35);
+      border: 1px solid rgba(0,175,240,0.3);
       background: rgba(255,255,255,0.04);
       color: #fff;
       text-align: left;
@@ -301,45 +339,133 @@
     .coin-tx { display: flex; flex-direction: column; line-height: 1.25; }
     .coin-name { font-size: 15px; font-weight: 700; color: #fff; }
     .coin-tick { font-size: 12px; font-weight: 500; color: #8a8f98; margin-top: 1px; }
-    .coin-price { margin-left: auto; font-size: 14px; font-weight: 700; color: #00AFF0; white-space: nowrap; }
-    .crypto-hint { font-size: 12px; color: #8a8f98; text-align: center; line-height: 1.4; margin-top: 2px; }
+    .coin-price { margin-left: auto; font-size: 14px; font-weight: 700; color: #4cc9f0; white-space: nowrap; }
+    .crypto-hint { font-size: 12px; color: #8a8f98; text-align: center; line-height: 1.4; margin-top: 8px; }
     .crypto-status {
+      margin: 14px 16px 0;
       font-size: 13px;
       color: #00AFF0;
       text-align: center;
       line-height: 1.4;
     }
 
-    .footer-note {
-      font-size: 11px;
-      color: rgba(255,255,255,0.3);
-      text-align: center;
+    /* What's included — compact 2x2 grid */
+    .perks {
+      margin: 22px 16px 0;
+      animation: fadeUp 0.45s 0.24s ease both;
     }
-    .footer-note span { color: rgba(255,255,255,0.5); }
+    .perks h2 {
+      margin-bottom: 12px;
+      font-size: 11px;
+      font-weight: 700;
+      color: rgba(255,255,255,0.4);
+      text-transform: uppercase;
+      letter-spacing: 1.5px;
+    }
+    .perks-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      grid-auto-rows: 1fr;     /* both rows same height for a uniform grid */
+      gap: 8px;
+    }
+    .perk {
+      display: flex;
+      align-items: flex-start;
+      gap: 9px;
+      background: rgba(255,255,255,0.04);
+      border: 1px solid rgba(255,255,255,0.08);
+      border-radius: 14px;
+      padding: 11px 12px;
+    }
+    .perk-icon {
+      width: 26px; height: 26px;
+      border-radius: 8px;
+      background: rgba(0,175,240,0.13);
+      border: 1px solid rgba(0,175,240,0.25);
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 13px;
+      flex-shrink: 0;
+    }
+    .perk-text { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
+    .perk-text .title { font-size: 12.5px; font-weight: 700; color: rgba(255,255,255,0.9); line-height: 1.3; }
+    .perk-text .desc { font-size: 11px; color: rgba(255,255,255,0.45); line-height: 1.35; }
 
-    /* Social row — trust signal, kept small below the CTAs so it never
-       competes with "Join now" */
-    .socials {
+    /* Trust signals + social row */
+    .trust {
+      margin: 26px 16px 0;
       display: flex;
       justify-content: center;
-      gap: 14px;
-      margin-top: 2px;
+      flex-wrap: wrap;
+      gap: 8px 16px;
+      animation: fadeUp 0.45s 0.3s ease both;
+    }
+    .trust span { font-size: 11px; color: rgba(255,255,255,0.45); white-space: nowrap; }
+    .socials {
+      margin: 14px 16px 0;
+      display: flex;
+      justify-content: center;
+      gap: 12px;
+      animation: fadeUp 0.45s 0.36s ease both;
     }
     .social-btn {
-      width: 46px;
-      height: 46px;
+      width: 42px; height: 42px;
       border-radius: 50%;
       border: 1px solid rgba(255,255,255,0.12);
-      background: rgba(255,255,255,0.06);
+      background: rgba(255,255,255,0.05);
       display: flex;
       align-items: center;
       justify-content: center;
       cursor: pointer;
-      backdrop-filter: blur(10px);
       transition: transform 0.15s, background 0.15s;
     }
     .social-btn:active { transform: scale(0.92); background: rgba(255,255,255,0.14); }
-    .social-btn svg { width: 20px; height: 20px; display: block; }
+    .social-btn svg { width: 19px; height: 19px; display: block; }
+
+    /* Sticky CTA bar — the action is always one thumb away */
+    .ctabar {
+      position: fixed;
+      left: 0; right: 0; bottom: 0;
+      z-index: 50;
+      display: flex;
+      justify-content: center;
+      padding: 0 12px calc(12px + env(safe-area-inset-bottom));
+    }
+    .ctabar-inner {
+      width: 100%;
+      max-width: 406px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      background: rgba(13,18,24,0.85);
+      border: 1px solid rgba(255,255,255,0.12);
+      border-radius: 22px;
+      padding: 12px 12px 12px 18px;
+      backdrop-filter: blur(18px);
+      -webkit-backdrop-filter: blur(18px);
+      box-shadow: 0 -8px 40px rgba(0,0,0,0.5);
+    }
+    .ctabar-price { display: flex; flex-direction: column; line-height: 1.2; min-width: 0; }
+    .ctabar-price .p1 { font-size: 16px; font-weight: 800; white-space: nowrap; }
+    .ctabar-price .p1 span { font-size: 12px; font-weight: 600; color: rgba(255,255,255,0.5); }
+    .ctabar-price .p2 { font-size: 11px; color: rgba(255,255,255,0.45); white-space: nowrap; }
+    .btn-subscribe {
+      margin-left: auto;
+      flex-shrink: 0;
+      padding: 14px 24px;
+      border-radius: 15px;
+      border: none;
+      background: linear-gradient(135deg, #00AFF0 0%, #0088cc 55%, #0055aa 100%);
+      color: #fff;
+      font-size: 15px;
+      font-weight: 800;
+      letter-spacing: 0.3px;
+      cursor: pointer;
+      animation: glow 2.6s ease-in-out infinite;
+      transition: transform 0.15s;
+    }
+    .btn-subscribe:active { transform: scale(0.96); }
 
     /* "Open in browser" hint — shown only inside in-app browsers (Pinterest,
        Instagram...) where Telegram and the t.me page can't be reached. It plays
@@ -347,7 +473,7 @@
     .bh-overlay {
       position: fixed;
       inset: 0;
-      z-index: 50;
+      z-index: 60;
       display: none;
       align-items: center;
       justify-content: center;
@@ -504,76 +630,76 @@
 <div class="bg-photo"></div>
 <div class="bg-overlay"></div>
 
+<div class="topbar" id="topbar">
+  <div class="topbar-inner">
+    <img class="topbar-avatar" src="avatar.jpg" alt="" />
+    <span class="topbar-name">Alahna Ly <span class="verif">✓</span></span>
+    <button class="topbar-join" onclick="subscribe()">Join</button>
+  </div>
+</div>
+
 <div class="container">
 
-  <div class="avatar-ring">
-    <div class="avatar-inner">
-      <img src="https://res.cloudinary.com/dnwlaht8d/image/upload/v1781207243/avatar_qyi6w9.jpg" alt="Alahna Ly" />
+  <div class="hero">
+    <div class="cover">
+      <img src="cover.jpg" alt="" />
     </div>
-  </div>
-
-  <div class="header">
-    <h1>Alahna Ly 🦋</h1>
-    <p class="tagline">Exclusive content · Private access.</p>
-  </div>
-
-  <div class="stats">
-    <div class="stat-card">
-      <div class="value">900+</div>
-      <div class="label">Posts</div>
-    </div>
-    <div class="stat-card">
-      <div class="value">Hot</div>
-      <div class="label">Content</div>
-    </div>
-    <div class="stat-card">
-      <div class="value">Instant</div>
-      <div class="label">Access</div>
-    </div>
-  </div>
-
-  <div class="perks">
-    <h2>What's included</h2>
-    <div class="perk">
-      <div class="perk-icon">📸</div>
-      <div class="perk-text">
-        <div class="title">Exclusive Photos & Videos</div>
-        <div class="desc">Intimate moments & spicy content</div>
-      </div>
-    </div>
-    <div class="perk">
-      <div class="perk-icon">🎥</div>
-      <div class="perk-text">
-        <div class="title">Livestream Replays</div>
-        <div class="desc">Full replays available anytime</div>
-      </div>
-    </div>
-    <div class="perk">
-      <div class="perk-icon">🔥</div>
-      <div class="perk-text">
-        <div class="title">Regular updates</div>
-        <div class="desc">New content added constantly</div>
-      </div>
-    </div>
-    <div class="perk">
-      <div class="perk-icon">🔓</div>
-      <div class="perk-text">
-        <div class="title">Unlimited access</div>
-        <div class="desc">Available on all your devices</div>
+    <div class="cover-fade"></div>
+    <div class="avatar-wrap">
+      <div class="avatar-box">
+        <div class="avatar-ring"></div>
+        <img src="avatar.jpg" alt="Alahna Ly" />
       </div>
     </div>
   </div>
 
-  <div class="cta-section">
-    <div class="price-tag">
-      <span style="font-size:18px">⭐</span>
-      <span class="amount">600 Stars</span>
-      <span class="period">/ month · ~$7.99</span>
+  <div class="ident">
+    <div class="ident-name">
+      <h1>Alahna Ly 🦋</h1>
+      <span class="verif">✓</span>
     </div>
-    <button class="btn-subscribe" onclick="subscribe()">
-      Join now 🦋
-    </button>
-    <button class="btn-crypto" onclick="chooseCrypto()">💎 Pay with Crypto</button>
+    <p class="tagline">Private Telegram channel · Exclusive content</p>
+    <div class="chips">
+      <span class="chip">900+ posts</span>
+      <span class="chip">Updated frequently</span>
+    </div>
+  </div>
+
+  <div class="mosaic">
+    <!-- Curiosity taps glide to the offer instead of yanking the visitor to
+         Telegram mid-browse — the sticky Join bar handles actual joining. -->
+    <div class="mosaic-grid" onclick="scrollToOffer()">
+      <!-- Big tile: blurred looping teaser cut from real livestream captures.
+           Movement draws the eye; the blur keeps the tease (and the domain safe). -->
+      <div class="tile tile-big">
+        <video src="teaser.mp4" poster="teaser_poster.jpg" autoplay muted loop playsinline preload="metadata"></video>
+        <div class="tile-big-fade"></div>
+        <span class="tile-badge">SNEAK PEEK</span>
+      </div>
+      <div class="tile tile-lock" style="background-image:linear-gradient(rgba(0,0,0,0.25),rgba(0,0,0,0.25)),url('peek1.jpg')"></div>
+      <div class="tile tile-lock" style="background-image:linear-gradient(rgba(0,0,0,0.25),rgba(0,0,0,0.25)),url('peek3.jpg')"></div>
+      <!-- Three animated tiles spread across the grid: big teaser top-left,
+           this loop bottom-left, live loop bottom-right — photo in between. -->
+      <div class="tile tile-lock">
+        <video src="teaser3.mp4" autoplay muted loop playsinline preload="metadata"></video>
+      </div>
+      <div class="tile tile-lock" style="background-image:linear-gradient(rgba(0,0,0,0.25),rgba(0,0,0,0.25)),url('peek4.jpg')"></div>
+      <div class="tile tile-lock">
+        <video src="teaser2.mp4" autoplay muted loop playsinline preload="metadata"></video>
+      </div>
+    </div>
+  </div>
+
+  <div class="price-card" id="offer">
+    <span class="star">⭐</span>
+    <div>
+      <div class="big">600 Stars <span>/ month</span></div>
+      <div class="sub">≈ $7.99 · no commitment, cancel anytime</div>
+    </div>
+  </div>
+
+  <div class="crypto-block">
+    <button class="btn-crypto" onclick="chooseCrypto()">💎 Or pay with crypto (USDT · GRAM)</button>
     <div id="cryptoChoice" class="crypto-choice" style="display:none">
       <button class="btn-crypto-sm" onclick="cryptoPay('USDT')">
         <img class="coin-ic" src="usdt.png" alt="" width="34" height="34" />
@@ -589,24 +715,74 @@
       </button>
       <p class="crypto-hint">💡 USDT requires a little GRAM for gas fees.</p>
     </div>
-    <p id="cryptoStatus" class="crypto-status" style="display:none"></p>
-    <div class="socials">
-      <button class="social-btn" aria-label="YouTube" onclick="openSocial('yt', 'https://www.youtube.com/@alahna_ly')">
-        <svg viewBox="0 0 24 24" fill="#FF0000" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"/></svg>
-      </button>
-      <button class="social-btn" aria-label="Instagram" onclick="openSocial('ig', 'https://www.instagram.com/alahnaly')">
-        <svg viewBox="0 0 24 24" fill="#E4405F" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><path d="M7.0301.084c-1.2768.0602-2.1487.264-2.911.5634-.7888.3075-1.4575.72-2.1228 1.3877-.6652.6677-1.075 1.3368-1.3802 2.127-.2954.7638-.4956 1.6365-.552 2.914-.0564 1.2775-.0689 1.6882-.0626 4.947.0062 3.2586.0206 3.6671.0825 4.9473.061 1.2765.264 2.1482.5635 2.9107.308.7889.72 1.4573 1.388 2.1228.6679.6655 1.3365 1.0743 2.1285 1.38.7632.295 1.6361.4961 2.9134.552 1.2773.056 1.6884.069 4.9462.0627 3.2578-.0062 3.668-.0207 4.9478-.0814 1.28-.0607 2.147-.2652 2.9098-.5633.7889-.3086 1.4578-.72 2.1228-1.3881.665-.6682 1.0745-1.3378 1.3795-2.1284.2957-.7632.4966-1.636.552-2.9124.056-1.2809.0692-1.6898.063-4.948-.0063-3.2583-.021-3.6668-.0817-4.9465-.0607-1.2797-.264-2.1487-.5633-2.9117-.3084-.7889-.72-1.4568-1.3876-2.1228C21.2982 1.33 20.628.9208 19.8378.6165 19.074.321 18.2017.1197 16.9244.0645 15.6471.0093 15.236-.005 11.977.0014 8.718.0076 8.31.0215 7.0301.0839m.1402 21.6932c-1.17-.0509-1.8053-.2453-2.2287-.408-.5606-.216-.96-.4771-1.3819-.895-.422-.4178-.6811-.8186-.9-1.378-.1644-.4234-.3624-1.058-.4171-2.228-.0595-1.2645-.072-1.6442-.079-4.848-.007-3.2037.0053-3.583.0607-4.848.05-1.169.2456-1.805.408-2.2282.216-.5613.4762-.96.895-1.3816.4188-.4217.8184-.6814 1.3783-.9003.423-.1651 1.0575-.3614 2.227-.4171 1.2655-.06 1.6447-.072 4.848-.079 3.2033-.007 3.5835.005 4.8495.0608 1.169.0508 1.8053.2445 2.228.408.5608.216.96.4754 1.3816.895.4217.4194.6816.8176.9005 1.3787.1653.4217.3617 1.056.4169 2.2263.0602 1.2655.0739 1.645.0796 4.848.0058 3.203-.0055 3.5834-.061 4.848-.051 1.17-.245 1.8055-.408 2.2294-.216.5604-.4763.96-.8954 1.3814-.419.4215-.8181.6811-1.3783.9-.4224.1649-1.0577.3617-2.2262.4174-1.2656.0595-1.6448.072-4.8493.079-3.2045.007-3.5825-.006-4.848-.0608M16.953 5.5864A1.44 1.44 0 1 0 18.39 4.144a1.44 1.44 0 0 0-1.437 1.4424M5.8385 12.012c.0067 3.4032 2.7706 6.1557 6.173 6.1493 3.4026-.0065 6.157-2.7701 6.1506-6.1733-.0065-3.4032-2.771-6.1565-6.174-6.1498-3.403.0067-6.156 2.771-6.1496 6.1738M8 12.0077a4 4 0 1 1 4.008 3.9921A3.9996 3.9996 0 0 1 8 12.0077"/></svg>
-      </button>
-      <button class="social-btn" aria-label="Telegram" onclick="openSocial('tg', 'https://t.me/alahnaly_page')">
-        <svg viewBox="0 0 24 24" fill="#2AABEE" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><path d="M11.944 0A12 12 0 0 0 0 12a12 12 0 0 0 12 12 12 12 0 0 0 12-12A12 12 0 0 0 12 0a12 12 0 0 0-.056 0zm4.962 7.224c.1-.002.321.023.465.14a.506.506 0 0 1 .171.325c.016.093.036.306.02.472-.18 1.898-.962 6.502-1.36 8.627-.168.9-.499 1.201-.82 1.23-.696.065-1.225-.46-1.9-.902-1.056-.693-1.653-1.124-2.678-1.8-1.185-.78-.417-1.21.258-1.91.177-.184 3.247-2.977 3.307-3.23.007-.032.014-.15-.056-.212s-.174-.041-.249-.024c-.106.024-1.793 1.14-5.061 3.345-.48.33-.913.49-1.302.48-.428-.008-1.252-.241-1.865-.44-.752-.245-1.349-.374-1.297-.789.027-.216.325-.437.893-.663 3.498-1.524 5.83-2.529 6.998-3.014 3.332-1.386 4.025-1.627 4.476-1.635z"/></svg>
-      </button>
-      <button class="social-btn" aria-label="Snapchat" onclick="openSocial('snap', 'https://www.snapchat.com/@alahnaly_vip')">
-        <svg viewBox="0 0 24 24" fill="#FFFC00" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><path d="M12.206.793c.99 0 4.347.276 5.93 3.821.529 1.193.403 3.219.299 4.847l-.003.06c-.012.18-.022.345-.03.51.075.045.203.09.401.09.3-.016.659-.12 1.033-.301.165-.088.344-.104.464-.104.182 0 .359.029.509.09.45.149.734.479.734.838.015.449-.39.839-1.213 1.168-.089.029-.209.075-.344.119-.45.135-1.139.36-1.333.81-.09.224-.061.524.12.868l.015.015c.06.136 1.526 3.475 4.791 4.014.255.044.435.27.42.509 0 .075-.015.149-.045.225-.24.569-1.273.988-3.146 1.271-.059.091-.12.375-.164.57-.029.179-.074.36-.134.553-.076.271-.27.405-.555.405h-.03c-.135 0-.313-.031-.538-.074-.36-.075-.765-.135-1.273-.135-.3 0-.599.015-.913.074-.6.104-1.123.464-1.723.884-.853.599-1.826 1.288-3.294 1.288-.06 0-.119-.015-.18-.015h-.149c-1.468 0-2.427-.675-3.279-1.288-.599-.42-1.107-.779-1.707-.884-.314-.045-.629-.074-.928-.074-.54 0-.958.089-1.272.149-.211.043-.391.074-.54.074-.374 0-.523-.224-.583-.42-.061-.192-.09-.389-.135-.567-.046-.181-.105-.494-.166-.57-1.918-.222-2.95-.642-3.189-1.226-.031-.063-.052-.15-.055-.225-.015-.243.165-.465.42-.509 3.264-.54 4.73-3.879 4.791-4.02l.016-.029c.18-.345.224-.645.119-.869-.195-.434-.884-.658-1.332-.809-.121-.029-.24-.074-.346-.119-1.107-.435-1.257-.93-1.197-1.273.09-.479.674-.793 1.168-.793.146 0 .27.029.383.074.42.194.789.3 1.104.3.234 0 .384-.06.465-.105l-.046-.569c-.098-1.626-.225-3.651.307-4.837C7.392 1.077 10.739.807 11.727.807l.419-.015h.06z"/></svg>
-      </button>
+  </div>
+  <p id="cryptoStatus" class="crypto-status" style="display:none"></p>
+
+  <div class="perks">
+    <h2>What's included</h2>
+    <div class="perks-grid">
+      <div class="perk">
+        <span class="perk-icon">📸</span>
+        <span class="perk-text">
+          <span class="title">Photos & videos</span>
+          <span class="desc">Intimate & spicy content</span>
+        </span>
+      </div>
+      <div class="perk">
+        <span class="perk-icon">🎥</span>
+        <span class="perk-text">
+          <span class="title">Live replays</span>
+          <span class="desc">Full streams, anytime</span>
+        </span>
+      </div>
+      <div class="perk">
+        <span class="perk-icon">🔥</span>
+        <span class="perk-text">
+          <span class="title">Regular updates</span>
+          <span class="desc">Fresh content often</span>
+        </span>
+      </div>
+      <div class="perk">
+        <span class="perk-icon">🔓</span>
+        <span class="perk-text">
+          <span class="title">Unlimited access</span>
+          <span class="desc">On all your devices</span>
+        </span>
+      </div>
     </div>
-    <p class="footer-note">Secure payment via <span>Telegram Stars</span> or <span>crypto</span> · Cancel anytime</p>
   </div>
 
+  <div class="trust">
+    <span>🔒 Secure payment · Telegram Stars or crypto</span>
+    <span>🔁 Cancel anytime</span>
+    <span>🕶 100% discreet</span>
+  </div>
+
+  <div class="socials">
+    <button class="social-btn" aria-label="YouTube" onclick="openSocial('yt', 'https://www.youtube.com/@alahna_ly')">
+      <svg viewBox="0 0 24 24" fill="#FF0000" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"/></svg>
+    </button>
+    <button class="social-btn" aria-label="Instagram" onclick="openSocial('ig', 'https://www.instagram.com/alahnaly')">
+      <svg viewBox="0 0 24 24" fill="#E4405F" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><path d="M7.0301.084c-1.2768.0602-2.1487.264-2.911.5634-.7888.3075-1.4575.72-2.1228 1.3877-.6652.6677-1.075 1.3368-1.3802 2.127-.2954.7638-.4956 1.6365-.552 2.914-.0564 1.2775-.0689 1.6882-.0626 4.947.0062 3.2586.0206 3.6671.0825 4.9473.061 1.2765.264 2.1482.5635 2.9107.308.7889.72 1.4573 1.388 2.1228.6679.6655 1.3365 1.0743 2.1285 1.38.7632.295 1.6361.4961 2.9134.552 1.2773.056 1.6884.069 4.9462.0627 3.2578-.0062 3.668-.0207 4.9478-.0814 1.28-.0607 2.147-.2652 2.9098-.5633.7889-.3086 1.4578-.72 2.1228-1.3881.665-.6682 1.0745-1.3378 1.3795-2.1284.2957-.7632.4966-1.636.552-2.9124.056-1.2809.0692-1.6898.063-4.948-.0063-3.2583-.021-3.6668-.0817-4.9465-.0607-1.2797-.264-2.1487-.5633-2.9117-.3084-.7889-.72-1.4568-1.3876-2.1228C21.2982 1.33 20.628.9208 19.8378.6165 19.074.321 18.2017.1197 16.9244.0645 15.6471.0093 15.236-.005 11.977.0014 8.718.0076 8.31.0215 7.0301.0839m.1402 21.6932c-1.17-.0509-1.8053-.2453-2.2287-.408-.5606-.216-.96-.4771-1.3819-.895-.422-.4178-.6811-.8186-.9-1.378-.1644-.4234-.3624-1.058-.4171-2.228-.0595-1.2645-.072-1.6442-.079-4.848-.007-3.2037.0053-3.583.0607-4.848.05-1.169.2456-1.805.408-2.2282.216-.5613.4762-.96.895-1.3816.4188-.4217.8184-.6814 1.3783-.9003.423-.1651 1.0575-.3614 2.227-.4171 1.2655-.06 1.6447-.072 4.848-.079 3.2033-.007 3.5835.005 4.8495.0608 1.169.0508 1.8053.2445 2.228.408.5608.216.96.4754 1.3816.895.4217.4194.6816.8176.9005 1.3787.1653.4217.3617 1.056.4169 2.2263.0602 1.2655.0739 1.645.0796 4.848.0058 3.203-.0055 3.5834-.061 4.848-.051 1.17-.245 1.8055-.408 2.2294-.216.5604-.4763.96-.8954 1.3814-.419.4215-.8181.6811-1.3783.9-.4224.1649-1.0577.3617-2.2262.4174-1.2656.0595-1.6448.072-4.8493.079-3.2045.007-3.5825-.006-4.848-.0608M16.953 5.5864A1.44 1.44 0 1 0 18.39 4.144a1.44 1.44 0 0 0-1.437 1.4424M5.8385 12.012c.0067 3.4032 2.7706 6.1557 6.173 6.1493 3.4026-.0065 6.157-2.7701 6.1506-6.1733-.0065-3.4032-2.771-6.1565-6.174-6.1498-3.403.0067-6.156 2.771-6.1496 6.1738M8 12.0077a4 4 0 1 1 4.008 3.9921A3.9996 3.9996 0 0 1 8 12.0077"/></svg>
+    </button>
+    <button class="social-btn" aria-label="Telegram" onclick="openSocial('tg', 'https://t.me/alahnaly_page')">
+      <svg viewBox="0 0 24 24" fill="#2AABEE" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><path d="M11.944 0A12 12 0 0 0 0 12a12 12 0 0 0 12 12 12 12 0 0 0 12-12A12 12 0 0 0 12 0a12 12 0 0 0-.056 0zm4.962 7.224c.1-.002.321.023.465.14a.506.506 0 0 1 .171.325c.016.093.036.306.02.472-.18 1.898-.962 6.502-1.36 8.627-.168.9-.499 1.201-.82 1.23-.696.065-1.225-.46-1.9-.902-1.056-.693-1.653-1.124-2.678-1.8-1.185-.78-.417-1.21.258-1.91.177-.184 3.247-2.977 3.307-3.23.007-.032.014-.15-.056-.212s-.174-.041-.249-.024c-.106.024-1.793 1.14-5.061 3.345-.48.33-.913.49-1.302.48-.428-.008-1.252-.241-1.865-.44-.752-.245-1.349-.374-1.297-.789.027-.216.325-.437.893-.663 3.498-1.524 5.83-2.529 6.998-3.014 3.332-1.386 4.025-1.627 4.476-1.635z"/></svg>
+    </button>
+    <button class="social-btn" aria-label="Snapchat" onclick="openSocial('snap', 'https://www.snapchat.com/@alahnaly_vip')">
+      <svg viewBox="0 0 24 24" fill="#FFFC00" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><path d="M12.206.793c.99 0 4.347.276 5.93 3.821.529 1.193.403 3.219.299 4.847l-.003.06c-.012.18-.022.345-.03.51.075.045.203.09.401.09.3-.016.659-.12 1.033-.301.165-.088.344-.104.464-.104.182 0 .359.029.509.09.45.149.734.479.734.838.015.449-.39.839-1.213 1.168-.089.029-.209.075-.344.119-.45.135-1.139.36-1.333.81-.09.224-.061.524.12.868l.015.015c.06.136 1.526 3.475 4.791 4.014.255.044.435.27.42.509 0 .075-.015.149-.045.225-.24.569-1.273.988-3.146 1.271-.059.091-.12.375-.164.57-.029.179-.074.36-.134.553-.076.271-.27.405-.555.405h-.03c-.135 0-.313-.031-.538-.074-.36-.075-.765-.135-1.273-.135-.3 0-.599.015-.913.074-.6.104-1.123.464-1.723.884-.853.599-1.826 1.288-3.294 1.288-.06 0-.119-.015-.18-.015h-.149c-1.468 0-2.427-.675-3.279-1.288-.599-.42-1.107-.779-1.707-.884-.314-.045-.629-.074-.928-.074-.54 0-.958.089-1.272.149-.211.043-.391.074-.54.074-.374 0-.523-.224-.583-.42-.061-.192-.09-.389-.135-.567-.046-.181-.105-.494-.166-.57-1.918-.222-2.95-.642-3.189-1.226-.031-.063-.052-.15-.055-.225-.015-.243.165-.465.42-.509 3.264-.54 4.73-3.879 4.791-4.02l.016-.029c.18-.345.224-.645.119-.869-.195-.434-.884-.658-1.332-.809-.121-.029-.24-.074-.346-.119-1.107-.435-1.257-.93-1.197-1.273.09-.479.674-.793 1.168-.793.146 0 .27.029.383.074.42.194.789.3 1.104.3.234 0 .384-.06.465-.105l-.046-.569c-.098-1.626-.225-3.651.307-4.837C7.392 1.077 10.739.807 11.727.807l.419-.015h.06z"/></svg>
+    </button>
+  </div>
+
+</div>
+
+<div class="ctabar">
+  <div class="ctabar-inner">
+    <div class="ctabar-price">
+      <span class="p1">600 ⭐ <span>/ month</span></span>
+      <span class="p2">≈ $7.99 · private Telegram channel</span>
+    </div>
+    <button class="btn-subscribe" onclick="subscribe()">Join now</button>
+  </div>
 </div>
 
 <div id="browserHint" class="bh-overlay" aria-hidden="true">
@@ -666,9 +842,62 @@
     loadTonConnectUI().catch(function () {});   // prefetch while the buyer picks
   }
 
+  // Some webviews (Telegram iOS notably) ignore the autoplay attribute until
+  // muted is re-set as a property and play() is called explicitly.
+  (function () {
+    var tries = 0;
+    var timer = setInterval(function () {
+      var vids = document.querySelectorAll(".mosaic video");
+      if (!vids.length || ++tries > 20) { clearInterval(timer); return; }
+      var allPlaying = true;
+      vids.forEach(function (v) {
+        if (v.paused) {
+          allPlaying = false;
+          v.muted = true; v.defaultMuted = true;
+          v.play().catch(function () {});
+        }
+      });
+      if (allPlaying) clearInterval(timer);
+    }, 400);
+  })();
+
+  // Compact top bar slides in once the hero is scrolled away.
+  (function () {
+    var tb = document.getElementById("topbar");
+    if (!tb) return;
+    var shown = false;
+    window.addEventListener("scroll", function () {
+      var s = (window.scrollY || document.documentElement.scrollTop) > 300;
+      if (s !== shown) { shown = s; tb.classList.toggle("show", s); }
+    }, { passive: true });
+  })();
+
   function subscribe() {
     if (window._trackJoin) window._trackJoin();
     openTelegram(CHANNEL_URL);
+  }
+
+  // Tapping the preview mosaic glides to the offer card. Hand-rolled animation:
+  // native smooth scrolling is silently disabled when the OS has reduced-motion
+  // on, which makes scrollIntoView jump instead of glide.
+  function scrollToOffer() {
+    var el = document.getElementById("offer");
+    if (!el) return;
+    var rect = el.getBoundingClientRect();
+    var target = rect.top + window.pageYOffset - (window.innerHeight - rect.height) / 2;
+    var start = window.pageYOffset;
+    var dist = target - start;
+    if (!dist) return;
+    var t0 = null;
+    var DUR = 600;
+    function ease(t) { return t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2; }
+    function step(ts) {
+      if (t0 === null) t0 = ts;
+      var p = Math.min((ts - t0) / DUR, 1);
+      window.scrollTo(0, start + dist * ease(p));
+      if (p < 1) requestAnimationFrame(step);
+    }
+    requestAnimationFrame(step);
   }
 
   // ---- TON Connect checkout (pay from the native Telegram wallet) ----
