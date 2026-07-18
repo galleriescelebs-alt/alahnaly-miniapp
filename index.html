@@ -66,6 +66,25 @@
       flex-direction: column;
     }
 
+    /* Desktop (16% of traffic): the mobile column becomes a floating card on
+       the ambient glow — mobile layout untouched below 900px. */
+    @media (min-width: 900px) {
+      body { padding: 48px 0 0; }
+      /* Boudoir glow: the painted rose/mauve ambiance shines around the card */
+      .bg-photo { filter: blur(44px) brightness(0.8) saturate(1.3); }
+      .bg-overlay { background: linear-gradient(to bottom, rgba(7,9,12,0.15) 0%, rgba(7,9,12,0.35) 60%, rgba(7,9,12,0.55) 100%); }
+      .container {
+        margin-bottom: 48px;
+        border-radius: 28px;
+        border: 1px solid rgba(255,255,255,0.09);
+        background: rgba(10,14,19,0.55);
+        box-shadow: 0 30px 80px rgba(0,0,0,0.55);
+        overflow: hidden;              /* rounds the hero cover corners */
+        backdrop-filter: blur(20px);
+        -webkit-backdrop-filter: blur(20px);
+      }
+    }
+
     /* Compact top bar — slides in once the hero is scrolled away */
     .topbar {
       position: fixed;
@@ -949,8 +968,13 @@
   async function buildUsdtMessage(d, sender) {
     const core = await import("https://esm.sh/@ton/core@0.59.0");
     const beginCell = core.beginCell, Address = core.Address;
-    const jettonWalletRaw = await resolveJettonWallet(sender, d.jetton_master);
-    const jettonWallet = Address.parse(jettonWalletRaw).toString(); // SDK requires user-friendly
+    const jw = await resolveJettonWallet(sender, d.jetton_master);
+    // Pre-check the balance so a buyer without enough USDT never reaches the
+    // signature screen (the on-chain transfer would fail silently after signing).
+    if (jw.balance !== undefined && Number(jw.balance) < Number(d.amount)) {
+      throw new Error("insufficient usdt balance");
+    }
+    const jettonWallet = Address.parse(jw.address).toString(); // SDK requires user-friendly
     const forward = beginCell().storeUint(0, 32).storeStringTail(d.comment).endCell();
     const body = beginCell()
       .storeUint(0x0f8a7ea5, 32)              // jetton transfer op
@@ -970,7 +994,9 @@
   async function resolveJettonWallet(owner, jettonMaster) {
     const r = await fetch("https://tonapi.io/v2/accounts/" + owner + "/jettons/" + jettonMaster);
     const d = await r.json();
-    if (d && d.wallet_address && d.wallet_address.address) return d.wallet_address.address;
+    if (d && d.wallet_address && d.wallet_address.address) {
+      return { address: d.wallet_address.address, balance: d.balance };
+    }
     throw new Error("no USDT wallet for this account");
   }
 
@@ -979,6 +1005,7 @@
   // kept in the console for debugging.
   function friendlyError(e) {
     var m = ((e && e.message) || "").toLowerCase();
+    if (/insufficient usdt/.test(m))                       return "Not enough USDT in your wallet. Top up or pay with Gram 💎";
     if (/no enough funds|not enough|insufficient/.test(m)) return "Not enough funds — top up and try again.";
     if (/reject|declin|cancel|abort|not sent/.test(m))     return "Payment cancelled — not charged. Tap to retry.";
     if (/no usdt|usdt wallet|jetton/.test(m))              return "No USDT (TON) in your wallet. Add some and retry.";
