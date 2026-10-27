@@ -109,12 +109,24 @@
       backdrop-filter: blur(16px);
       -webkit-backdrop-filter: blur(16px);
     }
+    .topbar-avatar-box { position: relative; flex-shrink: 0; width: 34px; height: 34px; }
     .topbar-avatar {
+      display: block;
       width: 34px; height: 34px;
       border-radius: 50%;
       border: 1.5px solid rgba(0,175,240,0.6);
       object-fit: cover;
-      flex-shrink: 0;
+    }
+    .topbar-online {
+      position: absolute;
+      right: 0;
+      bottom: 0;
+      box-sizing: border-box;
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      background: #22c55e;
+      border: 2px solid #0a0e13;
     }
     .topbar-name {
       display: flex;
@@ -807,7 +819,10 @@
 
 <div class="topbar" id="topbar">
   <div class="topbar-inner">
-    <img class="topbar-avatar" src="avatar.jpg" alt="" />
+    <span class="topbar-avatar-box">
+      <img class="topbar-avatar" src="avatar.jpg" alt="" />
+      <span class="topbar-online" aria-hidden="true"></span>
+    </span>
     <span class="topbar-name">Alahna Ly <span class="verif">✓</span></span>
   </div>
 </div>
