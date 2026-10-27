@@ -301,7 +301,7 @@
     .price-card .big span { font-size: 13px; font-weight: 600; color: rgba(255,255,255,0.55); }
     .price-card .sub { font-size: 12px; color: rgba(255,255,255,0.5); }
 
-    /* Crypto: discreet toggle -> official token rows (icon + name + price) */
+    /* Crypto: discreet toggle -> payment options -> exact amount + address to copy */
     .crypto-block { margin: 10px 16px 0; animation: fadeUp 0.45s 0.22s ease both; }
     .btn-crypto {
       width: 100%;
@@ -340,6 +340,22 @@
     .btn-crypto-sm:active { transform: scale(0.97); background: rgba(0,175,240,0.12); }
     .btn-crypto-sm:disabled { opacity: 0.6; cursor: default; }
     .coin-ic { flex-shrink: 0; width: 34px; height: 34px; display: block; border-radius: 50%; }
+    .coin-badge {
+      flex-shrink: 0;
+      width: 34px;
+      height: 34px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 9.5px;
+      font-weight: 800;
+      letter-spacing: 0.2px;
+      color: #fff;
+    }
+    .coin-badge.usdc { background: #2775CA; }
+    .coin-badge.sol { background: linear-gradient(135deg, #9945FF, #14F195); }
+    .coin-badge.eth { background: #627EEA; }
     .coin-tx { display: flex; flex-direction: column; line-height: 1.25; }
     .coin-name { font-size: 15px; font-weight: 700; color: #fff; }
     .coin-tick { font-size: 12px; font-weight: 500; color: #8a8f98; margin-top: 1px; }
@@ -351,6 +367,94 @@
       color: #00AFF0;
       text-align: center;
       line-height: 1.4;
+    }
+    .pay-card {
+      margin-top: 10px;
+      padding: 16px 14px 12px;
+      border-radius: 18px;
+      border: 1px solid rgba(0,175,240,0.3);
+      background: rgba(255,255,255,0.04);
+      flex-direction: column;
+      gap: 12px;
+    }
+    .pay-top { display: flex; align-items: center; gap: 12px; }
+    .pay-lbl { font-size: 12px; color: #8a8f98; }
+    .pay-amount { font-size: 22px; font-weight: 800; color: #fff; line-height: 1.2; font-variant-numeric: tabular-nums; }
+    .pay-field { display: flex; align-items: center; gap: 10px; padding: 10px 12px; border-radius: 12px; background: rgba(255,255,255,0.05); }
+    .pay-field code {
+      min-width: 0;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+      font-size: 13px;
+      color: #fff;
+      word-break: break-all;
+      line-height: 1.35;
+    }
+    .pay-copy {
+      margin-left: auto;
+      flex-shrink: 0;
+      padding: 7px 12px;
+      border-radius: 10px;
+      border: 1px solid rgba(0,175,240,0.4);
+      background: transparent;
+      color: #7fd9ff;
+      font-size: 12.5px;
+      font-weight: 700;
+      cursor: pointer;
+    }
+    .pay-copy:active { background: rgba(0,175,240,0.12); }
+    /* Addresses are long: full width for the text, Copy underneath (no one-letter last line). */
+    .pay-field.addr { flex-direction: column; align-items: stretch; gap: 8px; }
+    .pay-field.addr .pay-copy { margin-left: 0; align-self: flex-end; }
+    .pay-warn {
+      padding: 10px 12px;
+      border-radius: 12px;
+      border: 1px solid rgba(255,196,0,0.5);
+      background: rgba(255,196,0,0.07);
+      font-size: 12.5px;
+      color: #ffd95a;
+      line-height: 1.45;
+    }
+    .pay-warn b, .pay-note b { color: #fff; }
+    .pay-note { margin: 0; font-size: 12px; color: #aab0b8; line-height: 1.45; }
+    .pay-timer { margin: 0; font-size: 12px; color: #8a8f98; text-align: center; }
+    .pay-timer b { color: #fff; font-variant-numeric: tabular-nums; }
+    .pay-wait { margin: 0; font-size: 13px; color: #00AFF0; text-align: center; line-height: 1.45; }
+    .pay-ok { font-size: 16px; font-weight: 800; color: #fff; text-align: center; }
+    .pay-btn {
+      width: 100%;
+      padding: 14px;
+      border-radius: 14px;
+      border: none;
+      background: #00AFF0;
+      color: #fff;
+      font-size: 15px;
+      font-weight: 800;
+      cursor: pointer;
+    }
+    .pay-btn:active { transform: scale(0.98); }
+    #payTxidBox { display: flex; flex-direction: column; gap: 8px; }
+    #payTxidBox[hidden] { display: none; }
+    .pay-txid { display: flex; gap: 8px; }
+    .pay-txid input {
+      flex: 1;
+      min-width: 0;
+      padding: 10px 12px;
+      border-radius: 12px;
+      border: 1px solid rgba(255,255,255,0.15);
+      background: rgba(255,255,255,0.05);
+      color: #fff;
+      font-size: 13px;
+    }
+    .pay-txid .pay-btn { width: auto; padding: 10px 14px; font-size: 13px; }
+    .pay-link {
+      align-self: center;
+      padding: 4px 8px;
+      border: none;
+      background: none;
+      color: #8a8f98;
+      font-size: 12px;
+      text-decoration: underline;
+      cursor: pointer;
     }
 
     /* What's included — compact 2x2 grid */
@@ -702,22 +806,11 @@
   </div>
 
   <div class="crypto-block">
-    <button class="btn-crypto" onclick="chooseCrypto()">💎 Or pay with crypto (USDT · GRAM)</button>
-    <div id="cryptoChoice" class="crypto-choice" style="display:none">
-      <button class="btn-crypto-sm" onclick="cryptoPay('USDT')">
-        <img class="coin-ic" src="usdt.png" alt="" width="34" height="34" />
-        <span class="coin-tx"><span class="coin-name">USDT</span><span class="coin-tick">TON network</span></span>
-        <span class="coin-price">$7.99</span>
-      </button>
-      <!-- Asset code 'TON' is the worker API contract; only the display changed
-           after the June 2026 rebrand (Toncoin -> Gram, $GRAM). -->
-      <button class="btn-crypto-sm" onclick="cryptoPay('TON')">
-        <img class="coin-ic" src="gram.png" alt="" width="34" height="34" />
-        <span class="coin-tx"><span class="coin-name">Gram</span><span class="coin-tick">GRAM · prev. Toncoin</span></span>
-        <span class="coin-price">$7.99</span>
-      </button>
-      <p class="crypto-hint">💡 USDT requires a little GRAM for gas fees.</p>
-    </div>
+    <button class="btn-crypto" onclick="chooseCrypto()">💎 Or pay with crypto (USDT · SOL · ETH…)</button>
+    <!-- Options come from PAY_OPTIONS in the script. No wallet connection: the buyer
+         copies an exact amount and our address (see the payments worker). -->
+    <div id="cryptoChoice" class="crypto-choice" style="display:none"></div>
+    <div id="payCard" class="pay-card" style="display:none"></div>
   </div>
   <p id="cryptoStatus" class="crypto-status" style="display:none"></p>
 
@@ -826,10 +919,6 @@
   // Payment backend (Cloudflare Worker). Set to your deployed worker URL
   // (no trailing slash). See ton-connect-worker/README.md.
   const CRYPTO_API = "https://ton-connect-worker.alahnaly-api.workers.dev";
-  // Manifest is hosted on THIS Pages site (same domain as the page) so the wallet
-  // shows this domain — not the worker. Bitget rejects the manifest unless its host
-  // matches the manifest's `url` field domain (both alahnaly.shop).
-  const TONCONNECT_MANIFEST = "https://alahnaly.shop/tonconnect-manifest.json";
 
   // Preview the in-app-browser guide from any browser: add ?hint=1 to the URL.
   if (/[?&]hint=1(&|$)/.test(location.search)) showBrowserHint(CHANNEL_URL);
@@ -839,10 +928,13 @@
 
   // Arrived from the landing page's "Pay with Crypto" (t.me/...?startapp=crypto):
   // open the currency choice straight away — one tap for the buyer, no re-click.
+  // Deferred: the payment helpers further down must be defined first.
   if (tg && tg.initDataUnsafe && tg.initDataUnsafe.start_param === "crypto") {
-    var _cc = document.getElementById("cryptoChoice");
-    if (_cc) _cc.style.display = "flex";
-    loadTonConnectUI().catch(function () {});   // prefetch while the buyer picks
+    setTimeout(function () {
+      renderPayOptions();
+      var _cc = document.getElementById("cryptoChoice");
+      if (_cc) _cc.style.display = "flex";
+    }, 0);
   }
 
   // Some webviews (Telegram iOS notably) ignore the autoplay attribute until
@@ -903,193 +995,231 @@
     requestAnimationFrame(step);
   }
 
-  // ---- TON Connect checkout (pay from the native Telegram wallet) ----
-  // Needs the Telegram context: initData lets the worker verify the real buyer.
-  // The SDK is only needed once a buyer taps crypto, so it's loaded on demand
-  // (prefetched when the currency choice opens) to keep the first paint fast.
-  var _tcLoad = null;
-  function loadTonConnectUI() {
-    if (window.TON_CONNECT_UI) return Promise.resolve();
-    if (_tcLoad) return _tcLoad;
-    _tcLoad = new Promise(function (resolve, reject) {
-      var s = document.createElement("script");
-      s.src = "https://unpkg.com/@tonconnect/ui@2/dist/tonconnect-ui.min.js";
-      s.onload = resolve;
-      s.onerror = function () { _tcLoad = null; reject(new Error("load failed")); };
-      document.head.appendChild(s);
-    });
-    return _tcLoad;
+  // ---- Crypto checkout: an exact amount + our address to copy, no wallet connection ----
+  // Needs the Telegram context: initData lets the worker verify the real buyer. Each order
+  // gets a unique amount, which is how the worker recognises the transfer by itself; the
+  // transaction id is only a fallback when an exchange altered the amount. The buyer pays
+  // the network and exchange fees: the full amount must arrive.
+  const PAY_OPTIONS = [
+    { id: "usdt-tron", name: "USDT", net: "TRON (TRC20)", icon: "usdt.png" },
+    { id: "usdt-bsc", name: "USDT", net: "BNB Chain (BEP20)", icon: "usdt.png" },
+    { id: "usdt-sol", name: "USDT", net: "Solana", icon: "usdt.png" },
+    { id: "usdt-ton", name: "USDT", net: "TON", icon: "usdt.png" },
+    { id: "usdc-sol", name: "USDC", net: "Solana", badge: "usdc" },
+    { id: "gram", name: "Gram", net: "TON", icon: "gram.png" },
+    { id: "sol", name: "SOL", net: "Solana", badge: "sol" },
+    { id: "eth", name: "ETH", net: "Ethereum", badge: "eth" }
+  ];
+  const TXID_AFTER = 5 * 60000;   // the transaction-id fallback appears after 5 min of waiting
+  var _pay = null;                // { order, shownAt, timer }
+  var _lastPoll = 0;
+
+  function coinIcon(o) {
+    return o.icon
+      ? '<img class="coin-ic" src="' + o.icon + '" alt="" width="34" height="34" />'
+      : '<span class="coin-badge ' + o.badge + '">' + o.name + '</span>';
   }
 
-  let _tonUI = null;
-  function tonUI() {
-    if (!_tonUI) _tonUI = new TON_CONNECT_UI.TonConnectUI({ manifestUrl: TONCONNECT_MANIFEST });
-    return _tonUI;
+  function renderPayOptions() {
+    var box = document.getElementById("cryptoChoice");
+    if (!box || box.childElementCount) return;
+    box.innerHTML = PAY_OPTIONS.map(function (o) {
+      return '<button class="btn-crypto-sm" onclick="startPay(\'' + o.id + '\')">' + coinIcon(o) +
+        '<span class="coin-tx"><span class="coin-name">' + o.name + '</span><span class="coin-tick">' + o.net + '</span></span>' +
+        '<span class="coin-price">$7.99</span></button>';
+    }).join("") + '<p class="crypto-hint">No wallet connection: you just copy an amount and an address.</p>';
   }
 
-  function cryptoButtons() { return document.querySelectorAll(".btn-crypto, .btn-crypto-sm"); }
-  function setBtns(disabled) { cryptoButtons().forEach(function (b) { b.disabled = disabled; }); }
-
-  // Single "Pay with Crypto" entry → reveal the inline currency choice showing
-  // the official token logos (Telegram's native popup can't render images).
+  // Single "Pay with crypto" entry → reveal the payment options.
   function chooseCrypto() {
     if (window._trackCrypto) window._trackCrypto();
     if (!tg || !tg.initData) { openTelegram(MINIAPP_LINK); return; }
+    renderPayOptions();
     var c = document.getElementById("cryptoChoice");
     if (c) c.style.display = (c.style.display === "flex") ? "none" : "flex";
-    loadTonConnectUI().catch(function () {});   // prefetch while the buyer picks
   }
 
-  // Build the BoC payload for a plain text comment (op 0x00000000 + UTF-8 text).
-  async function commentPayload(text) {
-    const { beginCell } = await import("https://esm.sh/@ton/core@0.59.0");
-    const boc = beginCell().storeUint(0, 32).storeStringTail(text).endCell().toBoc();
-    return btoa(String.fromCharCode.apply(null, new Uint8Array(boc)));
+  async function payApi(path, body) {
+    var r = await fetch(CRYPTO_API + path, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(Object.assign({ initData: tg.initData }, body))
+    });
+    var d = await r.json();
+    if (!r.ok) throw new Error(d.error || ("HTTP " + r.status));
+    return d;
   }
 
-  // Build a USDT (jetton) transfer: from the buyer's USDT jetton wallet to our
-  // address, carrying the unique comment in the forward payload.
-  async function buildUsdtMessage(d, sender) {
-    const core = await import("https://esm.sh/@ton/core@0.59.0");
-    const beginCell = core.beginCell, Address = core.Address;
-    const jw = await resolveJettonWallet(sender, d.jetton_master);
-    // Pre-check the balance so a buyer without enough USDT never reaches the
-    // signature screen (the on-chain transfer would fail silently after signing).
-    if (jw.balance !== undefined && Number(jw.balance) < Number(d.amount)) {
-      throw new Error("insufficient usdt balance");
-    }
-    const jettonWallet = Address.parse(jw.address).toString(); // SDK requires user-friendly
-    const forward = beginCell().storeUint(0, 32).storeStringTail(d.comment).endCell();
-    const body = beginCell()
-      .storeUint(0x0f8a7ea5, 32)              // jetton transfer op
-      .storeUint(0, 64)                       // query_id
-      .storeCoins(BigInt(d.amount))           // USDT units
-      .storeAddress(Address.parse(d.address)) // destination = our address
-      .storeAddress(Address.parse(sender))    // response destination = buyer
-      .storeBit(false)                        // no custom payload
-      .storeCoins(BigInt(d.forward_ton))      // forward TON (carries the comment)
-      .storeBit(true)                         // forward payload as ref
-      .storeRef(forward)
-      .endCell();
-    const payload = btoa(String.fromCharCode.apply(null, new Uint8Array(body.toBoc())));
-    return { address: jettonWallet, amount: d.attach_ton, payload: payload };
-  }
-
-  async function resolveJettonWallet(owner, jettonMaster) {
-    const r = await fetch("https://tonapi.io/v2/accounts/" + owner + "/jettons/" + jettonMaster);
-    const d = await r.json();
-    if (d && d.wallet_address && d.wallet_address.address) {
-      return { address: d.wallet_address.address, balance: d.balance };
-    }
-    throw new Error("no USDT wallet for this account");
-  }
-
-  // Turn raw SDK/network errors into short, reassuring messages — never show a
-  // "[TON_CONNECT_SDK_ERROR]" dump to users (it scares them off). Raw error is
-  // kept in the console for debugging.
-  function friendlyError(e) {
-    var m = ((e && e.message) || "").toLowerCase();
-    if (/insufficient usdt/.test(m))                       return "Not enough USDT in your wallet. Top up or pay with Gram 💎";
-    if (/no enough funds|not enough|insufficient/.test(m)) return "Not enough funds — top up and try again.";
-    if (/reject|declin|cancel|abort|not sent/.test(m))     return "Payment cancelled — not charged. Tap to retry.";
-    if (/no usdt|usdt wallet|jetton/.test(m))              return "No USDT (TON) in your wallet. Add some and retry.";
-    if (/not connected|connect/.test(m))                   return "Wallet not connected. Tap to connect.";
-    if (/timeout|network|fetch|http|load failed/.test(m))  return "Connection problem. Tap to retry.";
-    return "Something went wrong — not charged. Tap to retry.";
-  }
-
-  async function cryptoPay(asset) {
-    if (!tg || !tg.initData) { openTelegram(MINIAPP_LINK); return; }
-    const status = document.getElementById("cryptoStatus");
-    const choice = document.getElementById("cryptoChoice");
+  async function startPay(optionId) {
+    var choice = document.getElementById("cryptoChoice");
+    var status = document.getElementById("cryptoStatus");
     if (choice) choice.style.display = "none";
-    setBtns(true);
-    setStatus(status, "Preparing payment…");
+    setStatus(status, "Preparing your payment…");
     try {
-      const r = await fetch(CRYPTO_API + "/api/create-payment", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ initData: tg.initData, asset: asset })
-      });
-      const d = await r.json();
-      if (!r.ok || !d.address) throw new Error(d.error || ("HTTP " + r.status));
-
-      await loadTonConnectUI();               // no-op when already prefetched
-      const ui = tonUI();
-      // Ensure a wallet is connected first; otherwise open the wallet picker.
-      if (!ui.account) {
-        setStatus(status, "Connect your wallet…");
-        await ui.connectWallet();
-      }
-      const sender = ui.account && ui.account.address;
-      if (!sender) throw new Error("wallet not connected");
-
-      let message;
-      if (d.asset === "USDT") {
-        setStatus(status, "Preparing your USDT payment…");
-        message = await buildUsdtMessage(d, sender);
-      } else {
-        const payload = await commentPayload(d.comment);
-        message = { address: d.address, amount: d.amount, payload: payload };
-      }
-
-      setStatus(status, "Confirm the payment in your wallet…");
-      await ui.sendTransaction({ validUntil: d.valid_until, messages: [message] });
-
-      if (window._trackJoin) window._trackJoin();
-      setStatus(status, "Payment sent — verifying… ⏳ Please keep this app open until your access appears.");
-      pollPayment(d.payment_id);
+      var order = await payApi("/api/pay/quote", { option: optionId });
+      status.style.display = "none";
+      showPayment(order, Date.now());
     } catch (e) {
       try { console.error("[crypto]", e); } catch (_) {}
-      setBtns(false);
-      setStatus(status, friendlyError(e));
+      setStatus(status, "Connection problem — tap a payment option to retry.");
+      if (choice) choice.style.display = "flex";
     }
   }
 
-  // Persist the in-flight payment so we can resume verification if the app is
-  // closed/reopened before the on-chain payment is detected.
-  function rememberPending(id) { try { localStorage.setItem("al_pay_pending", JSON.stringify({ id: id, ts: Date.now() })); } catch (e) {} }
-  function clearPending() { try { localStorage.removeItem("al_pay_pending"); } catch (e) {} }
-  function resumePending() {
-    if (!tg || !tg.initData) return;
-    var raw; try { raw = localStorage.getItem("al_pay_pending"); } catch (e) { return; }
-    if (!raw) return;
-    try {
-      var p = JSON.parse(raw);
-      if (p && p.id && (Date.now() - p.ts) < 86400000) {
-        setStatus(document.getElementById("cryptoStatus"), "Checking your payment…");
-        pollPayment(p.id);
-      } else { clearPending(); }
-    } catch (e) { clearPending(); }
+  function showPayment(order, shownAt) {
+    if (_pay && _pay.timer) clearInterval(_pay.timer);
+    _pay = { order: order, shownAt: shownAt || Date.now(), timer: null };
+    try { localStorage.setItem("al_pay_order", JSON.stringify({ id: order.order_id, ts: _pay.shownAt })); } catch (e) {}
+    renderPayment();
+    _pay.timer = setInterval(tickPayment, 1000);
   }
 
-  function pollPayment(paymentId) {
-    const status = document.getElementById("cryptoStatus");
-    rememberPending(paymentId);
-    const started = Date.now();
-    const timer = setInterval(async function () {
-      if (Date.now() - started > 600000) {            // give up after 10 min
-        clearInterval(timer);
-        setBtns(false);
-        setStatus(status, "Payment not detected yet. Already paid? Reopen the app shortly.");
-        return;
-      }
-      try {
-        const r = await fetch(CRYPTO_API + "/api/payment-status", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ initData: tg.initData, payment_id: paymentId })
-        });
-        const d = await r.json();
-        if (d.status === "granted" && d.invite_link) {
-          clearInterval(timer);
-          clearPending();
-          setBtns(false);
-          setStatus(status, "✅ Access unlocked! Opening the channel…");
-          openLink(d.invite_link);
-        }
-      } catch (e) {}
-    }, 3000);
+  function tickPayment() {
+    if (!_pay || _pay.order.status === "granted") return;
+    var o = _pay.order;
+    var left = Math.max(0, Math.floor((o.expires_at - Date.now()) / 1000));
+    var clock = document.getElementById("payClock");
+    if (clock) clock.textContent = Math.floor(left / 60) + ":" + ("0" + (left % 60)).slice(-2);
+    if (!left && o.status === "pending" && !_pay.expiredShown) { _pay.expiredShown = true; renderPayment(); }
+    var box = document.getElementById("payTxidBox");
+    if (box && box.hidden && Date.now() - _pay.shownAt > TXID_AFTER) box.hidden = false;
+    if (Date.now() - _lastPoll > 8000 && !document.hidden) { _lastPoll = Date.now(); pollOrder(); }
+  }
+
+  async function pollOrder() {
+    if (!_pay) return;
+    try {
+      var d = await payApi("/api/pay/status", { order_id: _pay.order.order_id });
+      var changed = d.status !== _pay.order.status || d.amount !== _pay.order.amount;
+      _pay.order = d;
+      if (changed) renderPayment();
+    } catch (e) {}
+  }
+
+  async function sendTxid() {
+    var input = document.getElementById("payTxid");
+    var msg = document.getElementById("payTxidMsg");
+    if (!_pay || !input || !input.value.trim()) return;
+    msg.textContent = "Checking…";
+    try {
+      var d = await payApi("/api/pay/txid", { order_id: _pay.order.order_id, txid: input.value.trim() });
+      _pay.order = d;
+      if (!d.txid_error) { renderPayment(); return; }
+      msg.textContent = ({
+        not_found: "Transaction not found yet. Check the ID, or wait a minute if you just sent it.",
+        too_old: "This transaction was sent before this payment was created.",
+        other_order: "This transaction belongs to another payment.",
+        already_used: "This transaction was already used.",
+        invalid_txid: "This doesn't look like a transaction ID."
+      })[d.txid_error] || "Not recognised — check the ID and try again.";
+    } catch (e) {
+      msg.textContent = "Connection problem — try again.";
+    }
+  }
+
+  // The Clipboard API is missing or blocked in some Telegram webviews: fall back to a
+  // hidden textarea + execCommand.
+  function copyText(text, btn) {
+    function done() {
+      var t = btn.textContent;
+      btn.textContent = "Copied ✓";
+      setTimeout(function () { btn.textContent = t; }, 1500);
+    }
+    function fallback() {
+      var ta = document.createElement("textarea");
+      ta.value = text;
+      ta.setAttribute("readonly", "");
+      ta.style.position = "fixed";
+      ta.style.opacity = "0";
+      document.body.appendChild(ta);
+      ta.select();
+      try { if (document.execCommand("copy")) done(); } catch (e) {}
+      document.body.removeChild(ta);
+    }
+    if (navigator.clipboard && navigator.clipboard.writeText) navigator.clipboard.writeText(text).then(done, fallback);
+    else fallback();
+  }
+
+  function esc(s) { return String(s).replace(/[&<>"']/g, function (c) { return "&#" + c.charCodeAt(0) + ";"; }); }
+
+  function renderPayment() {
+    var card = document.getElementById("payCard");
+    if (!card || !_pay) return;
+    var o = _pay.order;
+    var opt = PAY_OPTIONS.find(function (p) { return p.id === o.option; }) || { name: o.asset, badge: "eth" };
+    card.style.display = "flex";
+    if (o.status === "granted") {
+      if (_pay.timer) clearInterval(_pay.timer);
+      try { localStorage.removeItem("al_pay_order"); } catch (e) {}
+      if (window._trackJoin && !_pay.tracked) { _pay.tracked = true; window._trackJoin(); }
+      card.innerHTML = '<div class="pay-ok">✅ Payment received — welcome!</div>' +
+        '<button class="pay-btn" id="payJoin">Open the private channel</button>' +
+        '<p class="pay-note" style="text-align:center">Single-use link, valid 24 h. @AlahnalyVIP_bot also sends it to you.</p>';
+      document.getElementById("payJoin").onclick = function () { openLink(o.invite_link); };
+      return;
+    }
+    if (o.status === "paid") {
+      card.innerHTML = '<div class="pay-ok">✅ Payment received</div><p class="pay-wait">Preparing your access…</p>';
+      return;
+    }
+    if (o.status === "expired" || (o.status === "pending" && o.expires_at <= Date.now())) {
+      card.innerHTML = '<p class="pay-wait">This amount has expired.</p>' +
+        '<p class="pay-note" style="text-align:center">Already sent it? Keep this page open: a late payment of this exact amount is still recognised for 24 h.</p>' +
+        '<button class="pay-btn" id="payRenew">Get a new amount</button>' +
+        '<button class="pay-link" id="payBack">Choose another payment method</button>';
+      document.getElementById("payRenew").onclick = function () { startPay(o.option); };
+      document.getElementById("payBack").onclick = backToOptions;
+      return;
+    }
+    var partial = o.status === "partial";
+    card.innerHTML =
+      '<div class="pay-top">' + coinIcon(opt) +
+        '<div><div class="pay-lbl">' + (partial ? "Send the remaining" : "Send exactly") + '</div>' +
+        '<div class="pay-amount">' + esc(o.amount) + ' ' + esc(o.asset) + '</div></div></div>' +
+      (partial ? '<p class="pay-note">We received <b>' + esc(o.received) + ' ' + esc(o.asset) + '</b> — send this remaining amount to complete your payment.</p>' : '') +
+      '<div class="pay-field"><code>' + esc(o.amount) + '</code><button class="pay-copy" id="payCopyAmount">Copy</button></div>' +
+      '<div class="pay-lbl">To this address</div>' +
+      '<div class="pay-field addr"><code>' + esc(o.address) + '</code><button class="pay-copy" id="payCopyAddr">Copy</button></div>' +
+      '<div class="pay-warn">⚠️ Only send <b>' + esc(o.asset) + '</b> on <b>' + esc(o.network) + '</b>. Another network or token = lost funds.</div>' +
+      '<p class="pay-note">The <b>full amount</b> must arrive. Paying from an exchange (Binance, Coinbase…)? Add its withdrawal fee.</p>' +
+      '<p class="pay-timer">Amount reserved for <b id="payClock">–</b></p>' +
+      '<p class="pay-wait">⏳ Waiting for your payment — this updates by itself.<br>You can close this page and come back later.</p>' +
+      '<div id="payTxidBox"' + (Date.now() - _pay.shownAt > TXID_AFTER ? '' : ' hidden') + '>' +
+        '<p class="pay-note">Sent it but nothing happens? Paste your transaction ID (TxID / hash):</p>' +
+        '<div class="pay-txid"><input id="payTxid" placeholder="Transaction ID" autocomplete="off" spellcheck="false" />' +
+        '<button class="pay-btn" id="payTxidBtn">Check</button></div>' +
+        '<p class="pay-note" id="payTxidMsg"></p></div>' +
+      '<button class="pay-link" id="payBack">Choose another payment method</button>';
+    document.getElementById("payCopyAmount").onclick = function () { copyText(o.amount, this); };
+    document.getElementById("payCopyAddr").onclick = function () { copyText(o.address, this); };
+    document.getElementById("payTxidBtn").onclick = sendTxid;
+    document.getElementById("payBack").onclick = backToOptions;
+    tickPayment();
+  }
+
+  function backToOptions() {
+    if (_pay && _pay.timer) clearInterval(_pay.timer);
+    _pay = null;
+    try { localStorage.removeItem("al_pay_order"); } catch (e) {}
+    document.getElementById("payCard").style.display = "none";
+    renderPayOptions();
+    document.getElementById("cryptoChoice").style.display = "flex";
+  }
+
+  // Reopened app: show the payment left in progress, or the access it unlocked meanwhile.
+  function resumePending() {
+    try { localStorage.removeItem("al_pay_pending"); } catch (e) {}   // former wallet-connect flow
+    if (!tg || !tg.initData) return;
+    var p;
+    try { p = JSON.parse(localStorage.getItem("al_pay_order") || "null"); } catch (e) { return; }
+    if (!p || !p.id) return;
+    if (Date.now() - p.ts > 86400000) { try { localStorage.removeItem("al_pay_order"); } catch (e) {} return; }
+    payApi("/api/pay/status", { order_id: p.id }).then(function (d) {
+      if (d.status === "expired") { try { localStorage.removeItem("al_pay_order"); } catch (e) {} return; }
+      showPayment(d, p.ts);
+      var block = document.querySelector(".crypto-block");
+      if (block) block.scrollIntoView({ block: "center" });
+    }).catch(function () {});
   }
 
   function setStatus(el, msg) {
