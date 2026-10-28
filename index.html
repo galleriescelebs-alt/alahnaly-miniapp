@@ -852,8 +852,9 @@
     .shop { display: flex; flex-direction: column; animation: fadeUp 0.35s ease both; }
     .shop-lead { margin: 18px 22px 0; font-size: 13px; color: rgba(255,255,255,0.6); line-height: 1.5; text-align: center; }
     .shop-lead b { color: #fff; }
+    .shop-tools { align-self: center; display: flex; gap: 8px; margin-top: 10px; }
     .mine-btn {
-      align-self: center; margin-top: 10px; padding: 7px 14px; border-radius: 20px;
+      padding: 7px 14px; border-radius: 20px;
       border: 1px solid rgba(255,255,255,0.14); background: rgba(255,255,255,0.05);
       color: rgba(255,255,255,0.8); font-size: 12px; font-weight: 700; cursor: pointer;
     }
@@ -1000,6 +1001,58 @@
     /* "No crypto yet? Buy crypto": a quiet link at the payment steps */
     .starter-link { align-self: center; border: none; background: none; color: #7fd9ff; font-size: 12.5px; font-weight: 600; cursor: pointer; padding: 4px 8px; }
     .starter-link:active { opacity: 0.7; }
+    /* Terms of sale: accepted by paying, readable in a sheet */
+    .terms { white-space: pre-wrap; font-size: 12.5px; line-height: 1.55; color: rgba(255,255,255,0.8); overflow-wrap: anywhere; }
+    .terms-link { padding: 0; border: none; background: none; color: #7fd9ff; font: inherit; text-decoration: underline; cursor: pointer; }
+    .trust-terms { margin: 12px 16px 0; text-align: center; font-size: 11.5px; color: rgba(255,255,255,0.45); }
+    /* Cart: emptied in one tap */
+    .cart-clear {
+      flex-shrink: 0; padding: 6px 12px; border-radius: 16px; border: 1px solid rgba(255,138,138,0.35);
+      background: rgba(255,90,90,0.08); color: #ff9a9a; font-size: 12px; font-weight: 700; cursor: pointer;
+    }
+    .cart-clear:active { transform: scale(0.96); }
+    /* Admin (owner only): each live and the promo codes */
+    .adm-month { margin: 6px 2px -4px; font-size: 11.5px; font-weight: 800; letter-spacing: 0.6px; text-transform: uppercase; color: rgba(255,255,255,0.45); }
+    .adm-row { width: 100%; text-align: left; color: inherit; font: inherit; cursor: pointer; }
+    .adm-row.off img { opacity: 0.4; }
+    .adm-price { display: flex; flex-direction: column; align-items: flex-end; gap: 2px; font-size: 13.5px; font-weight: 800; font-variant-numeric: tabular-nums; white-space: nowrap; }
+    .adm-price small { font-size: 11px; font-weight: 700; color: rgba(255,255,255,0.5); }
+    .adm-tag { flex-shrink: 0; padding: 3px 8px; border-radius: 9px; font-size: 10.5px; font-weight: 800; background: rgba(255,217,90,0.14); color: #ffd95a; }
+    .adm-tag.ok { background: rgba(34,197,94,0.15); color: #4ade80; }
+    .adm-tag.gray { background: rgba(255,255,255,0.08); color: rgba(255,255,255,0.55); }
+    .adm-label { display: block; margin: 4px 0 -4px; font-size: 12.5px; font-weight: 800; color: rgba(255,255,255,0.8); }
+    .adm-label small { font-weight: 600; color: rgba(255,255,255,0.45); }
+    .adm-help { margin: -4px 0 0; font-size: 11.5px; color: rgba(255,255,255,0.5); line-height: 1.45; }
+    .adm-pick { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; }
+    .adm-tile { position: relative; aspect-ratio: 3 / 4; padding: 0; overflow: hidden; border-radius: 12px; border: 2px solid rgba(255,255,255,0.08); background: #0a0e13; cursor: pointer; }
+    .adm-tile.vid { aspect-ratio: 9 / 16; }
+    .adm-tile img, .adm-tile video { width: 100%; height: 100%; object-fit: cover; display: block; pointer-events: none; }
+    .adm-tile.on { border-color: #00AFF0; box-shadow: 0 0 0 2px rgba(0,175,240,0.3); }
+    .adm-num { position: absolute; left: 6px; bottom: 6px; padding: 2px 7px; border-radius: 8px; background: rgba(7,9,12,0.7); font-size: 11px; font-weight: 800; color: #fff; }
+    .adm-check { position: absolute; top: 6px; right: 6px; width: 22px; height: 22px; border-radius: 50%; display: none; align-items: center; justify-content: center; background: #00AFF0; color: #fff; font-size: 12px; font-weight: 800; }
+    .adm-tile.on .adm-check { display: flex; }
+    .adm-prices { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 8px; }
+    .adm-cell { display: flex; flex-direction: column; gap: 6px; min-width: 0; }
+    .adm-cell .adm-label { margin: 0; }
+    .adm-field { display: flex; align-items: center; gap: 8px; min-width: 0; padding: 0 12px; border-radius: 12px; border: 1px solid rgba(255,255,255,0.15); background: rgba(255,255,255,0.05); }
+    .adm-field input { flex: 1; width: 100%; min-width: 0; padding: 11px 0; border: none; outline: none; background: none; color: #fff; font-size: 16px; font-weight: 700; }
+    .adm-field span { color: rgba(255,255,255,0.55); font-weight: 800; }
+    .adm-input { width: 100%; min-width: 0; padding: 11px 12px; border-radius: 12px; border: 1px solid rgba(255,255,255,0.15); background: rgba(255,255,255,0.05); color: #fff; font-size: 16px; color-scheme: dark; }
+    .adm-input.up { text-transform: uppercase; letter-spacing: 0.5px; }
+    .adm-switch { display: flex; align-items: center; gap: 12px; padding: 12px; border-radius: 14px; border: 1px solid rgba(255,255,255,0.1); background: rgba(255,255,255,0.04); color: #fff; font-size: 14px; font-weight: 700; text-align: left; cursor: pointer; }
+    .adm-knob { position: relative; width: 42px; height: 24px; flex-shrink: 0; border-radius: 12px; background: rgba(255,255,255,0.18); transition: background 0.2s; }
+    .adm-knob::after { content: ""; position: absolute; top: 3px; left: 3px; width: 18px; height: 18px; border-radius: 50%; background: #fff; transition: transform 0.2s; }
+    .adm-switch.on .adm-knob { background: #22c55e; }
+    .adm-switch.on .adm-knob::after { transform: translateX(18px); }
+    .adm-chips { display: flex; flex-wrap: wrap; gap: 6px; }
+    .adm-chip { padding: 7px 12px; border-radius: 16px; border: 1px solid rgba(255,255,255,0.14); background: rgba(255,255,255,0.05); color: rgba(255,255,255,0.8); font-size: 12.5px; font-weight: 700; cursor: pointer; }
+    .adm-chip.on { background: #00AFF0; border-color: #00AFF0; color: #fff; }
+    .adm-code { display: flex; flex-direction: column; gap: 4px; padding: 12px; border-radius: 14px; border: 1px solid rgba(255,255,255,0.07); background: rgba(255,255,255,0.04); }
+    .adm-code p { margin: 0; }
+    .adm-code-top { display: flex; align-items: center; gap: 8px; }
+    .adm-code-name { font-family: ui-monospace, Menlo, Consolas, monospace; font-size: 15px; font-weight: 800; letter-spacing: 0.5px; overflow-wrap: anywhere; }
+    .adm-code-pct { margin-right: auto; font-size: 14px; font-weight: 800; color: #4ade80; white-space: nowrap; }
+    .adm-code-act { display: flex; gap: 8px; margin-top: 6px; }
     @media (prefers-reduced-motion: reduce) {
       .card, .shop, .cart-btn.bump { animation: none; }
       .sheet, .backdrop, .toast, .ctabar { transition: none; }
@@ -1143,11 +1196,15 @@
     <span>🔁 Cancel anytime</span>
     <span>🕶 100% discreet</span>
   </div>
+  <p class="trust-terms">By paying, you agree to the <button class="terms-link" onclick="openTerms(false)">Terms of sale</button>.</p>
   </div>
 
   <section class="shop" id="shopTab" hidden>
     <p class="shop-lead"><b>Download and keep</b> full lives.<br />Sent to your Telegram chat right after payment.</p>
-    <button class="mine-btn" onclick="openMine()">📥 My purchases</button>
+    <div class="shop-tools">
+      <button class="mine-btn" onclick="openMine()">📥 My purchases</button>
+      <button class="mine-btn" id="adminBtn" onclick="openAdmin()" hidden>⚙️ Admin</button>
+    </div>
     <div class="months" id="months" role="tablist" aria-label="Months"></div>
     <p class="tiers">Bundle: <b>−10%</b> from 5 videos · <b>−15%</b> from 10 · <b>−20%</b> from 15</p>
     <p class="shop-state" id="shopState"></p>
@@ -1368,7 +1425,7 @@
       }).join("") + '</div>' +
       '<p class="pick-label">Network</p><div class="pick-nets" id="pickNets"></div>' +
       '<button class="pay-btn pick-go" id="pickGo" onclick="goPick()"></button>' +
-      buyLink();
+      buyLink() + termsNote();
     showPick(false);
   }
 
@@ -1428,7 +1485,6 @@
 
   // Single "Pay with crypto" entry → reveal the payment options.
   function chooseCrypto() {
-    if (window._trackCrypto) window._trackCrypto();
     if (!tg || !tg.initData) { openTelegram(MINIAPP_LINK); return; }
     renderPayOptions();
     var c = document.getElementById("cryptoChoice");
@@ -1530,6 +1586,9 @@
     var input = document.getElementById("payTxid");
     var msg = document.getElementById("payTxidMsg");
     if (!_pay || !input || !input.value.trim()) return;
+    _pay.txidTried = true;   // the buyer says it was sent: no more cancelling
+    var back = document.getElementById("payBack");
+    if (back) back.remove();
     msg.textContent = "Checking…";
     try {
       var d = await payApi("/api/pay/txid", { order_id: _pay.order.order_id, txid: input.value.trim() });
@@ -1543,10 +1602,10 @@
 
   // The Clipboard API is missing or blocked in some Telegram webviews: fall back to a
   // hidden textarea + execCommand.
-  function copyText(text, btn) {
+  function copyText(text, btn, doneText) {
     function done() {
       var t = btn.textContent;
-      btn.textContent = "Copied ✓";
+      btn.textContent = doneText || "Copied ✓";
       setTimeout(function () { btn.textContent = t; }, 1500);
     }
     function fallback() {
@@ -1570,6 +1629,7 @@
     var card = document.getElementById("payCard");
     if (!card || !_pay) return;
     var o = _pay.order;
+    if (o.status === "cancelled") { backToOptions(); return; }   // cancelled from another device
     var opt = PAY_OPTIONS.find(function (p) { return p.id === o.option; }) || { name: o.asset };
     card.style.display = "flex";
     if (o.status === "granted") {
@@ -1593,8 +1653,8 @@
         '<button class="pay-btn" id="payRenew">Get a new amount</button>' +
         '<button class="pay-link" id="payBack">Choose another payment method</button>' +
         helpLink(o.order_id);
-      document.getElementById("payRenew").onclick = function () { startPay(o.option); };
-      document.getElementById("payBack").onclick = backToOptions;
+      document.getElementById("payRenew").onclick = function () { cancelPay(false, function () { startPay(o.option); }); };
+      document.getElementById("payBack").onclick = function () { cancelPay(false); };
       return;
     }
     var partial = o.status === "partial";
@@ -1616,11 +1676,13 @@
         '<button class="pay-btn" id="payTxidBtn">Check</button></div>' +
         '<p class="pay-note" id="payTxidMsg"></p></div>' +
       buyLink() +
-      '<button class="pay-link" id="payBack">Choose another payment method</button>';
+      // Only while nothing was sent: not once part of it arrived, nor once the buyer pasted a TxID.
+      (partial || _pay.txidTried ? '' : '<button class="pay-link" id="payBack">Cancel payment</button>');
     document.getElementById("payCopyAmount").onclick = function () { copyText(o.amount, this); };
     document.getElementById("payCopyAddr").onclick = function () { copyText(o.address, this); };
     document.getElementById("payTxidBtn").onclick = sendTxid;
-    document.getElementById("payBack").onclick = backToOptions;
+    var back = document.getElementById("payBack");
+    if (back) back.onclick = function () { cancelPay(true); };
     tickPayment();
   }
 
@@ -1633,6 +1695,32 @@
     document.getElementById("cryptoChoice").style.display = "flex";
   }
 
+  // The buyer gives up this payment (ask: confirm first). The worker frees it after a last look at
+  // the network, and a payment already sent is still recognised; then `next` (the payment options).
+  function cancelPay(ask, next) {
+    var p = _pay;
+    if (!p) return;
+    next = next || backToOptions;
+    if (p.order.status !== "pending") { next(); return; }
+    function go() {
+      payApi("/api/pay/cancel", { order_id: p.order.order_id }).then(function (d) {
+        if (_pay !== p) return;
+        if (d.status === "cancelled" || d.status === "expired") {
+          next();
+          if (ask) toast("Payment cancelled");
+          return;
+        }
+        p.order = d;   // the payment arrived meanwhile
+        renderPayment();
+      }).catch(function (e) {
+        if (!ask) next();
+        else toast(e.status === 401 ? "Your session has expired: close and reopen the app" : "Connection problem, try again");
+      });
+    }
+    if (ask) confirmThen(CANCEL_ASK, go, "Cancel payment", "Keep it");
+    else go();
+  }
+
   // Reopened app: show the payment left in progress, or the access it unlocked meanwhile.
   function resumePending() {
     try { localStorage.removeItem("al_pay_pending"); } catch (e) {}   // former wallet-connect flow
@@ -1642,7 +1730,7 @@
     if (!p || !p.id) return;
     if (Date.now() - p.ts > 86400000) { try { localStorage.removeItem("al_pay_order"); } catch (e) {} return; }
     payApi("/api/pay/status", { order_id: p.id }).then(function (d) {
-      if (d.status === "expired") { try { localStorage.removeItem("al_pay_order"); } catch (e) {} return; }
+      if (d.status === "expired" || d.status === "cancelled") { try { localStorage.removeItem("al_pay_order"); } catch (e) {} return; }
       showPayment(d, p.ts);
       var block = document.querySelector(".crypto-block");
       if (block) block.scrollIntoView({ block: "center" });
@@ -1798,7 +1886,7 @@
   // ---- Shop: full lives to download and keep, paid in crypto, sent by @AlahnalyVIP_bot ----
   // Inside Telegram only: initData proves the buyer and the previews stay off the public page. The
   // worker computes every price; while browsing, the page shows the same rules as an estimate.
-  var SHOP_OWNER_ONLY = true;   // test phase: only the owner sees the Shop tab
+  var SHOP_OWNER_ONLY = false;  // true: test phase, only the owner sees the Shop tab
   var OWNER_ID = 556796158;
   var BOT_LINK = "https://t.me/AlahnalyVIP_bot";
   var MONTHS = ["Jan", "Feb", "Mar", "Apr", "May", "June", "July", "Aug", "Sept", "Oct", "Nov", "Dec"];
@@ -1829,6 +1917,7 @@
     if (!shopEnabled()) return;
     document.getElementById("tabs").hidden = false;
     document.getElementById("cartBtn").hidden = false;
+    document.getElementById("adminBtn").hidden = !isOwner();
     try { _shopPick = localStorage.getItem("al_pay_pick"); } catch (e) {}
     updateCartUi();
     var sp = (tg.initDataUnsafe && tg.initDataUnsafe.start_param) || "";
@@ -1861,7 +1950,6 @@
     document.getElementById("shopTab").hidden = t !== "shop";
     document.getElementById("ctaVip").classList.toggle("off", t !== "vip");
     if (t === "shop") {
-      if (!_shop.openTracked) { _shop.openTracked = true; track("open"); }
       loadCatalog();
     }
     updateCartUi();
@@ -1974,7 +2062,6 @@
     } else {
       if (_cart.names.length >= 60) { toast("Your cart is full"); return; }
       _cart.names.push(n);
-      track("add");
       haptic("light");
       toast("Added · " + fmtDay(i.date));
       var btn = document.getElementById("cartBtn");
@@ -1998,18 +2085,31 @@
   }
 
   function clearCart() {
-    function clear(ok) {
-      if (!ok) return;
+    var n = _cart.names.length;
+    confirmThen(n > 1 ? "Remove the " + plural(n) + " from your cart?" : "Remove this video from your cart?", function () {
       _cart = { names: [], vip: false };
       saveCart();
       _shop.items.forEach(updateCard);
       updateCartUi();
       renderCart();
-    }
-    var ask = "Remove the " + plural(_cart.names.length) + " from your cart?";
-    if (tg && typeof tg.showConfirm === "function" && tg.isVersionAtLeast && tg.isVersionAtLeast("6.2")) tg.showConfirm(ask, clear);
-    else clear(window.confirm(ask));
+    }, n > 1 ? "Empty cart" : "Remove", n > 1 ? "Keep them" : "Keep it");
   }
+
+  // Telegram's own popup (6.2+) with buttons that say what they do, the browser's confirm otherwise.
+  function confirmThen(text, then, yes, no) {
+    try {
+      if (tg && typeof tg.showPopup === "function" && tg.isVersionAtLeast && tg.isVersionAtLeast("6.2")) {
+        tg.showPopup({ message: text, buttons: [{ id: "yes", type: "destructive", text: yes }, { id: "no", type: "default", text: no }] },
+          function (id) { if (id === "yes") then(); });
+        return;
+      }
+    } catch (e) {}
+    if (window.confirm(text)) then();
+  }
+
+  // Cancelling is for a payment not sent yet: one already sent can't be cancelled (the worker still
+  // credits it), so the question says so.
+  var CANCEL_ASK = "Cancel this payment? Only if you haven't sent anything: a payment already sent can't be cancelled and is still recognised.";
 
   // The worker's quote drops what can't be bought any more (removed live, already owned).
   function syncCart(q) {
@@ -2127,7 +2227,6 @@
 
   // ─── Cart sheet ───
   function openCart() {
-    track("cart");
     backToCart();
   }
 
@@ -2150,7 +2249,7 @@
       '<div class="vip-row' + (_cart.vip ? " on" : "") + '" role="checkbox" aria-checked="' + _cart.vip + '" tabindex="0" onclick="toggleVip()">' +
         '<span class="vip-check">' + (_cart.vip ? "✓" : "") + '</span><span class="ci-txt"><span class="ci-date">Add VIP channel access</span>' +
         '<span class="ci-sub">1 month of the private channel, paid in the same go</span></span><span class="ci-price">' + money(_shop.vip) + '</span></div>' +
-      (e.count > 1 ? '<div class="cart-head"><span>' + plural(e.count) + '</span><button class="pay-link" onclick="clearCart()">Clear cart</button></div>' : "") +
+      '<div class="cart-head"><span>' + plural(e.count) + '</span><button class="cart-clear" onclick="clearCart()">🗑 Empty cart</button></div>' +
       '<div class="cart-list">' + e.items.map(function (i) {
         return '<div class="ci"><img src="' + esc(i.cover) + '" alt="" loading="lazy" /><span class="ci-txt"><span class="ci-date">' + fmtDay(i.date) +
           '</span><span class="ci-sub">' + i.minutes + ' min · ' + sizeOf(i.mb) + '</span></span><span class="ci-price">' + money(i.price) + '</span>' +
@@ -2182,8 +2281,7 @@
         _code = null;
       } else if (_code && q.code && !_code.pct) {
         _code = { code: q.code, pct: q.pct, until: q.code_until };
-        track("code");
-        msg = { ok: true, text: "Code " + q.code + " applied: −" + q.pct + "% · valid until " + fmtUntil(q.code_until) };
+        msg ={ ok: true, text: "Code " + q.code + " applied: −" + q.pct + "% · valid until " + fmtUntil(q.code_until) };
       }
       _quote = q;
       renderCheckout(msg);
@@ -2207,6 +2305,7 @@
         '<button class="pm' + (stars ? "" : " on") + '" role="tab" aria-selected="' + !stars + '" onclick="setPayMode(\'crypto\')">💎 Crypto</button></div>' +
       (stars ? '<p class="note">Pay with the Stars of your Telegram account. Not enough? Telegram lets you buy them right in the payment window.</p>'
         : '<p class="pick-title">Pay <b>' + money(q.total) + '</b> with</p><div id="shopPick" class="crypto-choice" style="margin-top:0"></div>' + buyLink()) +
+      termsNote() +
       '<p class="note">' + (needsWriteAccess() ? "Telegram will ask you to let <b>@AlahnalyVIP_bot</b> message you: allow it, that's how your videos arrive."
         : "Your videos are sent by <b>@AlahnalyVIP_bot</b> to your Telegram chat as soon as the payment arrives.") + '</p>';
     if (stars) sheetFoot().innerHTML = '<button class="pay-btn" id="shopGo" onclick="shopContinue()">Pay ' + starsTxt(q.stars.total) + '</button>';
@@ -2338,7 +2437,42 @@
     try { localStorage.setItem("al_shop_order", JSON.stringify({ id: order.order_id, ts: shownAt })); } catch (e) {}
     showShopPay();
     _shopPay.timer = setInterval(tickShopPay, 1000);
-    if (order.status !== "pending" && order.status !== "partial") onShopPaid();
+    if (shopPaidStatus(order.status)) onShopPaid();
+  }
+
+  function shopPaidStatus(s) { return s === "paid" || s === "delivering" || s === "granted"; }
+
+  // The buyer gives up this payment (ask: confirm first). The worker frees it after a last look at
+  // the network, and a payment already sent is still recognised; then back to the checkout.
+  function cancelShopPay(ask) {
+    var p = _shopPay;
+    if (!p) return;
+    if (p.order.status !== "pending") { leaveShopPay(); return; }
+    function go() {
+      payApi("/api/pay/cancel", { order_id: p.order.order_id }).then(function (d) {
+        if (_shopPay !== p) return;
+        if (d.status === "cancelled" || d.status === "expired") {
+          leaveShopPay();
+          if (ask) toast("Payment cancelled");
+          return;
+        }
+        p.order = d;   // the payment arrived meanwhile
+        if (shopPaidStatus(d.status)) onShopPaid();
+        renderShopPay();
+      }).catch(function (e) {
+        if (!ask) leaveShopPay();
+        else toast(e.status === 401 ? "Your session has expired: close and reopen the app" : "Connection problem, try again");
+      });
+    }
+    if (ask) confirmThen(CANCEL_ASK, go, "Cancel payment", "Keep it");
+    else go();
+  }
+
+  function leaveShopPay() {
+    if (_shopPay && _shopPay.timer) clearInterval(_shopPay.timer);
+    _shopPay = null;
+    clearShopOrder();
+    if (_sheet && _sheet.kind === "pay") openCheckout();
   }
 
   function shopPayActive() {
@@ -2364,7 +2498,7 @@
   // Reopened app: back to the payment in progress, or to its delivery.
   function resumeShopPay(p) {
     payApi("/api/pay/status", { order_id: p.id }).then(function (d) {
-      if (d.status === "expired" || !d.shop) { clearShopOrder(); return; }
+      if (d.status === "expired" || d.status === "cancelled" || !d.shop) { clearShopOrder(); return; }
       startShopPay(d, p.ts, []);
     }).catch(function () {});
   }
@@ -2393,7 +2527,8 @@
       var changed = d.status !== p.order.status || d.amount !== p.order.amount || JSON.stringify(d.shop) !== JSON.stringify(p.order.shop);
       p.order = d;
       if (!changed) return;
-      if (d.status !== "pending" && d.status !== "partial" && d.status !== "expired") onShopPaid();
+      if (d.status === "cancelled") { leaveShopPay(); return; }   // cancelled from another device
+      if (shopPaidStatus(d.status)) onShopPaid();
       if (d.status === "granted") clearShopOrder();
       if (_sheet && _sheet.kind === "pay") renderShopPay();
       else if (d.status === "granted") toast("📦 Your videos are in your Telegram chat");
@@ -2422,6 +2557,7 @@
     var p = _shopPay, body = sheetBody(), foot = sheetFoot();
     if (!p || !_sheet || _sheet.kind !== "pay") return;
     var o = p.order, s = o.shop || { videos: 0, delivered: 0 };
+    if (o.status === "cancelled") { leaveShopPay(); return; }
     foot.innerHTML = "";
     if (o.status === "granted") {
       clearShopOrder();
@@ -2446,14 +2582,14 @@
         '<p class="note">Complete the payment in the Telegram window: your videos are sent to your chat right after.</p>' +
         '<div style="display:flex;justify-content:center">' + helpLink(o.order_id) + '</div>';
       foot.innerHTML = '<button class="pay-btn" onclick="payStarsAgain()">Pay ' + starsTxt(+o.amount) + '</button>' +
-        '<button class="pay-link center" onclick="openCheckout()">Choose another payment method</button>';
+        '<button class="pay-link center" onclick="cancelShopPay(true)">Cancel payment</button>';
       return;
     }
     if (o.status === "expired" || (o.status === "pending" && o.expires_at <= Date.now())) {
       body.innerHTML = '<p class="pay-wait">This amount has expired.</p>' +
         '<p class="pay-note" style="text-align:center">Already sent it? Keep this page open: a late payment of this exact amount is still recognised for 24 h.</p>' +
         '<div style="display:flex;justify-content:center">' + helpLink(o.order_id) + '</div>';
-      foot.innerHTML = '<button class="pay-btn" onclick="openCheckout()">Get a new amount</button>';
+      foot.innerHTML = '<button class="pay-btn" onclick="cancelShopPay(false)">Get a new amount</button>';
       return;
     }
     var opt = PAY_OPTIONS.find(function (x) { return x.id === o.option; }) || { name: o.asset };
@@ -2476,7 +2612,8 @@
         '<button class="pay-btn" onclick="shopTxid()">Check</button></div>' +
         '<p class="pay-note" id="spTxidMsg"></p></div></div>' +
       buyLink();
-    foot.innerHTML = '<button class="pay-link center" onclick="openCheckout()">Choose another payment method</button>';
+    // Only while nothing was sent: not once part of it arrived, nor once the buyer pasted a TxID.
+    foot.innerHTML = partial || p.txidTried ? "" : '<button class="pay-btn ghost" onclick="cancelShopPay(true)">Cancel payment</button>';
     document.getElementById("spCopyAmount").onclick = function () { copyText(o.amount, this); };
     document.getElementById("spCopyAddr").onclick = function () { copyText(o.address, this); };
     tickShopPay();
@@ -2485,11 +2622,13 @@
   function shopTxid() {
     var input = document.getElementById("spTxid"), msg = document.getElementById("spTxidMsg");
     if (!_shopPay || !input || !input.value.trim()) return;
+    _shopPay.txidTried = true;   // the buyer says it was sent: no more cancelling
+    sheetFoot().innerHTML = "";
     msg.textContent = "Checking…";
     payApi("/api/pay/txid", { order_id: _shopPay.order.order_id, txid: input.value.trim() }).then(function (d) {
       _shopPay.order = d;
       if (d.txid_error) { msg.textContent = TXID_ERRORS[d.txid_error] || "Not recognised — check the ID and try again."; return; }
-      if (d.status !== "pending" && d.status !== "partial") onShopPaid();
+      if (shopPaidStatus(d.status)) onShopPaid();
       renderShopPay();
     }).catch(function () { msg.textContent = "Connection problem — try again."; });
   }
@@ -2529,6 +2668,338 @@
         : "Couldn't send it, try again");
     });
   }
+
+  // ─── Terms of sale: accepted by paying (Telegram requires it), the bot's /terms text ───
+  function termsNote() {
+    return '<p class="note">By paying, you agree to the <button class="terms-link" onclick="openTerms(' + !!(_sheet && _sheet.kind === "checkout") +
+      ')">Terms of sale</button>: instant delivery, all sales final.</p>';
+  }
+
+  function openTerms(fromCheckout) {
+    var body = openSheet("terms", "Terms of sale", fromCheckout ? backToCheckout : null);
+    body.innerHTML = '<p class="pay-wait"><span class="spin"></span>Loading…</p>';
+    fetch(CRYPTO_API + "/terms").then(function (r) {
+      if (!r.ok) throw new Error("HTTP " + r.status);
+      return r.text();
+    }).then(function (text) {
+      if (!_sheet || _sheet.kind !== "terms") return;
+      var div = document.createElement("div");
+      div.className = "terms";
+      div.textContent = text;
+      body.innerHTML = "";
+      body.appendChild(div);
+    }).catch(function () {
+      if (_sheet && _sheet.kind === "terms") body.innerHTML = errorHtml(null, "openTerms(" + !!fromCheckout + ")");
+    });
+  }
+
+  // Back from the terms: the checkout as it was (cart, promo code, payment method).
+  function backToCheckout() {
+    if (!_quote) { openCheckout(); return; }
+    openSheet("checkout", "Checkout", backToCart);
+    renderCheckout(null);
+  }
+
+  // ─── Admin, for the owner only (the worker checks it too), in French: price, cover, preview and
+  // visibility of each live; promo codes ───
+  var _admin = null;          // { items, byName, codes } as the worker sent them
+  var _adminView = "videos";  // or "codes"
+  var _adminEdit = null;      // the live being edited: { name, couverture, apercu, hidden, media }
+  var _adminScroll = 0;       // where the list was, to come back to it
+  var MOIS = ["janv.", "févr.", "mars", "avr.", "mai", "juin", "juil.", "août", "sept.", "oct.", "nov.", "déc."];
+  var MOIS_LONG = ["Janvier", "Février", "Mars", "Avril", "Mai", "Juin", "Juillet", "Août", "Septembre", "Octobre", "Novembre", "Décembre"];
+  var ADMIN_ERRORS = {
+    bad_code: "Code : 3 à 24 caractères, lettres, chiffres, - ou _.",
+    bad_pct: "Réduction : entre 21 et 40 %.",
+    bad_date: "Choisis une date de fin : aujourd'hui ou plus tard.",
+    bad_uses: "Utilisations max : un nombre à partir de 1, ou vide pour illimité.",
+    bad_videos: "Vidéos max : entre 1 et 60.",
+    code_exists: "Ce code existe déjà : un nom ne sert qu'une fois.",
+    bad_price: "Prix en $ : entre 0,99 et 99,99.",
+    bad_stars: "Prix en ★ : un nombre entier entre 1 et 10 000."
+  };
+
+  function isOwner() {
+    var u = tg && tg.initDataUnsafe && tg.initDataUnsafe.user;
+    return !!(tg && tg.initData && u && u.id === OWNER_ID);
+  }
+
+  function openAdmin() {
+    _admin = null;
+    openSheet("admin", "Admin");
+    renderAdmin();
+    payApi("/api/shop/admin/state", {}).then(function (d) {
+      _admin = { items: d.items || [], codes: d.codes || [], byName: {} };
+      _admin.items.forEach(function (i) { _admin.byName[i.name] = i; });
+      renderAdmin();
+    }).catch(function (e) {
+      if (_sheet && _sheet.kind === "admin") { sheetBody().innerHTML = adminErrorHtml(e, "openAdmin()"); sheetFoot().innerHTML = ""; }
+    });
+  }
+
+  function backToAdmin() {
+    openSheet("admin", "Admin");
+    renderAdmin();
+    if (_adminView === "videos") sheetBody().scrollTop = _adminScroll;
+  }
+
+  function adminTab(v) {
+    _adminView = v;
+    renderAdmin();
+    sheetBody().scrollTop = 0;
+  }
+
+  function renderAdmin() {
+    if (!_sheet || _sheet.kind !== "admin") return;
+    var body = sheetBody(), foot = sheetFoot(), codes = _adminView === "codes";
+    var tabs = '<div class="paymode" role="tablist" aria-label="Admin">' +
+      '<button class="pm' + (codes ? "" : " on") + '" role="tab" aria-selected="' + !codes + '" onclick="adminTab(\'videos\')">🎬 Vidéos</button>' +
+      '<button class="pm' + (codes ? " on" : "") + '" role="tab" aria-selected="' + codes + '" onclick="adminTab(\'codes\')">🏷 Codes promo</button></div>';
+    foot.innerHTML = "";
+    if (!_admin) { body.innerHTML = tabs + '<p class="pay-wait"><span class="spin"></span>Chargement…</p>'; return; }
+    body.innerHTML = tabs + (codes ? adminCodesHtml() : adminVideosHtml());
+    if (codes) foot.innerHTML = '<button class="pay-btn" onclick="openAdminCode()">＋ Nouveau code</button>';
+  }
+
+  function adminVideosHtml() {
+    var items = _admin.items, month = "";
+    var hidden = items.filter(function (i) { return i.hidden; }).length;
+    var html = '<p class="note">' + items.length + " vidéos · " + (items.length - hidden) + " en vente" +
+      (hidden ? " · <b>" + hidden + " masquée" + (hidden > 1 ? "s" : "") + "</b>" : "") + ". Touche une vidéo pour la modifier.</p>";
+    items.forEach(function (i) {
+      var m = i.date.slice(0, 7);
+      if (m !== month) { month = m; html += '<p class="adm-month">' + MOIS_LONG[+m.slice(5, 7) - 1] + " " + m.slice(0, 4) + "</p>"; }
+      html += '<button class="ci adm-row' + (i.hidden ? " off" : "") + '" onclick="openAdminItem(\'' + i.name + '\')">' +
+        '<img src="' + esc(i.cover) + '" alt="" loading="lazy" /><span class="ci-txt"><span class="ci-date">' + frDay(i.date) + "</span>" +
+        '<span class="ci-sub">' + i.minutes + " min" + (i.sold ? " · vendue " + i.sold + " fois" : "") + "</span></span>" +
+        (i.hidden ? '<span class="adm-tag">Masquée</span>' : !i.on_sale ? '<span class="adm-tag gray">Hors canal</span>' : "") +
+        '<span class="adm-price">' + frMoney(i.price) + "<small>" + (i.stars ? starsTxt(i.stars) : "— ★") + "</small></span></button>";
+    });
+    return html;
+  }
+
+  // ─── One live: cover and preview (3 each, chosen with a tap), prices, visibility ───
+  function openAdminItem(n) {
+    var i = _admin && _admin.byName[n];
+    if (!i) return;
+    if (_sheet && _sheet.kind === "admin") _adminScroll = sheetBody().scrollTop;
+    _adminEdit = { name: n, couverture: i.couverture, apercu: i.apercu, hidden: i.hidden, media: null };
+    var body = openSheet("adminItem", frDay(i.date) + " · " + i.minutes + " min", backToAdmin);
+    body.innerHTML = '<p class="pay-wait"><span class="spin"></span>Chargement…</p>';
+    payApi("/api/shop/admin/media", { name: n }).then(function (m) {
+      if (!_sheet || _sheet.kind !== "adminItem" || !_adminEdit || _adminEdit.name !== n) return;
+      _adminEdit.media = m;
+      renderAdminItem();
+    }).catch(function (e) {
+      if (_sheet && _sheet.kind === "adminItem") body.innerHTML = adminErrorHtml(e, "openAdminItem('" + n + "')");
+    });
+  }
+
+  function renderAdminItem() {
+    var e = _adminEdit, i = _admin.byName[e.name], k = [1, 2, 3];
+    sheetBody().innerHTML =
+      '<p class="adm-label">Couverture</p><div class="adm-pick">' + k.map(function (n) {
+        return '<button class="adm-tile' + (n === e.couverture ? " on" : "") + '" data-kind="couverture" data-n="' + n +
+          '" aria-label="Couverture ' + n + '" onclick="adminPick(this)"><img src="' + esc(e.media.covers[n - 1]) + '" alt="" />' +
+          '<span class="adm-num">' + n + '</span><span class="adm-check">✓</span></button>';
+      }).join("") + "</div>" +
+      '<p class="adm-label">Aperçu de 20 s <small>· touche pour le lancer</small></p><div class="adm-pick">' + k.map(function (n) {
+        return '<button class="adm-tile vid' + (n === e.apercu ? " on" : "") + '" data-kind="apercu" data-n="' + n +
+          '" aria-label="Aperçu ' + n + '" onclick="adminPick(this)"><video src="' + esc(e.media.trailers[n - 1]) + '#t=0.1" muted loop playsinline preload="metadata"></video>' +
+          '<span class="adm-num">' + n + '</span><span class="adm-check">✓</span></button>';
+      }).join("") + "</div>" +
+      '<p class="adm-label">Prix</p><div class="adm-prices">' +
+        '<label class="adm-field"><input id="admPrice" inputmode="decimal" autocomplete="off" aria-label="Prix en dollars" value="' + (i.price / 100).toFixed(2) +
+          '" oninput="adminDirty()" /><span>$</span></label>' +
+        '<label class="adm-field"><input id="admStars" inputmode="numeric" autocomplete="off" aria-label="Prix en Stars" value="' + (i.stars || "") +
+          '" oninput="adminDirty()" /><span>★</span></label></div>' +
+      '<button class="adm-switch' + (e.hidden ? "" : " on") + '" id="admVisible" role="switch" aria-checked="' + !e.hidden + '" onclick="adminToggleVisible()">' +
+        '<span class="adm-knob"></span><span>Visible dans le shop</span></button>' +
+      '<p class="note">' + (i.sold ? "Vendue " + i.sold + " fois. " : "") +
+        (i.on_sale ? "" : "<b>Vidéo pas encore dans « Alahna Ly Cloud » : pas en vente.</b> ") +
+        "Les changements valent pour les prochaines commandes. Masquée, elle reste chez ses acheteurs.</p>";
+    sheetFoot().innerHTML = '<p class="promo-msg bad" id="admMsg" hidden></p>' +
+      '<button class="pay-btn" id="admSave" onclick="adminSave()" disabled>Enregistrer</button>';
+  }
+
+  function adminPick(btn) {
+    _adminEdit[btn.dataset.kind] = +btn.dataset.n;
+    btn.parentNode.querySelectorAll(".adm-tile").forEach(function (t) {
+      t.classList.toggle("on", t === btn);
+      var v = t.querySelector("video");
+      if (v) { if (t === btn) v.play().catch(function () {}); else v.pause(); }
+    });
+    haptic("light");
+    adminDirty();
+  }
+
+  function adminToggleVisible() {
+    _adminEdit.hidden = !_adminEdit.hidden;
+    var s = document.getElementById("admVisible");
+    s.classList.toggle("on", !_adminEdit.hidden);
+    s.setAttribute("aria-checked", String(!_adminEdit.hidden));
+    adminDirty();
+  }
+
+  // What the form changes, compared with the worker's values (the price may be typed "4.99" or "4,99").
+  function adminChanges() {
+    var e = _adminEdit, i = _admin.byName[e.name], out = {};
+    var usd = Math.round(parseFloat(document.getElementById("admPrice").value.replace(",", ".")) * 100);
+    var stars = Number(document.getElementById("admStars").value.trim());
+    if (usd !== i.price) out.price = usd;
+    if (stars !== i.stars) out.stars = stars;
+    if (e.couverture !== i.couverture) out.couverture = e.couverture;
+    if (e.apercu !== i.apercu) out.apercu = e.apercu;
+    if (e.hidden !== i.hidden) out.hidden = e.hidden;
+    return out;
+  }
+
+  function adminDirty() {
+    var b = document.getElementById("admSave");
+    if (b && b.textContent === "Enregistrer") b.disabled = !Object.keys(adminChanges()).length;
+  }
+
+  function adminSave() {
+    var b = document.getElementById("admSave"), ch = adminChanges(), name = _adminEdit.name;
+    if (!Object.keys(ch).length) return;
+    if ("price" in ch && !(ch.price >= 99 && ch.price <= 9999)) { adminMsg("admMsg", ADMIN_ERRORS.bad_price); return; }
+    if ("stars" in ch && !(Number.isInteger(ch.stars) && ch.stars >= 1 && ch.stars <= 10000)) { adminMsg("admMsg", ADMIN_ERRORS.bad_stars); return; }
+    adminMsg("admMsg", "");
+    b.disabled = true;
+    b.textContent = "Enregistrement…";
+    payApi("/api/shop/admin/item", Object.assign({ name: name }, ch)).then(function (d) {
+      _admin.items = _admin.items.map(function (x) { return x.name === name ? d.item : x; });
+      _admin.byName[name] = d.item;
+      b.textContent = "Enregistrer";
+      adminDirty();
+      toast("Enregistré ✓");
+      loadCatalog(true);   // the shop behind shows it at once
+    }).catch(function (e) {
+      b.disabled = false;
+      b.textContent = "Enregistrer";
+      adminMsg("admMsg", e.status === 401 ? "Session expirée : ferme et rouvre l'app." : ADMIN_ERRORS[e.message] || "Échec de l'enregistrement, réessaie.");
+    });
+  }
+
+  // ─── Promo codes ───
+  function adminCodesHtml() {
+    if (!_admin.codes.length) {
+      return '<div class="empty">Aucun code pour l\'instant.</div><p class="note">Un code remplace la remise par lot quand il donne ' +
+        "un meilleur total, et ne sert qu'une fois par acheteur.</p>";
+    }
+    return _admin.codes.map(function (c) {
+      var st = codeState(c), until = new Date(c.until).toISOString().slice(0, 10);
+      return '<div class="adm-code"><div class="adm-code-top"><span class="adm-code-name">' + esc(c.code) + "</span>" +
+        '<span class="adm-code-pct">−' + c.pct + ' %</span><span class="adm-tag ' + st.cls + '">' + st.label + "</span></div>" +
+        '<p class="ci-sub">Jusqu\'au ' + frDay(until) + " à 23:59 UTC · " + c.max_videos + " vidéo" + (c.max_videos > 1 ? "s" : "") + " max par commande</p>" +
+        '<p class="ci-sub">Utilisé ' + c.uses + " fois" + (c.max_uses != null ? " sur " + c.max_uses : "") + " · une fois par acheteur</p>" +
+        '<div class="adm-code-act"><button class="ci-resend" onclick="copyText(\'' + c.code + '\', this, \'Copié ✓\')">Copier</button>' +
+        (st.key === "expired" || st.key === "full" ? "" : '<button class="ci-resend" onclick="adminCodeActive(\'' + c.code + '\', ' + !c.active + ', this)">' +
+          (c.active ? "Désactiver" : "Réactiver") + "</button>") + "</div></div>";
+    }).join("");
+  }
+
+  function codeState(c) {
+    if (c.until < Date.now()) return { key: "expired", label: "Expiré", cls: "gray" };
+    if (c.max_uses != null && c.uses >= c.max_uses) return { key: "full", label: "Épuisé", cls: "gray" };
+    return c.active ? { key: "on", label: "Actif", cls: "ok" } : { key: "off", label: "Désactivé", cls: "gray" };
+  }
+
+  function adminCodeActive(code, active, btn) {
+    btn.disabled = true;
+    payApi("/api/shop/admin/code-active", { code: code, active: active }).then(function (d) {
+      _admin.codes = _admin.codes.map(function (c) { return c.code === code ? d.code : c; });
+      toast(active ? "Code réactivé" : "Code désactivé");
+      renderAdmin();
+    }).catch(function () {
+      btn.disabled = false;
+      toast("Échec, réessaie");
+    });
+  }
+
+  function openAdminCode() {
+    var body = openSheet("adminCode", "Nouveau code", backToAdmin);
+    var today = new Date().toISOString().slice(0, 10), week = new Date(Date.now() + 7 * 864e5).toISOString().slice(0, 10);
+    body.innerHTML =
+      '<label class="adm-label" for="acCode">Code</label>' +
+      '<input class="adm-input up" id="acCode" maxlength="24" autocomplete="off" autocapitalize="characters" spellcheck="false" placeholder="Ex. NOEL30" />' +
+      '<p class="adm-help">3 à 24 caractères : lettres, chiffres, - ou _. L\'acheteur le tape au moment de payer.</p>' +
+      '<p class="adm-label">Réduction</p><div class="adm-chips">' + [25, 30, 35, 40].map(function (p) {
+        return '<button class="adm-chip' + (p === 30 ? " on" : "") + '" data-pct="' + p + '" onclick="acPct(' + p + ')">−' + p + " %</button>";
+      }).join("") + "</div>" +
+      '<label class="adm-field"><input id="acPct" inputmode="numeric" autocomplete="off" aria-label="Réduction en %" value="30" oninput="acPct()" /><span>%</span></label>' +
+      '<p class="adm-help">Entre 21 et 40 % : toujours mieux que la remise par lot (−20 % au plus).</p>' +
+      '<label class="adm-label" for="acUntil">Valable jusqu\'au</label>' +
+      '<input class="adm-input" id="acUntil" type="date" min="' + today + '" value="' + week + '" oninput="acUntil()" />' +
+      '<p class="adm-help" id="acUntilNote"></p>' +
+      '<div class="adm-prices"><div class="adm-cell"><label class="adm-label" for="acUses">Utilisations max</label>' +
+        '<input class="adm-input" id="acUses" inputmode="numeric" autocomplete="off" placeholder="Illimité" /></div>' +
+      '<div class="adm-cell"><label class="adm-label" for="acVideos">Vidéos max</label>' +
+        '<input class="adm-input" id="acVideos" inputmode="numeric" autocomplete="off" value="10" /></div></div>' +
+      '<p class="adm-help">Le code s\'applique aux N vidéos les plus chères du panier (10 par défaut) et au mois VIP s\'il y est. ' +
+        "Chaque acheteur ne peut l'utiliser qu'une fois.</p>";
+    sheetFoot().innerHTML = '<p class="promo-msg bad" id="acMsg" hidden></p><button class="pay-btn" id="acGo" onclick="adminCreateCode()">Créer le code</button>';
+    acUntil();
+  }
+
+  function acPct(p) {
+    var input = document.getElementById("acPct");
+    if (p) input.value = p;
+    var v = Number(input.value);
+    document.querySelectorAll(".adm-chip").forEach(function (c) { c.classList.toggle("on", +c.dataset.pct === v); });
+  }
+
+  // The code ends at 23:59 UTC on the chosen day: the same moment in Paris time, for the owner.
+  function acUntil() {
+    var v = document.getElementById("acUntil").value, note = document.getElementById("acUntilNote");
+    if (!/^\d{4}-\d{2}-\d{2}$/.test(v)) { note.textContent = ""; return; }
+    var end = new Date(Date.UTC(+v.slice(0, 4), +v.slice(5, 7) - 1, +v.slice(8, 10), 23, 59)), paris = "";
+    try {
+      var day = end.toLocaleDateString("en-CA", { timeZone: "Europe/Paris" });
+      var time = end.toLocaleTimeString("fr-FR", { timeZone: "Europe/Paris", hour: "2-digit", minute: "2-digit" });
+      if (/^\d{4}-\d{2}-\d{2}$/.test(day)) paris = ", soit le " + frDay(day) + " à " + time + " heure de Paris";
+    } catch (e) {}
+    note.textContent = "Fin le " + frDay(v) + " à 23:59 UTC" + paris + ".";
+  }
+
+  function adminCreateCode() {
+    function val(id) { return document.getElementById(id).value.trim(); }
+    var code = val("acCode").toUpperCase(), pct = Number(val("acPct")), until = val("acUntil");
+    var uses = val("acUses"), videos = Number(val("acVideos"));
+    var err = !/^[A-Z0-9_-]{3,24}$/.test(code) ? "bad_code"
+      : !(Number.isInteger(pct) && pct >= 21 && pct <= 40) ? "bad_pct"
+      : !/^\d{4}-\d{2}-\d{2}$/.test(until) || until < new Date().toISOString().slice(0, 10) ? "bad_date"
+      : uses && !(Number.isInteger(Number(uses)) && Number(uses) >= 1) ? "bad_uses"
+      : !(Number.isInteger(videos) && videos >= 1 && videos <= 60) ? "bad_videos" : "";
+    if (err) { adminMsg("acMsg", ADMIN_ERRORS[err]); return; }
+    var b = document.getElementById("acGo");
+    b.disabled = true;
+    payApi("/api/shop/admin/code", { code: code, pct: pct, until: until, max_uses: uses ? Number(uses) : null, max_videos: videos }).then(function (d) {
+      _admin.codes.unshift(d.code);
+      _adminView = "codes";
+      backToAdmin();
+      toast("Code " + d.code.code + " créé ✓");
+    }).catch(function (e) {
+      b.disabled = false;
+      adminMsg("acMsg", e.status === 401 ? "Session expirée : ferme et rouvre l'app." : ADMIN_ERRORS[e.message] || "Échec, réessaie.");
+    });
+  }
+
+  function adminMsg(id, text) {
+    var m = document.getElementById(id);
+    if (!m) return;
+    m.textContent = text;
+    m.hidden = !text;
+  }
+
+  function adminErrorHtml(e, retry) {
+    if (e && e.status === 401) return '<p class="pay-wait">Session expirée : ferme et rouvre l\'app.</p>';
+    return '<p class="pay-wait">Connexion impossible.</p><button class="pay-btn" onclick="' + retry + '">Réessayer</button>';
+  }
+
+  function frDay(iso) { return +iso.slice(8, 10) + " " + MOIS[+iso.slice(5, 7) - 1] + " " + iso.slice(0, 4); }
+
+  function frMoney(c) { return (c / 100).toFixed(2).replace(".", ",") + " $"; }
 
   // ─── Small helpers ───
   function errorHtml(e, retry) {
@@ -2623,11 +3094,6 @@
       post(ENDPOINT, { token: TOKEN, path: '/join', referrer: '', utm: '', is_new: 0, session_id: sid || '' });
     };
 
-    window._trackCrypto = function () {
-      if (lsGet('al_no_track') === '1') return;
-      post(ENDPOINT, { token: TOKEN, path: '/crypto', referrer: '', utm: '', is_new: 0, session_id: sid || '' });
-    };
-
     window._trackPay = function () {
       if (lsGet('al_no_track') === '1') return;
       post(ENDPOINT, { token: TOKEN, path: '/pay', referrer: '', utm: '', is_new: 0, session_id: sid || '' });
@@ -2648,7 +3114,7 @@
       post(ENDPOINT, { token: TOKEN, path: '/ref-buy', referrer: '', utm: '', is_new: 0, session_id: sid || '' });
     };
 
-    // Shop: open, add, cart, pay, code, paid — the important taps only.
+    // Shop: payment started ("pay") and purchase ("paid") only.
     window._trackShop = function (ev) {
       if (lsGet('al_no_track') === '1') return;
       post(ENDPOINT, { token: TOKEN, path: '/shop-' + ev, referrer: '', utm: '', is_new: 0, session_id: sid || '' });
