@@ -61,10 +61,12 @@
       z-index: 2;
       width: 100%;
       max-width: 430px;
+      flex: 1 0 auto;          /* at least the screen's height: the socials end at the bottom of a short page */
       padding-bottom: 120px;   /* room for the sticky CTA bar */
       display: flex;
       flex-direction: column;
     }
+    body.no-cta .container { padding-bottom: calc(22px + env(safe-area-inset-bottom)); }   /* no bar shown (empty cart) */
 
     /* Desktop (16% of traffic): the mobile column becomes a floating card on
        the ambient glow — mobile layout untouched below 900px. */
@@ -591,7 +593,8 @@
     }
     .trust span { font-size: 11px; color: rgba(255,255,255,0.45); white-space: nowrap; }
     .socials {
-      margin: 14px 16px 0;
+      margin: auto 16px 0;     /* pushed to the bottom when the page is shorter than the screen */
+      padding-top: 14px;
       display: flex;
       justify-content: center;
       gap: 12px;
@@ -2138,6 +2141,8 @@
     badge.textContent = n;
     document.getElementById("cartBtn").setAttribute("aria-label", "Cart, " + plural(n));
     document.getElementById("ctaShop").classList.toggle("off", !n || _tab !== "shop");
+    // No bottom bar shown (shop tab, empty cart): no room kept for it, the socials sit at the very bottom.
+    document.body.classList.toggle("no-cta", _tab === "shop" && !n);
     if (!n) return;
     document.getElementById("cbTotal").innerHTML = money(e.total) + " <span>· " + plural(n) + (e.vip ? " + VIP" : "") + "</span>";
     var info = document.getElementById("cbInfo");
