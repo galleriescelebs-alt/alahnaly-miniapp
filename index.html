@@ -2648,9 +2648,10 @@
         (d.items && d.items.length ? d.items.map(function (i) {
           return '<div class="ci"><img src="' + esc(i.cover) + '" alt="" loading="lazy" /><span class="ci-txt"><span class="ci-date">' + fmtDay(i.date) +
             '</span><span class="ci-sub">' + i.minutes + ' min · ' + sizeOf(i.mb) + '</span></span>' +
-            '<button class="ci-resend" onclick="resendLive(\'' + i.name + '\', this)">Resend to my chat</button></div>';
+            (i.resent_at ? '<button class="ci-resend" disabled>Sent today</button>'   // once a day per video
+              : '<button class="ci-resend" onclick="resendLive(\'' + i.name + '\', this)">Resend to my chat</button>') + '</div>';
         }).join("") : '<div class="empty">No purchase yet.</div>') +
-        '<p class="note">Your videos are in your chat with <b>@AlahnalyVIP_bot</b>. Save them to keep them for good. Resending is free.</p>';
+        '<p class="note">Your videos are in your chat with <b>@AlahnalyVIP_bot</b>. Save them to keep them for good. Resending is free, once a day per video.</p>';
       if (waiting) sheetFoot().innerHTML = '<button class="pay-btn" onclick="openLink(BOT_LINK)">Open @AlahnalyVIP_bot</button>';
     }).catch(function (e) {
       if (_sheet && _sheet.kind === "mine") body.innerHTML = errorHtml(e, "openMine()");
@@ -2664,6 +2665,11 @@
       btn.textContent = "Sent ✓";
       toast("Sent to your Telegram chat");
     }).catch(function (e) {
+      if (e.message === "video_limit") {   // already resent less than a day ago
+        btn.textContent = "Sent today";
+        toast("Already sent today: you can resend it tomorrow");
+        return;
+      }
       btn.disabled = false;
       btn.textContent = "Resend to my chat";
       toast(e.message === "blocked" ? "Open @AlahnalyVIP_bot and tap Start first" : e.message === "limit" ? "Daily limit reached, try again tomorrow"
