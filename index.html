@@ -1730,7 +1730,7 @@
     if (!p || !p.id) return;
     if (Date.now() - p.ts > 86400000) { try { localStorage.removeItem("al_pay_order"); } catch (e) {} return; }
     payApi("/api/pay/status", { order_id: p.id }).then(function (d) {
-      if (d.status === "expired" || d.status === "cancelled") { try { localStorage.removeItem("al_pay_order"); } catch (e) {} return; }
+      if (d.status === "expired" || d.status === "cancelled" || staleAmount(d)) { try { localStorage.removeItem("al_pay_order"); } catch (e) {} return; }
       showPayment(d, p.ts);
       var block = document.querySelector(".crypto-block");
       if (block) block.scrollIntoView({ block: "center" });
@@ -1924,11 +1924,17 @@
     updateCartUi();
     var sp = (tg.initDataUnsafe && tg.initDataUnsafe.start_param) || "";
     var pending = readShopOrder();
-    if (!/^shop/.test(sp) && !pending) return;
+    if (!/^shop/.test(sp)) {
+      // Opened another way ("Get Access" menu button…): the shop takes over only for a payment still going on.
+      if (pending) resumeShopPay(pending, true);
+      return;
+    }
     setTab("shop");
     loadCatalog().then(function () {
       if (!_shop.loadedAt) return;
-      if (pending) { resumeShopPay(pending); return; }
+      return pending ? resumeShopPay(pending, false) : false;
+    }).then(function (resumed) {
+      if (resumed || !_shop.loadedAt) return;
       var m = /^shop_(\d{4}-\d{2}-\d{2}(?:_\d+)?)$/.exec(sp);
       if (m && _shop.byName["alahnaly_" + m[1]]) {
         _shop.month = m[1].slice(0, 7);
@@ -2498,12 +2504,19 @@
   function clearShopOrder() { try { localStorage.removeItem("al_shop_order"); } catch (e) {} }
 
   // Reopened app: back to the payment in progress, or to its delivery.
-  function resumeShopPay(p) {
-    payApi("/api/pay/status", { order_id: p.id }).then(function (d) {
-      if (d.status === "expired" || d.status === "cancelled" || !d.shop) { clearShopOrder(); return; }
+  // A payment whose amount expired with nothing received is let go: reopening it would only show
+  // "expired" (an exact payment arriving late is still delivered by the bot). Resolves to true when the
+  // payment is shown again (switchTab: from the VIP tab, open the shop first).
+  function resumeShopPay(p, switchTab) {
+    return payApi("/api/pay/status", { order_id: p.id }).then(function (d) {
+      if (d.status === "expired" || d.status === "cancelled" || !d.shop || staleAmount(d)) { clearShopOrder(); return false; }
+      if (switchTab) setTab("shop");
       startShopPay(d, p.ts, []);
-    }).catch(function () {});
+      return true;
+    }).catch(function () { return false; });
   }
+
+  function staleAmount(d) { return d.status === "pending" && d.expires_at <= Date.now(); }
 
   function tickShopPay() {
     var p = _shopPay;
