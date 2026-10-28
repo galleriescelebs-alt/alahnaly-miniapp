@@ -1928,7 +1928,7 @@
     var sp = (tg.initDataUnsafe && tg.initDataUnsafe.start_param) || "";
     var pending = readShopOrder();
     if (!/^shop/.test(sp)) {
-      // Opened another way ("Get Access" menu button…): the shop takes over only for a payment still going on.
+      // Opened another way (the bot's /start link, its profile…): the shop takes over only for a payment still going on.
       if (pending) resumeShopPay(pending, true);
       return;
     }
@@ -3111,6 +3111,11 @@
       if (is_new) lsSet('al_visited', '1');
       sid = ssGet('al_sid');
       if (!sid) { sid = Math.random().toString(36).slice(2, 10) + Date.now().toString(36); ssSet('al_sid', sid); }
+      // Opened by the link of the bot's /start message (startapp=bot): once per opening, reloads aside
+      if (tg && tg.initDataUnsafe && tg.initDataUnsafe.start_param === 'bot' && !ssGet('al_bot_sent')) {
+        ssSet('al_bot_sent', '1');
+        post(ENDPOINT, { token: TOKEN, path: '/bot-link', referrer: '', utm: '', is_new: 0, session_id: sid });
+      }
       if (ssGet('al_sent')) return;
       ssSet('al_sent', '1');
       post(ENDPOINT, { token: TOKEN, path: path, referrer: referrer, utm: utm, is_new: is_new, session_id: sid });
