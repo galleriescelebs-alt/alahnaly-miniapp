@@ -1206,7 +1206,7 @@
       <button class="mine-btn" id="adminBtn" onclick="openAdmin()" hidden>⚙️ Admin</button>
     </div>
     <div class="months" id="months" role="tablist" aria-label="Months"></div>
-    <p class="tiers">Bundle: <b>−10%</b> from 5 videos · <b>−15%</b> from 10 · <b>−20%</b> from 15</p>
+    <p class="tiers">Bundle: <b>−10%</b> on the whole cart from 5 videos</p>
     <p class="shop-state" id="shopState"></p>
     <div class="grid" id="grid"></div>
   </section>
@@ -1895,7 +1895,7 @@
     code_used: "You've already used this code.",
     code_worse: "Your bundle discount is already better than this code, so we kept it."
   };
-  var _shop = { items: [], byName: {}, owned: {}, month: null, loadedAt: 0, loading: null, tiers: [[15, 20], [10, 15], [5, 10]], vip: 799 };
+  var _shop = { items: [], byName: {}, owned: {}, month: null, loadedAt: 0, loading: null, tiers: [[5, 10]], vip: 799 };
   var _cart = readCart();
   var _tab = "vip";
   var _sheet = null;            // { kind, back }
@@ -2710,7 +2710,7 @@
   var MOIS_LONG = ["Janvier", "Février", "Mars", "Avril", "Mai", "Juin", "Juillet", "Août", "Septembre", "Octobre", "Novembre", "Décembre"];
   var ADMIN_ERRORS = {
     bad_code: "Code : 3 à 24 caractères, lettres, chiffres, - ou _.",
-    bad_pct: "Réduction : entre 21 et 40 %.",
+    bad_pct: "Réduction : entre 11 et 40 %.",
     bad_date: "Choisis une date de fin : aujourd'hui ou plus tard.",
     bad_uses: "Utilisations max : un nombre à partir de 1, ou vide pour illimité.",
     bad_videos: "Vidéos max : entre 1 et 60.",
@@ -2924,11 +2924,11 @@
       '<label class="adm-label" for="acCode">Code</label>' +
       '<input class="adm-input up" id="acCode" maxlength="24" autocomplete="off" autocapitalize="characters" spellcheck="false" placeholder="Ex. NOEL30" />' +
       '<p class="adm-help">3 à 24 caractères : lettres, chiffres, - ou _. L\'acheteur le tape au moment de payer.</p>' +
-      '<p class="adm-label">Réduction</p><div class="adm-chips">' + [25, 30, 35, 40].map(function (p) {
+      '<p class="adm-label">Réduction</p><div class="adm-chips">' + [15, 20, 30, 40].map(function (p) {
         return '<button class="adm-chip' + (p === 30 ? " on" : "") + '" data-pct="' + p + '" onclick="acPct(' + p + ')">−' + p + " %</button>";
       }).join("") + "</div>" +
       '<label class="adm-field"><input id="acPct" inputmode="numeric" autocomplete="off" aria-label="Réduction en %" value="30" oninput="acPct()" /><span>%</span></label>' +
-      '<p class="adm-help">Entre 21 et 40 % : toujours mieux que la remise par lot (−20 % au plus).</p>' +
+      '<p class="adm-help">Entre 11 et 40 % : toujours mieux que la remise par lot (−10 %).</p>' +
       '<label class="adm-label" for="acUntil">Valable jusqu\'au</label>' +
       '<input class="adm-input" id="acUntil" type="date" min="' + today + '" value="' + week + '" oninput="acUntil()" />' +
       '<p class="adm-help" id="acUntilNote"></p>' +
@@ -2967,7 +2967,7 @@
     var code = val("acCode").toUpperCase(), pct = Number(val("acPct")), until = val("acUntil");
     var uses = val("acUses"), videos = Number(val("acVideos"));
     var err = !/^[A-Z0-9_-]{3,24}$/.test(code) ? "bad_code"
-      : !(Number.isInteger(pct) && pct >= 21 && pct <= 40) ? "bad_pct"
+      : !(Number.isInteger(pct) && pct >= 11 && pct <= 40) ? "bad_pct"
       : !/^\d{4}-\d{2}-\d{2}$/.test(until) || until < new Date().toISOString().slice(0, 10) ? "bad_date"
       : uses && !(Number.isInteger(Number(uses)) && Number(uses) >= 1) ? "bad_uses"
       : !(Number.isInteger(videos) && videos >= 1 && videos <= 60) ? "bad_videos" : "";
