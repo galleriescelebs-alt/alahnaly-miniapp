@@ -351,7 +351,7 @@
     /* Crypto picker: token first, then its network */
     .pick-title { margin: 0; font-size: 14px; color: #c9ced6; text-align: center; }
     .pick-title b { color: #4cc9f0; }
-    .pick-tokens { display: grid; grid-template-columns: repeat(5, 1fr); gap: 8px; }
+    .pick-tokens { display: grid; grid-auto-flow: column; grid-auto-columns: 1fr; gap: 8px; }   /* as many equal columns as tokens */
     .pick-token,
     .pick-net {
       border: 1px solid rgba(255,255,255,0.08);
@@ -381,7 +381,7 @@
       box-shadow: 0 0 0 1px rgba(0,175,240,0.35), 0 6px 18px rgba(0,175,240,0.15);
     }
     .pick-label { margin: 4px 0 -2px 2px; font-size: 12px; color: #8a8f98; }
-    .pick-nets { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+    .pick-nets { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 8px; }   /* a lone network fills the row */
     .pick-nets.in { animation: pick-in 0.2s ease-out; }
     @keyframes pick-in { from { opacity: 0; transform: translateY(-4px); } to { opacity: 1; transform: none; } }
     .pick-net {
@@ -811,6 +811,195 @@
       font-size: 14px;
       cursor: pointer;
     }
+
+    /* ── Shop: VIP | Shop switch, lives by month, cart and checkout in bottom sheets ── */
+    [hidden] { display: none !important; }
+    body.sheet-open { overflow: hidden; }
+    .cart-btn {
+      margin-left: auto; position: relative; flex-shrink: 0;
+      display: flex; align-items: center; justify-content: center;
+      width: 38px; height: 38px; padding: 0; border-radius: 50%;
+      border: 1px solid rgba(76,201,240,0.45);
+      background: linear-gradient(145deg, rgba(0,175,240,0.22), rgba(0,175,240,0.04));
+      box-shadow: 0 4px 14px rgba(0,175,240,0.18), inset 0 1px 0 rgba(255,255,255,0.12);
+      color: #4cc9f0; cursor: pointer; transition: transform 0.15s;
+    }
+    .cart-btn:active { transform: scale(0.92); }
+    .cart-btn svg { width: 19px; height: 19px; }
+    .cart-btn.bump { animation: bump 0.45s ease; }
+    @keyframes bump { 0% { transform: scale(1); } 35% { transform: scale(1.22); } 100% { transform: scale(1); } }
+    .cart-badge {
+      position: absolute; top: -5px; right: -5px;
+      min-width: 18px; height: 18px; padding: 0 5px; border-radius: 9px;
+      background: #fff; color: #0a0e13; font-size: 10.5px; font-weight: 800;
+      display: flex; align-items: center; justify-content: center;
+      box-shadow: 0 0 0 2px #0a0e13;
+    }
+    .tabs {
+      margin: 20px 16px 0;
+      display: grid; grid-template-columns: 1fr 1fr; gap: 4px;
+      padding: 4px; border-radius: 16px;
+      background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.08);
+      animation: fadeUp 0.45s 0.1s ease both;
+    }
+    .tab {
+      padding: 11px 0; border: none; border-radius: 12px;
+      background: transparent; color: rgba(255,255,255,0.6);
+      font-size: 14px; font-weight: 800; cursor: pointer;
+      transition: background 0.2s, color 0.2s, box-shadow 0.2s;
+    }
+    .tab.on { background: rgba(0,175,240,0.16); color: #fff; box-shadow: inset 0 0 0 1px rgba(0,175,240,0.45); }
+    .shop { display: flex; flex-direction: column; animation: fadeUp 0.35s ease both; }
+    .shop-lead { margin: 18px 22px 0; font-size: 13px; color: rgba(255,255,255,0.6); line-height: 1.5; text-align: center; }
+    .shop-lead b { color: #fff; }
+    .mine-btn {
+      align-self: center; margin-top: 10px; padding: 7px 14px; border-radius: 20px;
+      border: 1px solid rgba(255,255,255,0.14); background: rgba(255,255,255,0.05);
+      color: rgba(255,255,255,0.8); font-size: 12px; font-weight: 700; cursor: pointer;
+    }
+    .months { margin-top: 16px; padding: 0 16px; display: flex; gap: 8px; overflow-x: auto; scrollbar-width: none; -webkit-overflow-scrolling: touch; }
+    .months::-webkit-scrollbar { display: none; }
+    .month {
+      flex-shrink: 0; padding: 8px 14px; border-radius: 20px;
+      border: 1px solid rgba(255,255,255,0.1); background: rgba(255,255,255,0.05);
+      color: rgba(255,255,255,0.7); font-size: 13px; font-weight: 700; cursor: pointer; white-space: nowrap;
+    }
+    .month small { margin-left: 6px; font-size: 11px; font-weight: 700; opacity: 0.55; }
+    .month.on { background: #00AFF0; border-color: #00AFF0; color: #fff; }
+    .month.on small { opacity: 0.85; }
+    .tiers { margin: 12px 16px 0; font-size: 11.5px; color: rgba(255,255,255,0.5); text-align: center; }
+    .tiers b { color: #7fd9ff; }
+    .shop-state { margin: 18px 16px 0; font-size: 13px; color: rgba(255,255,255,0.6); text-align: center; line-height: 1.5; }
+    .shop-state:empty { display: none; }
+    .grid { margin: 12px 16px 0; display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+    .card {
+      position: relative; aspect-ratio: 3 / 4; border-radius: 16px; overflow: hidden; cursor: pointer;
+      background: #0d1218; border: 1px solid rgba(255,255,255,0.06);
+      animation: fadeUp 0.35s ease both; transition: border-color 0.2s;
+    }
+    .card.in { border-color: rgba(34,197,94,0.7); }
+    .card img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
+    .card-fade { position: absolute; inset: 0; background: linear-gradient(to top, rgba(7,9,12,0.92) 0%, rgba(7,9,12,0.2) 42%, transparent 60%); }
+    .card-dur {
+      position: absolute; top: 8px; left: 8px; font-size: 11px; font-weight: 700;
+      padding: 3px 8px; border-radius: 10px; background: rgba(7,9,12,0.6);
+      backdrop-filter: blur(6px); -webkit-backdrop-filter: blur(6px);
+    }
+    .card-info { position: absolute; left: 9px; right: 9px; bottom: 9px; display: flex; flex-direction: column; gap: 7px; }
+    .card-date { font-size: 13px; font-weight: 800; line-height: 1.2; text-shadow: 0 1px 6px rgba(0,0,0,0.6); }
+    .card-add {
+      width: 100%; padding: 8px 0; border-radius: 11px; border: none;
+      background: rgba(0,175,240,0.92); color: #fff; font-size: 12.5px; font-weight: 800; cursor: pointer;
+      box-shadow: 0 4px 14px rgba(0,175,240,0.3); transition: transform 0.15s, background 0.2s, box-shadow 0.2s;
+    }
+    .card-add:active { transform: scale(0.95); }
+    .card-add.in { background: rgba(34,197,94,0.92); box-shadow: 0 4px 14px rgba(34,197,94,0.3); }
+    .card-add.owned { background: rgba(255,255,255,0.16); box-shadow: none; }
+    .ctabar { transition: transform 0.3s ease, opacity 0.3s ease; }
+    .ctabar.off { transform: translateY(130%); opacity: 0; pointer-events: none; }
+    .ctabar-price .p2.good { color: #4ade80; }
+    .backdrop { position: fixed; inset: 0; z-index: 70; background: rgba(0,0,0,0.6); opacity: 0; pointer-events: none; transition: opacity 0.25s; }
+    .backdrop.show { opacity: 1; pointer-events: auto; }
+    .sheet {
+      position: fixed; left: 50%; bottom: 0; z-index: 71;
+      width: 100%; max-width: 430px; max-height: 90vh; max-height: 90dvh;
+      display: flex; flex-direction: column;
+      transform: translate(-50%, 105%); transition: transform 0.32s cubic-bezier(0.2, 0.8, 0.2, 1);
+      background: #0f141a; border: 1px solid rgba(255,255,255,0.1); border-bottom: none;
+      border-radius: 24px 24px 0 0; box-shadow: 0 -20px 60px rgba(0,0,0,0.6);
+    }
+    .sheet.show { transform: translate(-50%, 0); }
+    @media (min-width: 900px) {
+      .sheet { bottom: 50%; border-bottom: 1px solid rgba(255,255,255,0.1); border-radius: 24px; max-height: 86vh;
+        opacity: 0; transform: translate(-50%, calc(50% + 24px)); transition: transform 0.25s ease, opacity 0.25s ease; pointer-events: none; }
+      .sheet.show { opacity: 1; transform: translate(-50%, 50%); pointer-events: auto; }
+    }
+    .sheet-head { display: flex; align-items: center; gap: 10px; padding: 14px 16px 8px; }
+    .sheet-back, .sheet-x {
+      width: 32px; height: 32px; flex-shrink: 0; border-radius: 50%; border: none;
+      background: rgba(255,255,255,0.08); color: #fff; font-size: 15px; cursor: pointer;
+    }
+    .sheet-back { font-size: 20px; line-height: 1; }
+    .sheet-x { margin-left: auto; }
+    .sheet-title { font-size: 16px; font-weight: 800; }
+    .sheet-body {
+      flex: 1 1 auto; min-height: 0; overflow-y: auto; overscroll-behavior: contain; -webkit-overflow-scrolling: touch;
+      padding: 4px 16px calc(18px + env(safe-area-inset-bottom)); display: flex; flex-direction: column; gap: 12px;
+    }
+    /* Total + pay button stay in view under a long cart (outside the scrolling list) */
+    .sheet-foot {
+      flex-shrink: 0; display: flex; flex-direction: column; gap: 10px;
+      padding: 12px 16px calc(14px + env(safe-area-inset-bottom));
+      border-top: 1px solid rgba(255,255,255,0.07); background: #0f141a;
+    }
+    .sheet-foot:empty { display: none; }
+    .sheet-foot:not(:empty) ~ .sheet-body, .sheet-body:has(+ .sheet-foot:not(:empty)) { padding-bottom: 12px; }
+    .det-media { position: relative; width: 62%; max-width: 260px; margin: 0 auto; aspect-ratio: 9 / 16; border-radius: 18px; overflow: hidden; background: #0a0e13; }
+    .det-media video { width: 100%; height: 100%; object-fit: cover; display: block; }
+    .det-tag { position: absolute; top: 10px; left: 10px; font-size: 10px; font-weight: 800; letter-spacing: 0.5px; background: rgba(0,175,240,0.9); border-radius: 10px; padding: 3px 9px; }
+    .det-title { font-size: 18px; font-weight: 800; text-align: center; }
+    .det-meta { margin-top: 4px; font-size: 12.5px; color: rgba(255,255,255,0.55); text-align: center; }
+    .det-points { display: flex; flex-direction: column; gap: 7px; padding: 12px 14px; border-radius: 14px; background: rgba(255,255,255,0.04); font-size: 12.5px; color: rgba(255,255,255,0.78); }
+    .cart-head { display: flex; align-items: center; justify-content: space-between; font-size: 13px; color: rgba(255,255,255,0.6); }
+    .cart-list { display: flex; flex-direction: column; gap: 8px; }
+    .ci { display: flex; align-items: center; gap: 12px; padding: 8px; border-radius: 14px; background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.07); }
+    .ci img { width: 42px; height: 56px; border-radius: 9px; object-fit: cover; flex-shrink: 0; background: #0a0e13; }
+    .ci-txt { display: flex; flex-direction: column; min-width: 0; flex: 1; }
+    .ci-date { font-size: 14px; font-weight: 800; }
+    .ci-sub { font-size: 11.5px; color: rgba(255,255,255,0.5); }
+    .ci-price { font-size: 14px; font-weight: 800; font-variant-numeric: tabular-nums; }
+    .ci-x { width: 30px; height: 30px; flex-shrink: 0; border-radius: 50%; border: none; background: rgba(255,255,255,0.07); color: rgba(255,255,255,0.7); cursor: pointer; }
+    .ci-resend { flex-shrink: 0; padding: 7px 10px; border-radius: 10px; border: 1px solid rgba(0,175,240,0.4); background: transparent; color: #7fd9ff; font-size: 12px; font-weight: 700; cursor: pointer; }
+    .ci-resend:disabled { opacity: 0.6; }
+    .vip-row { display: flex; align-items: center; gap: 12px; padding: 12px; border-radius: 14px; border: 1px dashed rgba(0,175,240,0.45); background: rgba(0,175,240,0.05); cursor: pointer; }
+    .vip-row.on { border-style: solid; background: rgba(0,175,240,0.12); }
+    .vip-check { width: 22px; height: 22px; flex-shrink: 0; border-radius: 7px; border: 1.5px solid rgba(0,175,240,0.7); display: flex; align-items: center; justify-content: center; font-size: 13px; font-weight: 800; }
+    .vip-row.on .vip-check { background: #00AFF0; border-color: #00AFF0; }
+    .sum { display: flex; flex-direction: column; gap: 6px; padding: 12px 14px; border-radius: 14px; background: rgba(255,255,255,0.05); }
+    .sum-row { display: flex; justify-content: space-between; gap: 10px; font-size: 13px; color: rgba(255,255,255,0.7); font-variant-numeric: tabular-nums; }
+    .sum-row.disc { color: #4ade80; }
+    .sum-row.total { margin-top: 4px; padding-top: 9px; border-top: 1px solid rgba(255,255,255,0.08); font-size: 16px; font-weight: 800; color: #fff; }
+    .hint { margin: 0; font-size: 12px; color: #7fd9ff; text-align: center; }
+    .empty { padding: 26px 0 6px; text-align: center; color: rgba(255,255,255,0.55); font-size: 13.5px; line-height: 1.55; }
+    .note { margin: 0; font-size: 12px; color: rgba(255,255,255,0.5); text-align: center; line-height: 1.5; }
+    .note b { color: rgba(255,255,255,0.85); }
+    .note.warn { color: #ffd95a; }
+    .pay-link.center { display: block; margin: 0 auto; }
+    .pay-btn.ghost { background: transparent; border: 1px solid rgba(255,255,255,0.18); color: rgba(255,255,255,0.85); }
+    .pay-btn:disabled { opacity: 0.6; }
+    .pay-banner { padding: 10px 12px; border-radius: 12px; border: 1px solid rgba(0,175,240,0.4); background: rgba(0,175,240,0.08); color: #7fd9ff; font-size: 13px; font-weight: 700; cursor: pointer; }
+    .promo-link { align-self: center; border: none; background: none; color: #8a8f98; font-size: 12.5px; text-decoration: underline; cursor: pointer; padding: 2px 8px; }
+    .promo-box { display: flex; gap: 8px; }
+    .promo-box input {
+      flex: 1; min-width: 0; padding: 11px 12px; border-radius: 12px;
+      border: 1px solid rgba(255,255,255,0.15); background: rgba(255,255,255,0.05);
+      color: #fff; font-size: 16px; text-transform: uppercase; letter-spacing: 0.5px;
+    }
+    .promo-box .pay-btn { width: auto; padding: 11px 16px; font-size: 13.5px; }
+    .promo-msg { margin: 0; font-size: 12px; text-align: center; color: #aab0b8; line-height: 1.45; }
+    .promo-msg.ok { color: #4ade80; }
+    .promo-msg.bad { color: #ff8a8a; }
+    .deliv-ok { margin: 6px 0 0; font-size: 18px; font-weight: 800; text-align: center; }
+    .deliv-bar { height: 6px; border-radius: 3px; background: rgba(255,255,255,0.08); overflow: hidden; }
+    .deliv-bar span { display: block; height: 100%; border-radius: 3px; background: #22c55e; transition: width 0.4s ease; }
+    .spin { display: inline-block; width: 13px; height: 13px; margin-right: 6px; vertical-align: -2px; border-radius: 50%;
+      border: 2px solid rgba(0,175,240,0.35); border-top-color: #00AFF0; animation: spin 0.8s linear infinite; }
+    @keyframes spin { to { transform: rotate(360deg); } }
+    .toast {
+      position: fixed; left: 50%; bottom: calc(100px + env(safe-area-inset-bottom)); z-index: 80;
+      transform: translate(-50%, 16px); opacity: 0; transition: opacity 0.2s, transform 0.2s;
+      max-width: calc(100% - 32px); padding: 10px 16px; border-radius: 14px;
+      background: rgba(20,26,33,0.96); border: 1px solid rgba(255,255,255,0.12);
+      font-size: 13px; font-weight: 700; text-align: center; pointer-events: none;
+    }
+    .toast.show { opacity: 1; transform: translate(-50%, 0); }
+    /* "No crypto yet? Buy crypto": a quiet link at the payment steps */
+    .starter-link { align-self: center; border: none; background: none; color: #7fd9ff; font-size: 12.5px; font-weight: 600; cursor: pointer; padding: 4px 8px; }
+    .starter-link:active { opacity: 0.7; }
+    @media (prefers-reduced-motion: reduce) {
+      .card, .shop, .cart-btn.bump { animation: none; }
+      .sheet, .backdrop, .toast, .ctabar { transition: none; }
+    }
   </style>
 </head>
 <body>
@@ -825,6 +1014,10 @@
       <span class="topbar-online" aria-hidden="true"></span>
     </span>
     <span class="topbar-name">Alahna Ly <span class="verif">✓</span></span>
+    <button class="cart-btn" id="cartBtn" onclick="openCart()" aria-label="Cart" hidden>
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5.5 7.5h13l-1.2 12.1a1.5 1.5 0 0 1-1.5 1.4H8.2a1.5 1.5 0 0 1-1.5-1.4L5.5 7.5Z"/><path d="M9 10V6.5a3 3 0 0 1 6 0V10"/></svg>
+      <span class="cart-badge" id="cartBadge" hidden>0</span>
+    </button>
   </div>
 </div>
 
@@ -856,6 +1049,14 @@
     </div>
   </div>
 
+  <!-- Shown inside Telegram only (see initShop): the shop needs initData and keeps its previews
+       off the public page. -->
+  <div class="tabs" id="tabs" role="tablist" hidden>
+    <button class="tab on" id="tabVip" role="tab" aria-selected="true" onclick="setTab('vip')">VIP channel</button>
+    <button class="tab" id="tabShop" role="tab" aria-selected="false" onclick="setTab('shop')">Shop 🛒</button>
+  </div>
+
+  <div id="vipTab">
   <div class="mosaic">
     <!-- Curiosity taps glide to the offer instead of yanking the visitor to
          Telegram mid-browse — the sticky Join bar handles actual joining. -->
@@ -891,7 +1092,7 @@
   </div>
 
   <div class="crypto-block">
-    <button class="btn-crypto" onclick="chooseCrypto()">💎 Or pay with crypto (USDT · SOL · ETH…)</button>
+    <button class="btn-crypto" onclick="chooseCrypto()">💎 Or pay with crypto (USDT · Gram)</button>
     <!-- Options come from PAY_OPTIONS in the script. No wallet connection: the buyer
          copies an exact amount and our address (see the payments worker). -->
     <div id="cryptoChoice" class="crypto-choice" style="display:none"></div>
@@ -938,6 +1139,16 @@
     <span>🔁 Cancel anytime</span>
     <span>🕶 100% discreet</span>
   </div>
+  </div>
+
+  <section class="shop" id="shopTab" hidden>
+    <p class="shop-lead"><b>Download and keep</b> my full lives.<br />Sent to your Telegram chat right after payment.</p>
+    <button class="mine-btn" onclick="openMine()">📥 My purchases</button>
+    <div class="months" id="months" role="tablist" aria-label="Months"></div>
+    <p class="tiers">Bundle: <b>−10%</b> from 5 videos · <b>−15%</b> from 10 · <b>−20%</b> from 15</p>
+    <p class="shop-state" id="shopState"></p>
+    <div class="grid" id="grid"></div>
+  </section>
 
   <div class="socials">
     <button class="social-btn" aria-label="YouTube" onclick="openSocial('yt', 'https://www.youtube.com/@alahna_ly')">
@@ -956,7 +1167,7 @@
 
 </div>
 
-<div class="ctabar">
+<div class="ctabar" id="ctaVip">
   <div class="ctabar-inner">
     <div class="ctabar-price">
       <span class="p1">600 ⭐ <span>/ month</span></span>
@@ -965,6 +1176,28 @@
     <button class="btn-subscribe" onclick="subscribe()">Join now</button>
   </div>
 </div>
+
+<div class="ctabar off" id="ctaShop">
+  <div class="ctabar-inner">
+    <div class="ctabar-price">
+      <span class="p1" id="cbTotal"></span>
+      <span class="p2" id="cbInfo"></span>
+    </div>
+    <button class="btn-subscribe" onclick="openCart()">View cart</button>
+  </div>
+</div>
+
+<div class="backdrop" id="backdrop" onclick="closeSheet()"></div>
+<div class="sheet" id="sheet" role="dialog" aria-modal="true" aria-labelledby="sheetTitle">
+  <div class="sheet-head">
+    <button class="sheet-back" id="sheetBack" aria-label="Back" hidden>‹</button>
+    <span class="sheet-title" id="sheetTitle"></span>
+    <button class="sheet-x" onclick="closeSheet()" aria-label="Close">✕</button>
+  </div>
+  <div class="sheet-body" id="sheetBody"></div>
+  <div class="sheet-foot" id="sheetFoot"></div>
+</div>
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
 
 <div id="browserHint" class="bh-overlay" aria-hidden="true">
   <div class="bh-card">
@@ -1085,13 +1318,17 @@
   // gets a unique amount, which is how the worker recognises the transfer by itself; the
   // transaction id is only a fallback when an exchange altered the amount. The buyer pays
   // the network and exchange fees: the full amount must arrive.
+  // Telegram only allows TON in Mini Apps (since Feb. 2025): USDT on TON and Gram. The other networks
+  // stay ready below; to bring one back, move it into PAY_OPTIONS and add it to PAY_ENABLED in the worker.
   const PAY_OPTIONS = [
+    { id: "usdt-ton", name: "USDT", net: "TON", icon: "usdt.png", chain: "gram.png" },
+    { id: "gram", name: "Gram", net: "TON", icon: "gram.png" }
+  ];
+  const PAY_OPTIONS_RESERVE = [
     { id: "usdt-tron", name: "USDT", net: "TRON (TRC20)", icon: "usdt.png", chain: "trx.png" },
     { id: "usdt-bsc", name: "USDT", net: "BNB Chain (BEP20)", icon: "usdt.png", chain: "bnb.png" },
     { id: "usdt-sol", name: "USDT", net: "Solana", icon: "usdt.png", chain: "sol.png" },
-    { id: "usdt-ton", name: "USDT", net: "TON", icon: "usdt.png", chain: "gram.png" },
     { id: "usdc-sol", name: "USDC", net: "Solana", icon: "usdc.png", chain: "sol.png" },
-    { id: "gram", name: "Gram", net: "TON", icon: "gram.png" },
     { id: "sol", name: "SOL", net: "Solana", icon: "sol.png" },
     { id: "eth", name: "ETH", net: "Ethereum", icon: "eth.png" }
   ];
@@ -1126,7 +1363,8 @@
           '<img src="' + o.icon + '" alt="" width="30" height="30" />' + o.name + '</button>';
       }).join("") + '</div>' +
       '<p class="pick-label">Network</p><div class="pick-nets" id="pickNets"></div>' +
-      '<button class="pay-btn pick-go" id="pickGo" onclick="goPick()"></button>';
+      '<button class="pay-btn pick-go" id="pickGo" onclick="goPick()"></button>' +
+      buyLink();
     showPick(false);
   }
 
@@ -1199,9 +1437,43 @@
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(Object.assign({ initData: tg.initData }, body))
     });
-    var d = await r.json();
-    if (!r.ok) throw new Error(d.error || ("HTTP " + r.status));
+    var d = await r.json().catch(function () { return {}; });
+    if (!r.ok) {
+      var err = new Error(d.error || ("HTTP " + r.status));
+      err.status = r.status;   // 401: initData too old, the app must be reopened
+      throw err;
+    }
     return d;
+  }
+
+  const TXID_ERRORS = {
+    not_found: "Transaction not found yet. Check the ID, or wait a minute if you just sent it.",
+    too_old: "This transaction was sent before this payment was created.",
+    other_order: "This transaction belongs to another payment.",
+    already_used: "This transaction was already used.",
+    invalid_txid: "This doesn't look like a transaction ID.",
+    amount_mismatch: "The amount of this transaction doesn't match this payment. Tap 🎧 if you need help."
+  };
+
+  // Exchanges take a withdrawal fee from what they send: the buyer adds it. On TRON and Ethereum it
+  // is large enough to say how much (the worker forgives a few cents on the other networks only).
+  function feeNote(option) {
+    var fee = option === "usdt-tron" ? " (about $1 on TRON)" : option === "eth" ? " (often a few dollars on Ethereum)" : "";
+    return '<p class="pay-note">The <b>full amount</b> must arrive. Paying from an exchange (Binance, Coinbase…)? Add its withdrawal fee' + fee + '.</p>';
+  }
+
+  // ---- No crypto yet: a quiet "Buy crypto" link at the payment steps, to the owner's Bitget Wallet
+  // referral (share link made with the app in English; the code is bound at log-in) ----
+  var BUY_REF = "https://web3.bitget.com/share/1LmwL2?inviteCode=alahnaly";
+
+  function buyLink() {
+    return '<button class="starter-link" onclick="openBuyRef()">No crypto yet? Buy now →</button>';
+  }
+
+  function openBuyRef() {
+    if (window._trackRef) window._trackRef();
+    if (tg && tg.platform && tg.platform !== "unknown" && typeof tg.openLink === "function") tg.openLink(BUY_REF);
+    else window.open(BUY_REF, "_blank");
   }
 
   async function startPay(optionId) {
@@ -1259,13 +1531,7 @@
       var d = await payApi("/api/pay/txid", { order_id: _pay.order.order_id, txid: input.value.trim() });
       _pay.order = d;
       if (!d.txid_error) { renderPayment(); return; }
-      msg.textContent = ({
-        not_found: "Transaction not found yet. Check the ID, or wait a minute if you just sent it.",
-        too_old: "This transaction was sent before this payment was created.",
-        other_order: "This transaction belongs to another payment.",
-        already_used: "This transaction was already used.",
-        invalid_txid: "This doesn't look like a transaction ID."
-      })[d.txid_error] || "Not recognised — check the ID and try again.";
+      msg.textContent = TXID_ERRORS[d.txid_error] || "Not recognised — check the ID and try again.";
     } catch (e) {
       msg.textContent = "Connection problem — try again.";
     }
@@ -1337,7 +1603,7 @@
       '<div class="pay-lbl">To this address</div>' +
       '<div class="pay-field addr"><code>' + esc(o.address) + '</code><button class="pay-copy" id="payCopyAddr">Copy</button></div>' +
       '<div class="pay-warn">⚠️ Only send <b>' + esc(o.asset) + '</b> on <b>' + esc(o.network) + '</b>. Another network or token = lost funds.</div>' +
-      '<p class="pay-note">The <b>full amount</b> must arrive. Paying from an exchange (Binance, Coinbase…)? Add its withdrawal fee.</p>' +
+      feeNote(o.option) +
       '<p class="pay-timer">Amount reserved for <b id="payClock">–</b></p>' +
       '<p class="pay-wait">⏳ Waiting for your payment — this updates by itself.<br>You can close this page and come back later.</p>' +
       '<div id="payTxidBox"' + (Date.now() - _pay.shownAt > TXID_AFTER ? '' : ' hidden') + '>' +
@@ -1345,6 +1611,7 @@
         '<div class="pay-txid"><input id="payTxid" placeholder="Transaction ID" autocomplete="off" spellcheck="false" />' +
         '<button class="pay-btn" id="payTxidBtn">Check</button></div>' +
         '<p class="pay-note" id="payTxidMsg"></p></div>' +
+      buyLink() +
       '<button class="pay-link" id="payBack">Choose another payment method</button>';
     document.getElementById("payCopyAmount").onclick = function () { copyText(o.amount, this); };
     document.getElementById("payCopyAddr").onclick = function () { copyText(o.address, this); };
@@ -1524,6 +1791,725 @@
     } catch (e) {}
   }
 
+  // ---- Shop: full lives to download and keep, paid in crypto, sent by @AlahnalyVIP_bot ----
+  // Inside Telegram only: initData proves the buyer and the previews stay off the public page. The
+  // worker computes every price; while browsing, the page shows the same rules as an estimate.
+  var SHOP_OWNER_ONLY = true;   // test phase: only the owner sees the Shop tab
+  var OWNER_ID = 556796158;
+  var BOT_LINK = "https://t.me/AlahnalyVIP_bot";
+  var MONTHS = ["Jan", "Feb", "Mar", "Apr", "May", "June", "July", "Aug", "Sept", "Oct", "Nov", "Dec"];
+  var CODE_ERRORS = {
+    code_invalid: "This code doesn't exist or has expired.",
+    code_used: "You've already used this code.",
+    code_worse: "Your bundle discount is already better than this code, so we kept it."
+  };
+  var _shop = { items: [], byName: {}, owned: {}, month: null, loadedAt: 0, loading: null, tiers: [[15, 20], [10, 15], [5, 10]], vip: 799 };
+  var _cart = readCart();
+  var _tab = "vip";
+  var _sheet = null;            // { kind, back }
+  var _code = null;             // promo code applied at checkout: { code, pct, until }
+  var _promoOpen = false;
+  var _quote = null;            // the worker's last quote for the checkout
+  var _shopPick = null;         // crypto option chosen at checkout
+  var _shopPay = null;          // { order, shownAt, timer, lastPoll, names, paid }
+  var _toastTimer = null;
+  setTimeout(initShop, 0);      // after the whole script (analytics helpers included)
+
+  function shopEnabled() {
+    var u = tg && tg.initDataUnsafe && tg.initDataUnsafe.user;
+    return !!(tg && tg.initData && u && (!SHOP_OWNER_ONLY || u.id === OWNER_ID));
+  }
+
+  function initShop() {
+    if (!shopEnabled()) return;
+    document.getElementById("tabs").hidden = false;
+    document.getElementById("cartBtn").hidden = false;
+    try { _shopPick = localStorage.getItem("al_pay_pick"); } catch (e) {}
+    updateCartUi();
+    var sp = (tg.initDataUnsafe && tg.initDataUnsafe.start_param) || "";
+    var pending = readShopOrder();
+    if (!/^shop/.test(sp) && !pending) return;
+    setTab("shop");
+    loadCatalog().then(function () {
+      if (!_shop.loadedAt) return;
+      if (pending) { resumeShopPay(pending); return; }
+      var m = /^shop_(\d{4}-\d{2}-\d{2}(?:_\d+)?)$/.exec(sp);
+      if (m && _shop.byName["alahnaly_" + m[1]]) {
+        _shop.month = m[1].slice(0, 7);
+        renderShop();
+        openLive("alahnaly_" + m[1]);
+      } else if (sp === "shop_mine") {
+        openMine();
+      }
+    });
+  }
+
+  function setTab(t) {
+    if (t === "shop" && !shopEnabled()) return;
+    _tab = t;
+    var vip = document.getElementById("tabVip"), shop = document.getElementById("tabShop");
+    vip.classList.toggle("on", t === "vip");
+    shop.classList.toggle("on", t === "shop");
+    vip.setAttribute("aria-selected", t === "vip");
+    shop.setAttribute("aria-selected", t === "shop");
+    document.getElementById("vipTab").hidden = t !== "vip";
+    document.getElementById("shopTab").hidden = t !== "shop";
+    document.getElementById("ctaVip").classList.toggle("off", t !== "vip");
+    if (t === "shop") {
+      if (!_shop.openTracked) { _shop.openTracked = true; track("open"); }
+      loadCatalog();
+    }
+    updateCartUi();
+  }
+
+  function track(ev) { if (window._trackShop) window._trackShop(ev); }
+
+  // ─── Catalogue ───
+  function loadCatalog(force) {
+    if (_shop.loading) return _shop.loading;
+    if (!force && _shop.loadedAt && Date.now() - _shop.loadedAt < 5 * 3600e3) return Promise.resolve();   // links signed for 6 h
+    if (!_shop.loadedAt) setShopState('<span class="spin"></span>Loading the lives…');
+    _shop.loading = payApi("/api/shop/catalog", {}).then(function (d) {
+      _shop.items = d.items || [];
+      _shop.byName = {};
+      _shop.items.forEach(function (i) { _shop.byName[i.name] = i; });
+      _shop.owned = {};
+      (d.owned || []).forEach(function (n) { _shop.owned[n] = true; });
+      if (d.tiers) _shop.tiers = d.tiers;
+      if (d.vip_price) _shop.vip = d.vip_price;
+      _shop.loadedAt = Date.now();
+      _shop.loading = null;
+      var before = _cart.names.length;
+      _cart.names = _cart.names.filter(function (n) { return _shop.byName[n] && !_shop.owned[n]; });
+      if (_cart.names.length !== before) saveCart();
+      setShopState(_shop.items.length ? "" : "New lives are coming soon.");
+      renderShop();
+      updateCartUi();
+    }).catch(function (e) {
+      _shop.loading = null;
+      if (!_shop.loadedAt) setShopState(e && e.status === 401 ? "Your session has expired: close the app and open it again."
+        : 'Couldn\'t load the shop. <button class="pay-link" onclick="loadCatalog(true)">Try again</button>');
+    });
+    return _shop.loading;
+  }
+
+  function setShopState(html) { document.getElementById("shopState").innerHTML = html; }
+
+  function renderShop() {
+    var groups = {};
+    _shop.items.forEach(function (i) { var k = i.date.slice(0, 7); (groups[k] = groups[k] || []).push(i); });
+    var keys = Object.keys(groups).sort().reverse();
+    if (!_shop.month || !groups[_shop.month]) _shop.month = keys[0];
+    var row = document.getElementById("months");
+    row.innerHTML = keys.map(function (k) {
+      var on = k === _shop.month;
+      return '<button class="month' + (on ? " on" : "") + '" role="tab" aria-selected="' + on + '" onclick="pickMonth(\'' + k + '\')">' +
+        MONTHS[+k.slice(5, 7) - 1] + " " + k.slice(0, 4) + "<small>" + groups[k].length + "</small></button>";
+    }).join("");
+    var list = groups[_shop.month] || [];
+    document.getElementById("grid").innerHTML = list.map(function (i, k) {
+      return '<div class="card" data-n="' + i.name + '" style="animation-delay:' + Math.min(k, 8) * 30 + 'ms" onclick="openLive(\'' + i.name + '\')">' +
+        '<img src="' + esc(i.cover) + '" alt="Live of ' + fmtDay(i.date) + '" loading="lazy" decoding="async" />' +
+        '<div class="card-fade"></div><span class="card-dur">▶ ' + i.minutes + ' min</span>' +
+        '<div class="card-info"><div class="card-date">' + fmtDay(i.date) + '</div>' +
+        '<button class="card-add" onclick="event.stopPropagation(); toggleCart(\'' + i.name + '\')"></button></div></div>';
+    }).join("");
+    list.forEach(updateCard);
+    var on = row.querySelector(".month.on");   // keep the chosen month in view, without moving the page
+    if (on) row.scrollLeft = on.offsetLeft - (row.clientWidth - on.offsetWidth) / 2;
+  }
+
+  function pickMonth(k) {
+    _shop.month = k;
+    renderShop();
+  }
+
+  function updateCard(i) {
+    var card = document.querySelector('.card[data-n="' + i.name + '"]');
+    if (!card) return;
+    var owned = !!_shop.owned[i.name], inc = inCart(i.name);
+    card.classList.toggle("in", inc);
+    var b = card.querySelector(".card-add");
+    b.className = "card-add" + (owned ? " owned" : inc ? " in" : "");
+    b.textContent = owned ? "✓ Owned" : inc ? "✓ In your cart" : "+ Add · " + money(i.price);
+  }
+
+  // ─── Cart (kept on this device) ───
+  function readCart() {
+    try {
+      var c = JSON.parse(localStorage.getItem("al_shop_cart") || "null");
+      if (c && Array.isArray(c.names)) return { names: c.names.slice(0, 60), vip: !!c.vip };
+    } catch (e) {}
+    return { names: [], vip: false };
+  }
+
+  function saveCart() { try { localStorage.setItem("al_shop_cart", JSON.stringify(_cart)); } catch (e) {} }
+
+  function inCart(n) { return _cart.names.indexOf(n) >= 0; }
+
+  function estimate() {
+    var items = _cart.names.map(function (n) { return _shop.byName[n]; }).filter(Boolean)
+      .sort(function (a, b) { return b.date < a.date ? -1 : b.date > a.date ? 1 : 0; });
+    var subtotal = items.reduce(function (s, i) { return s + i.price; }, 0);
+    var tier = _shop.tiers.find(function (t) { return items.length >= t[0]; });
+    var rate = tier ? tier[1] : 0;
+    var vip = _cart.vip && items.length ? _shop.vip : 0;
+    var next = _shop.tiers.slice().reverse().find(function (t) { return items.length < t[0]; });
+    return { items: items, count: items.length, subtotal: subtotal, rate: rate, vip: vip,
+      total: Math.round(subtotal * (100 - rate) / 100) + vip, next: next ? { more: next[0] - items.length, pct: next[1] } : null };
+  }
+
+  function toggleCart(n) {
+    var i = _shop.byName[n];
+    if (!i) return;
+    if (_shop.owned[n]) { openMine(); return; }
+    if (inCart(n)) {
+      _cart.names = _cart.names.filter(function (x) { return x !== n; });
+      toast("Removed from your cart");
+    } else {
+      if (_cart.names.length >= 60) { toast("Your cart is full"); return; }
+      _cart.names.push(n);
+      track("add");
+      haptic("light");
+      toast("Added · " + fmtDay(i.date));
+      var btn = document.getElementById("cartBtn");
+      btn.classList.remove("bump");
+      void btn.offsetWidth;
+      btn.classList.add("bump");
+    }
+    if (!_cart.names.length) _cart.vip = false;
+    saveCart();
+    updateCard(i);
+    updateCartUi();
+    if (_sheet && _sheet.kind === "live") renderLiveActions(n);
+    if (_sheet && _sheet.kind === "cart") renderCart();
+  }
+
+  function toggleVip() {
+    _cart.vip = !_cart.vip;
+    saveCart();
+    updateCartUi();
+    renderCart();
+  }
+
+  function clearCart() {
+    function clear(ok) {
+      if (!ok) return;
+      _cart = { names: [], vip: false };
+      saveCart();
+      _shop.items.forEach(updateCard);
+      updateCartUi();
+      renderCart();
+    }
+    var ask = "Remove the " + plural(_cart.names.length) + " from your cart?";
+    if (tg && typeof tg.showConfirm === "function" && tg.isVersionAtLeast && tg.isVersionAtLeast("6.2")) tg.showConfirm(ask, clear);
+    else clear(window.confirm(ask));
+  }
+
+  // The worker's quote drops what can't be bought any more (removed live, already owned).
+  function syncCart(q) {
+    (q.owned || []).forEach(function (n) { _shop.owned[n] = true; });
+    var drop = (q.unavailable || []).concat(q.owned || []);
+    if (!drop.length) return;
+    _cart.names = _cart.names.filter(function (n) { return drop.indexOf(n) < 0; });
+    if (!_cart.names.length) _cart.vip = false;
+    saveCart();
+    _shop.items.forEach(updateCard);
+    updateCartUi();
+  }
+
+  function updateCartUi() {
+    var e = estimate(), n = e.count;
+    var badge = document.getElementById("cartBadge");
+    badge.hidden = !n;
+    badge.textContent = n;
+    document.getElementById("cartBtn").setAttribute("aria-label", "Cart, " + plural(n));
+    document.getElementById("ctaShop").classList.toggle("off", !n || _tab !== "shop");
+    if (!n) return;
+    document.getElementById("cbTotal").innerHTML = money(e.total) + " <span>· " + plural(n) + (e.vip ? " + VIP" : "") + "</span>";
+    var info = document.getElementById("cbInfo");
+    info.classList.toggle("good", !!e.rate);
+    info.textContent = e.rate ? "Bundle −" + e.rate + "% included" : e.next ? e.next.more + " more for −" + e.next.pct + "% on everything" : "";
+  }
+
+  function summaryHtml(q) {
+    var off = q.subtotal + q.vip - q.total;
+    var label = q.code ? "Code " + esc(q.code) + " −" + q.pct + "%" + (q.code_limit && q.count > q.code_limit ? " (on " + q.code_limit + " videos)" : "")
+      : "Bundle −" + q.rate + "%";
+    return '<div class="sum"><div class="sum-row"><span>' + plural(q.count) + '</span><span>' + money(q.subtotal) + '</span></div>' +
+      (q.vip ? '<div class="sum-row"><span>VIP channel · 1 month</span><span>' + money(q.vip) + '</span></div>' : "") +
+      (off > 0 ? '<div class="sum-row disc"><span>' + label + '</span><span>−' + money(off) + '</span></div>' : "") +
+      '<div class="sum-row total"><span>Total</span><span>' + money(q.total) + '</span></div></div>';
+  }
+
+  // ─── Bottom sheets (Telegram's back button closes them too) ───
+  function openSheet(kind, title, back) {
+    _sheet = { kind: kind, back: back || null };
+    document.getElementById("sheetTitle").textContent = title || "";
+    var b = document.getElementById("sheetBack");
+    b.hidden = !back;
+    b.onclick = back || null;
+    var body = document.getElementById("sheetBody");
+    stopVideos(body);
+    body.innerHTML = "";
+    body.scrollTop = 0;
+    document.getElementById("sheetFoot").innerHTML = "";
+    document.getElementById("backdrop").classList.add("show");
+    document.getElementById("sheet").classList.add("show");
+    document.body.classList.add("sheet-open");
+    if (tg && tg.BackButton) {
+      tg.BackButton.offClick(sheetBack);
+      tg.BackButton.onClick(sheetBack);
+      tg.BackButton.show();
+    }
+    if (tg && typeof tg.disableVerticalSwipes === "function") tg.disableVerticalSwipes();
+    return body;
+  }
+
+  function sheetBack() {
+    if (_sheet && _sheet.back) _sheet.back();
+    else closeSheet();
+  }
+
+  function closeSheet() {
+    stopVideos(document.getElementById("sheetBody"));
+    _sheet = null;
+    document.getElementById("sheet").classList.remove("show");
+    document.getElementById("backdrop").classList.remove("show");
+    document.body.classList.remove("sheet-open");
+    if (tg && tg.BackButton) {
+      tg.BackButton.offClick(sheetBack);
+      tg.BackButton.hide();
+    }
+    if (tg && typeof tg.enableVerticalSwipes === "function") tg.enableVerticalSwipes();
+  }
+
+  function stopVideos(el) {
+    el.querySelectorAll("video").forEach(function (v) { v.pause(); v.removeAttribute("src"); v.load(); });
+  }
+
+  function sheetBody() { return document.getElementById("sheetBody"); }
+  function sheetFoot() { return document.getElementById("sheetFoot"); }
+
+  // ─── One live: its 20 s preview ───
+  function openLive(n) {
+    var i = _shop.byName[n];
+    if (!i) return;
+    var body = openSheet("live", "");
+    body.innerHTML = '<div class="det-media"><video src="' + esc(i.trailer) + '" poster="' + esc(i.cover) +
+      '" autoplay muted loop playsinline preload="auto"></video><span class="det-tag">PREVIEW · 20 S</span></div>' +
+      '<div><div class="det-title">🔴 Live · ' + fmtDay(i.date) + '</div><div class="det-meta">' + i.minutes + ' min · ' + sizeOf(i.mb) + '</div></div>' +
+      '<div class="det-points"><span>🎬 The full live, with sound</span><span>📥 Sent to your Telegram chat right after payment</span>' +
+      '<span>♾️ Yours to keep: save it on your phone or computer</span></div>';
+    var v = body.querySelector("video");
+    v.muted = true;
+    v.play().catch(function () {});
+    _sheet.name = n;
+    renderLiveActions(n);
+  }
+
+  function renderLiveActions(n) {
+    var i = _shop.byName[n], foot = sheetFoot();
+    if (!i || !_sheet || _sheet.name !== n) return;
+    if (_shop.owned[n]) foot.innerHTML = '<button class="pay-btn ghost" onclick="openMine()">✓ You own this live · My purchases</button>';
+    else if (inCart(n)) foot.innerHTML = '<button class="pay-btn" onclick="openCart()">View cart (' + _cart.names.length + ')</button>' +
+      '<button class="pay-link center" onclick="toggleCart(\'' + n + '\')">Remove from cart</button>';
+    else foot.innerHTML = '<button class="pay-btn" onclick="toggleCart(\'' + n + '\')">Add to cart · ' + money(i.price) + '</button>';
+  }
+
+  // ─── Cart sheet ───
+  function openCart() {
+    track("cart");
+    backToCart();
+  }
+
+  function backToCart() {
+    openSheet("cart", "Your cart");
+    renderCart();
+  }
+
+  function renderCart() {
+    if (!_sheet || _sheet.kind !== "cart") return;
+    var e = estimate(), body = sheetBody(), foot = sheetFoot();
+    var banner = shopPayActive() ? '<button class="pay-banner" onclick="showShopPay()">⏳ A payment is in progress · View it</button>' : "";
+    if (!e.count) {
+      body.innerHTML = banner + '<div class="empty">Your cart is empty.<br />Tap <b>+ Add</b> on a live to put it here.</div>';
+      foot.innerHTML = '<button class="pay-btn" onclick="closeSheet(); setTab(\'shop\')">Browse the lives</button>';
+      return;
+    }
+    // The VIP month sits above the list: under a long cart nobody would scroll down to it.
+    body.innerHTML = banner +
+      '<div class="vip-row' + (_cart.vip ? " on" : "") + '" role="checkbox" aria-checked="' + _cart.vip + '" tabindex="0" onclick="toggleVip()">' +
+        '<span class="vip-check">' + (_cart.vip ? "✓" : "") + '</span><span class="ci-txt"><span class="ci-date">Add VIP channel access</span>' +
+        '<span class="ci-sub">1 month of the private channel, paid in the same go</span></span><span class="ci-price">' + money(_shop.vip) + '</span></div>' +
+      (e.count > 1 ? '<div class="cart-head"><span>' + plural(e.count) + '</span><button class="pay-link" onclick="clearCart()">Clear cart</button></div>' : "") +
+      '<div class="cart-list">' + e.items.map(function (i) {
+        return '<div class="ci"><img src="' + esc(i.cover) + '" alt="" loading="lazy" /><span class="ci-txt"><span class="ci-date">' + fmtDay(i.date) +
+          '</span><span class="ci-sub">' + i.minutes + ' min · ' + sizeOf(i.mb) + '</span></span><span class="ci-price">' + money(i.price) + '</span>' +
+          '<button class="ci-x" aria-label="Remove ' + fmtDay(i.date) + '" onclick="toggleCart(\'' + i.name + '\')">✕</button></div>';
+      }).join("") + '</div>';
+    foot.innerHTML = summaryHtml(e) +
+      (e.next ? '<p class="hint">Add ' + e.next.more + " more video" + (e.next.more > 1 ? "s" : "") + " to get −" + e.next.pct + "% on the whole cart</p>" : "") +
+      '<button class="pay-btn" onclick="openCheckout()">Checkout · ' + money(e.total) + '</button>';
+  }
+
+  // ─── Checkout: the worker's total, promo code (last step only), crypto ───
+  function openCheckout() {
+    _code = null;
+    _promoOpen = false;
+    _quote = null;
+    openSheet("checkout", "Checkout", backToCart);
+    refreshQuote(null);
+  }
+
+  function refreshQuote(msg) {
+    var body = sheetBody();
+    if (!_quote) body.innerHTML = '<p class="pay-wait"><span class="spin"></span>Checking your cart…</p>';
+    payApi("/api/shop/quote", { items: _cart.names, vip: _cart.vip, code: _code ? _code.code : "" }).then(function (q) {
+      syncCart(q);
+      if (!_sheet || _sheet.kind !== "checkout") return;
+      if (!q.count) { backToCart(); return; }
+      if (_code && !q.code) {
+        msg = { ok: false, text: CODE_ERRORS[q.code_error] || "This code can't be used." };
+        _code = null;
+      } else if (_code && q.code && !_code.pct) {
+        _code = { code: q.code, pct: q.pct, until: q.code_until };
+        track("code");
+        msg = { ok: true, text: "Code " + q.code + " applied: −" + q.pct + "% · valid until " + fmtUntil(q.code_until) };
+      }
+      _quote = q;
+      renderCheckout(msg);
+    }).catch(function (e) {
+      if (_sheet && _sheet.kind === "checkout") { body.innerHTML = errorHtml(e, "refreshQuote(null)"); sheetFoot().innerHTML = ""; }
+    });
+  }
+
+  function renderCheckout(msg) {
+    var q = _quote, body = sheetBody();
+    var gone = (q.unavailable || []).length;
+    body.innerHTML = (gone ? '<p class="note warn">' + plural(gone) + (gone > 1 ? " are" : " is") + " no longer available and left your cart.</p>" : "") +
+      summaryHtml(q) +
+      (_promoOpen || _code ? '<div class="promo-box"><input id="promoIn" placeholder="Promo code" autocomplete="off" autocapitalize="characters" spellcheck="false" value="' +
+        esc(_code ? _code.code : "") + '" /><button class="pay-btn" onclick="applyCode()">Apply</button></div>'
+        : '<button class="promo-link" onclick="openPromo()">Have a promo code?</button>') +
+      (msg ? '<p class="promo-msg ' + (msg.ok ? "ok" : "bad") + '">' + esc(msg.text) + '</p>' : "") +
+      '<p class="pick-title">Pay <b>' + money(q.total) + '</b> with</p><div id="shopPick" class="crypto-choice" style="margin-top:0"></div>' +
+      '<p class="note">' + (needsWriteAccess() ? "Telegram will ask you to let <b>@AlahnalyVIP_bot</b> message you: allow it, that's how your videos arrive."
+        : "Your videos are sent by <b>@AlahnalyVIP_bot</b> to your Telegram chat as soon as the payment arrives.") + '</p>' +
+      buyLink();
+    renderPicker();
+  }
+
+  function openPromo() {
+    _promoOpen = true;
+    renderCheckout(null);
+    var input = document.getElementById("promoIn");
+    if (input) input.focus();
+  }
+
+  function applyCode() {
+    var input = document.getElementById("promoIn");
+    var v = input ? input.value.trim().toUpperCase() : "";
+    if (!v) return;
+    _code = { code: v };
+    refreshQuote(null);
+  }
+
+  function renderPicker() {
+    var box = document.getElementById("shopPick");
+    if (!box) return;
+    var sel = PAY_OPTIONS.find(function (p) { return p.id === _shopPick; }) || PAY_OPTIONS[0];
+    _shopPick = sel.id;
+    var tokens = PAY_OPTIONS.filter(function (o, i) {
+      return PAY_OPTIONS.findIndex(function (p) { return p.name === o.name; }) === i;
+    });
+    box.innerHTML = '<div class="pick-tokens">' + tokens.map(function (o) {
+      return '<button class="pick-token' + (o.name === sel.name ? " sel" : "") + '" aria-pressed="' + (o.name === sel.name) +
+        '" onclick="shopToken(\'' + o.name + '\')"><img src="' + o.icon + '" alt="" width="30" height="30" />' + o.name + '</button>';
+    }).join("") + '</div><p class="pick-label">Network</p><div class="pick-nets">' +
+      PAY_OPTIONS.filter(function (p) { return p.name === sel.name; }).map(function (p) {
+        var std = /\((.+)\)/.exec(p.net);
+        return '<button class="pick-net' + (p.id === sel.id ? " sel" : "") + '" aria-pressed="' + (p.id === sel.id) +
+          '" onclick="shopNet(\'' + p.id + '\')"><img src="' + (p.chain || p.icon) + '" alt="" width="18" height="18" />' +
+          '<span>' + p.net.replace(/ \(.+\)/, "") + (std ? " <small>" + std[1] + "</small>" : "") + '</span></button>';
+      }).join("") + '</div>';
+    sheetFoot().innerHTML = '<button class="pay-btn pick-go" id="shopGo" onclick="shopContinue()"><span>Continue · ' + money(_quote.total) +
+      '</span><small>' + sel.name + " on " + sel.net + '</small></button>';
+  }
+
+  function shopToken(name) {
+    _shopPick = PAY_OPTIONS.find(function (p) { return p.name === name; }).id;
+    renderPicker();
+  }
+
+  function shopNet(id) {
+    _shopPick = id;
+    renderPicker();
+  }
+
+  function needsWriteAccess() {
+    var u = tg && tg.initDataUnsafe && tg.initDataUnsafe.user;
+    return !!(u && !u.allows_write_to_pm && typeof tg.requestWriteAccess === "function");
+  }
+
+  // The bot can only send the videos once the buyer let it message them (or pressed Start).
+  function askWriteAccess(next) {
+    if (!needsWriteAccess()) { next(); return; }
+    try {
+      tg.requestWriteAccess(function (ok) {
+        if (ok) tg.initDataUnsafe.user.allows_write_to_pm = true;
+        next();
+      });
+    } catch (e) {
+      next();
+    }
+  }
+
+  function shopContinue() {
+    var btn = document.getElementById("shopGo");
+    if (!btn || btn.disabled) return;   // one order per tap
+    btn.disabled = true;
+    try { localStorage.setItem("al_pay_pick", _shopPick); } catch (e) {}
+    askWriteAccess(function () {
+      payApi("/api/shop/order", { items: _cart.names, vip: _cart.vip, code: _code ? _code.code : "", option: _shopPick }).then(function (o) {
+        track("pay");
+        startShopPay(o, Date.now(), o.summary ? o.summary.items : _cart.names.slice());
+      }).catch(function (e) {
+        btn.disabled = false;
+        toast(e.status === 401 ? "Your session has expired: close and reopen the app" : e.message === "empty_cart" ? "Your cart is empty"
+          : e.message === "price_unavailable" ? "Price unavailable for this coin right now, try USDT" : "Connection problem, try again");
+      });
+    });
+  }
+
+  // ─── Payment and delivery ───
+  function startShopPay(order, shownAt, names) {
+    if (_shopPay && _shopPay.timer) clearInterval(_shopPay.timer);
+    _shopPay = { order: order, shownAt: shownAt, timer: null, lastPoll: Date.now(), names: names || [], paid: false };
+    try { localStorage.setItem("al_shop_order", JSON.stringify({ id: order.order_id, ts: shownAt })); } catch (e) {}
+    showShopPay();
+    _shopPay.timer = setInterval(tickShopPay, 1000);
+    if (order.status !== "pending" && order.status !== "partial") onShopPaid();
+  }
+
+  function shopPayActive() {
+    return !!(_shopPay && ["pending", "partial", "paid", "delivering"].indexOf(_shopPay.order.status) >= 0);
+  }
+
+  function showShopPay() {
+    openSheet("pay", "Payment");
+    renderShopPay();
+  }
+
+  function readShopOrder() {
+    try {
+      var p = JSON.parse(localStorage.getItem("al_shop_order") || "null");
+      if (p && p.id && Date.now() - p.ts < 864e5) return p;
+    } catch (e) {}
+    clearShopOrder();
+    return null;
+  }
+
+  function clearShopOrder() { try { localStorage.removeItem("al_shop_order"); } catch (e) {} }
+
+  // Reopened app: back to the payment in progress, or to its delivery.
+  function resumeShopPay(p) {
+    payApi("/api/pay/status", { order_id: p.id }).then(function (d) {
+      if (d.status === "expired" || !d.shop) { clearShopOrder(); return; }
+      startShopPay(d, p.ts, []);
+    }).catch(function () {});
+  }
+
+  function tickShopPay() {
+    var p = _shopPay;
+    if (!p) return;
+    var o = p.order;
+    if (o.status === "granted") { clearInterval(p.timer); return; }
+    var clock = document.getElementById("spClock");
+    if (clock) {
+      var left = Math.max(0, Math.floor((o.expires_at - Date.now()) / 1000));
+      clock.textContent = Math.floor(left / 60) + ":" + ("0" + (left % 60)).slice(-2);
+      if (!left && o.status === "pending" && !p.expiredShown) { p.expiredShown = true; renderShopPay(); }
+    }
+    var box = document.getElementById("spTxidBox");
+    if (box && box.hidden && Date.now() - p.shownAt > TXID_AFTER) box.hidden = false;
+    var every = o.status === "paid" || o.status === "delivering" ? 3000 : 8000;   // quicker while the videos go out
+    if (Date.now() - p.lastPoll > every && !document.hidden) { p.lastPoll = Date.now(); pollShopPay(); }
+  }
+
+  function pollShopPay() {
+    var p = _shopPay;
+    payApi("/api/pay/status", { order_id: p.order.order_id }).then(function (d) {
+      if (_shopPay !== p) return;
+      var changed = d.status !== p.order.status || d.amount !== p.order.amount || JSON.stringify(d.shop) !== JSON.stringify(p.order.shop);
+      p.order = d;
+      if (!changed) return;
+      if (d.status !== "pending" && d.status !== "partial" && d.status !== "expired") onShopPaid();
+      if (d.status === "granted") clearShopOrder();
+      if (_sheet && _sheet.kind === "pay") renderShopPay();
+      else if (d.status === "granted") toast("📦 Your videos are in your Telegram chat");
+    }).catch(function () {});
+  }
+
+  // Paid: the lives leave the cart and become "owned" (once per order).
+  function onShopPaid() {
+    var p = _shopPay;
+    if (!p || p.paid) return;
+    p.paid = true;
+    var seen = null;
+    try { seen = localStorage.getItem("al_paid_" + p.order.order_id); localStorage.setItem("al_paid_" + p.order.order_id, "1"); } catch (e) {}
+    if (!seen) { track("paid"); haptic("success"); }   // once per order, even if the app is reopened
+    p.names.forEach(function (n) { _shop.owned[n] = true; });
+    _cart.names = _cart.names.filter(function (n) { return p.names.indexOf(n) < 0; });
+    if (p.order.shop && p.order.shop.with_vip) _cart.vip = false;
+    if (!_cart.names.length) _cart.vip = false;
+    saveCart();
+    _shop.items.forEach(updateCard);
+    updateCartUi();
+    if (!p.names.length) loadCatalog(true);   // resumed order: the worker knows what was bought
+  }
+
+  function renderShopPay() {
+    var p = _shopPay, body = sheetBody(), foot = sheetFoot();
+    if (!p || !_sheet || _sheet.kind !== "pay") return;
+    var o = p.order, s = o.shop || { videos: 0, delivered: 0 };
+    foot.innerHTML = "";
+    if (o.status === "granted") {
+      clearShopOrder();
+      body.innerHTML = '<p class="deliv-ok">📦 All done!</p><p class="note">Your ' + plural(s.videos) + (s.with_vip ? " and your VIP access are" : s.videos > 1 ? " are" : " is") +
+        ' in your chat with <b>@AlahnalyVIP_bot</b>. Save them to keep them for good.</p>';
+      foot.innerHTML = '<button class="pay-btn" onclick="openLink(BOT_LINK)">Open my chat</button>' +
+        '<button class="pay-link center" onclick="openMine()">My purchases</button>';
+      return;
+    }
+    if (o.status === "paid" || o.status === "delivering") {
+      var pct = s.videos ? Math.round(100 * s.delivered / s.videos) : 0;
+      body.innerHTML = '<p class="deliv-ok">✅ Payment received</p>' + (s.delivery_error === "blocked"
+        ? '<p class="note">Your videos are ready, but <b>@AlahnalyVIP_bot</b> can\'t message you yet. Open it and tap <b>Start</b>: they\'ll be sent right away.</p>'
+        : '<p class="note">Sending your ' + plural(s.videos) + ' to your Telegram chat…</p><div class="deliv-bar"><span style="width:' + Math.max(6, pct) +
+          '%"></span></div><p class="note">' + s.delivered + ' / ' + s.videos + ' sent · you can close this page</p>') +
+        '<div style="display:flex;justify-content:center">' + helpLink(o.order_id) + '</div>';
+      if (s.delivery_error === "blocked") foot.innerHTML = '<button class="pay-btn" onclick="openLink(BOT_LINK)">Open @AlahnalyVIP_bot</button>';
+      return;
+    }
+    if (o.status === "expired" || (o.status === "pending" && o.expires_at <= Date.now())) {
+      body.innerHTML = '<p class="pay-wait">This amount has expired.</p>' +
+        '<p class="pay-note" style="text-align:center">Already sent it? Keep this page open: a late payment of this exact amount is still recognised for 24 h.</p>' +
+        '<div style="display:flex;justify-content:center">' + helpLink(o.order_id) + '</div>';
+      foot.innerHTML = '<button class="pay-btn" onclick="openCheckout()">Get a new amount</button>';
+      return;
+    }
+    var opt = PAY_OPTIONS.find(function (x) { return x.id === o.option; }) || { name: o.asset };
+    var partial = o.status === "partial";
+    body.innerHTML = '<div class="pay-card" style="display:flex;margin-top:0">' +
+      '<div class="pay-top">' + coinIcon(opt) +
+        '<div><div class="pay-lbl">' + (partial ? "Send the remaining" : "Send exactly") + '</div>' +
+        '<div class="pay-amount">' + esc(o.amount) + ' ' + esc(o.asset) + '</div></div>' + helpLink(o.order_id) + '</div>' +
+      (partial ? '<p class="pay-note">We received <b>' + esc(o.received) + ' ' + esc(o.asset) + '</b> — send this remaining amount to complete your payment.</p>' : '') +
+      '<div class="pay-field"><code>' + esc(o.amount) + '</code><button class="pay-copy" id="spCopyAmount">Copy</button></div>' +
+      '<div class="pay-lbl">To this address</div>' +
+      '<div class="pay-field addr"><code>' + esc(o.address) + '</code><button class="pay-copy" id="spCopyAddr">Copy</button></div>' +
+      '<div class="pay-warn">⚠️ Only send <b>' + esc(o.asset) + '</b> on <b>' + esc(o.network) + '</b>. Another network or token = lost funds.</div>' +
+      feeNote(o.option) +
+      '<p class="pay-timer">Amount reserved for <b id="spClock">–</b></p>' +
+      '<p class="pay-wait">⏳ Waiting for your payment — this updates by itself.<br>You can close this page and come back later.</p>' +
+      '<div id="spTxidBox"' + (Date.now() - p.shownAt > TXID_AFTER ? '' : ' hidden') + ' style="display:flex;flex-direction:column;gap:8px">' +
+        '<p class="pay-note">Sent it but nothing happens? Paste your transaction ID (TxID / hash):</p>' +
+        '<div class="pay-txid"><input id="spTxid" placeholder="Transaction ID" autocomplete="off" spellcheck="false" />' +
+        '<button class="pay-btn" onclick="shopTxid()">Check</button></div>' +
+        '<p class="pay-note" id="spTxidMsg"></p></div></div>' +
+      buyLink();
+    foot.innerHTML = '<button class="pay-link center" onclick="openCheckout()">Choose another payment method</button>';
+    document.getElementById("spCopyAmount").onclick = function () { copyText(o.amount, this); };
+    document.getElementById("spCopyAddr").onclick = function () { copyText(o.address, this); };
+    tickShopPay();
+  }
+
+  function shopTxid() {
+    var input = document.getElementById("spTxid"), msg = document.getElementById("spTxidMsg");
+    if (!_shopPay || !input || !input.value.trim()) return;
+    msg.textContent = "Checking…";
+    payApi("/api/pay/txid", { order_id: _shopPay.order.order_id, txid: input.value.trim() }).then(function (d) {
+      _shopPay.order = d;
+      if (d.txid_error) { msg.textContent = TXID_ERRORS[d.txid_error] || "Not recognised — check the ID and try again."; return; }
+      if (d.status !== "pending" && d.status !== "partial") onShopPaid();
+      renderShopPay();
+    }).catch(function () { msg.textContent = "Connection problem — try again."; });
+  }
+
+  // ─── My purchases ───
+  function openMine() {
+    var body = openSheet("mine", "My purchases");
+    body.innerHTML = '<p class="pay-wait"><span class="spin"></span>Loading…</p>';
+    payApi("/api/shop/purchases", {}).then(function (d) {
+      if (!_sheet || _sheet.kind !== "mine") return;
+      (d.items || []).forEach(function (i) { _shop.owned[i.name] = true; });
+      _shop.items.forEach(updateCard);
+      var waiting = (d.deliveries || []).filter(function (x) { return x.delivery_error === "blocked"; }).length;
+      body.innerHTML = (waiting ? '<p class="note warn">Some videos are waiting for you: open <b>@AlahnalyVIP_bot</b> and tap Start.</p>' : "") +
+        (d.items && d.items.length ? d.items.map(function (i) {
+          return '<div class="ci"><img src="' + esc(i.cover) + '" alt="" loading="lazy" /><span class="ci-txt"><span class="ci-date">' + fmtDay(i.date) +
+            '</span><span class="ci-sub">' + i.minutes + ' min · ' + sizeOf(i.mb) + '</span></span>' +
+            '<button class="ci-resend" onclick="resendLive(\'' + i.name + '\', this)">Resend to my chat</button></div>';
+        }).join("") : '<div class="empty">No purchase yet.</div>') +
+        '<p class="note">Your videos are in your chat with <b>@AlahnalyVIP_bot</b>. Save them to keep them for good. Resending is free.</p>';
+      if (waiting) sheetFoot().innerHTML = '<button class="pay-btn" onclick="openLink(BOT_LINK)">Open @AlahnalyVIP_bot</button>';
+    }).catch(function (e) {
+      if (_sheet && _sheet.kind === "mine") body.innerHTML = errorHtml(e, "openMine()");
+    });
+  }
+
+  function resendLive(n, btn) {
+    btn.disabled = true;
+    btn.textContent = "Sending…";
+    payApi("/api/shop/resend", { name: n }).then(function () {
+      btn.textContent = "Sent ✓";
+      toast("Sent to your Telegram chat");
+    }).catch(function (e) {
+      btn.disabled = false;
+      btn.textContent = "Resend to my chat";
+      toast(e.message === "blocked" ? "Open @AlahnalyVIP_bot and tap Start first" : e.message === "limit" ? "Daily limit reached, try again tomorrow"
+        : "Couldn't send it, try again");
+    });
+  }
+
+  // ─── Small helpers ───
+  function errorHtml(e, retry) {
+    if (e && e.status === 401) return '<p class="pay-wait">Your session has expired: close the app and open it again.</p>';
+    return '<p class="pay-wait">Connection problem.</p><button class="pay-btn" onclick="' + retry + '">Try again</button>';
+  }
+
+  function fmtDay(iso) { return MONTHS[+iso.slice(5, 7) - 1] + " " + +iso.slice(8, 10) + ", " + iso.slice(0, 4); }
+
+  function fmtUntil(ms) { var d = new Date(ms); return MONTHS[d.getUTCMonth()] + " " + d.getUTCDate() + ", 23:59 UTC"; }
+
+  function money(c) { return "$" + (c / 100).toFixed(2); }
+
+  function plural(n) { return n + " video" + (n > 1 ? "s" : ""); }
+
+  function sizeOf(mb) { return mb >= 1000 ? (mb / 1000).toFixed(1) + " GB" : mb + " MB"; }
+
+  function toast(text) {
+    var t = document.getElementById("toast");
+    t.textContent = text;
+    t.classList.add("show");
+    clearTimeout(_toastTimer);
+    _toastTimer = setTimeout(function () { t.classList.remove("show"); }, 1800);
+  }
+
+  function haptic(kind) {
+    try {
+      if (!tg || !tg.HapticFeedback) return;
+      if (kind === "success") tg.HapticFeedback.notificationOccurred("success");
+      else tg.HapticFeedback.impactOccurred(kind);
+    } catch (e) {}
+  }
+
+  document.addEventListener("keydown", function (e) { if (e.key === "Escape" && _sheet) closeSheet(); });
+  document.addEventListener("visibilitychange", function () {
+    if (!document.hidden && _tab === "shop") loadCatalog();   // reloads only once the preview links near expiry
+  });
+
   (function () {
     'use strict';
     var ENDPOINT     = 'https://miniapp-analytics.alahnaly-api.workers.dev/api/ping';
@@ -1596,6 +2582,17 @@
     window._trackSocial = function (name) {
       if (lsGet('al_no_track') === '1') return;
       post(ENDPOINT, { token: TOKEN, path: '/social-' + name, referrer: '', utm: '', is_new: 0, session_id: sid || '' });
+    };
+
+    window._trackRef = function () {
+      if (lsGet('al_no_track') === '1') return;
+      post(ENDPOINT, { token: TOKEN, path: '/ref-buy', referrer: '', utm: '', is_new: 0, session_id: sid || '' });
+    };
+
+    // Shop: open, add, cart, pay, code, paid — the important taps only.
+    window._trackShop = function (ev) {
+      if (lsGet('al_no_track') === '1') return;
+      post(ENDPOINT, { token: TOKEN, path: '/shop-' + ev, referrer: '', utm: '', is_new: 0, session_id: sid || '' });
     };
 
     function closeSegment(endTs) {
