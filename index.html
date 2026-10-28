@@ -993,6 +993,10 @@
       font-size: 13px; font-weight: 700; text-align: center; pointer-events: none;
     }
     .toast.show { opacity: 1; transform: translate(-50%, 0); }
+    /* Stars | Crypto at checkout */
+    .paymode { display: grid; grid-template-columns: 1fr 1fr; gap: 4px; padding: 4px; border-radius: 14px; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.08); }
+    .pm { padding: 10px 0; border: none; border-radius: 10px; background: transparent; color: rgba(255,255,255,0.6); font-size: 13.5px; font-weight: 800; cursor: pointer; transition: background 0.2s, color 0.2s; }
+    .pm.on { background: rgba(0,175,240,0.16); color: #fff; box-shadow: inset 0 0 0 1px rgba(0,175,240,0.45); }
     /* "No crypto yet? Buy crypto": a quiet link at the payment steps */
     .starter-link { align-self: center; border: none; background: none; color: #7fd9ff; font-size: 12.5px; font-weight: 600; cursor: pointer; padding: 4px 8px; }
     .starter-link:active { opacity: 0.7; }
@@ -1811,7 +1815,8 @@
   var _promoOpen = false;
   var _quote = null;            // the worker's last quote for the checkout
   var _shopPick = null;         // crypto option chosen at checkout
-  var _shopPay = null;          // { order, shownAt, timer, lastPoll, names, paid }
+  var _shopPay = null;          // { order, shownAt, timer, lastPoll, names, paid, invoice }
+  var _payMode = readPayMode(); // "stars" or "crypto" at checkout
   var _toastTimer = null;
   setTimeout(initShop, 0);      // after the whole script (analytics helpers included)
 
@@ -2032,14 +2037,16 @@
     info.textContent = e.rate ? "Bundle −" + e.rate + "% included" : e.next ? e.next.more + " more for −" + e.next.pct + "% on everything" : "";
   }
 
-  function summaryHtml(q) {
-    var off = q.subtotal + q.vip - q.total;
-    var label = q.code ? "Code " + esc(q.code) + " −" + q.pct + "%" + (q.code_limit && q.count > q.code_limit ? " (on " + q.code_limit + " videos)" : "")
-      : "Bundle −" + q.rate + "%";
-    return '<div class="sum"><div class="sum-row"><span>' + plural(q.count) + '</span><span>' + money(q.subtotal) + '</span></div>' +
-      (q.vip ? '<div class="sum-row"><span>VIP channel · 1 month</span><span>' + money(q.vip) + '</span></div>' : "") +
-      (off > 0 ? '<div class="sum-row disc"><span>' + label + '</span><span>−' + money(off) + '</span></div>' : "") +
-      '<div class="sum-row total"><span>Total</span><span>' + money(q.total) + '</span></div></div>';
+  // inStars: the same cart priced in Stars (the worker's quote carries both).
+  function summaryHtml(q, inStars) {
+    var s = inStars ? q.stars : q, fmt = inStars ? starsTxt : money;
+    var off = s.subtotal + s.vip - s.total;
+    var label = s.code ? "Code " + esc(s.code) + " −" + s.pct + "%" + (s.code_limit && q.count > s.code_limit ? " (on " + s.code_limit + " videos)" : "")
+      : "Bundle −" + s.rate + "%";
+    return '<div class="sum"><div class="sum-row"><span>' + plural(q.count) + '</span><span>' + fmt(s.subtotal) + '</span></div>' +
+      (s.vip ? '<div class="sum-row"><span>VIP channel · 1 month</span><span>' + fmt(s.vip) + '</span></div>' : "") +
+      (off > 0 ? '<div class="sum-row disc"><span>' + label + '</span><span>−' + fmt(off) + '</span></div>' : "") +
+      '<div class="sum-row total"><span>Total</span><span>' + fmt(s.total) + '</span></div></div>';
   }
 
   // ─── Bottom sheets (Telegram's back button closes them too) ───
@@ -2098,7 +2105,8 @@
     var body = openSheet("live", "");
     body.innerHTML = '<div class="det-media"><video src="' + esc(i.trailer) + '" poster="' + esc(i.cover) +
       '" autoplay muted loop playsinline preload="auto"></video><span class="det-tag">PREVIEW · 20 S</span></div>' +
-      '<div><div class="det-title">🔴 Live · ' + fmtDay(i.date) + '</div><div class="det-meta">' + i.minutes + ' min · ' + sizeOf(i.mb) + '</div></div>' +
+      '<div><div class="det-title">🔴 Live · ' + fmtDay(i.date) + '</div><div class="det-meta">' + i.minutes + ' min · ' + sizeOf(i.mb) +
+        (i.stars ? ' · ' + money(i.price) + ' or ' + starsTxt(i.stars) : '') + '</div></div>' +
       '<div class="det-points"><span>🎬 The full live, with sound</span><span>📥 Sent to your Telegram chat right after payment</span>' +
       '<span>♾️ Yours to keep: save it on your phone or computer</span></div>';
     var v = body.querySelector("video");
@@ -2187,17 +2195,33 @@
   function renderCheckout(msg) {
     var q = _quote, body = sheetBody();
     var gone = (q.unavailable || []).length;
+    var stars = _payMode === "stars" && q.stars;
     body.innerHTML = (gone ? '<p class="note warn">' + plural(gone) + (gone > 1 ? " are" : " is") + " no longer available and left your cart.</p>" : "") +
-      summaryHtml(q) +
+      summaryHtml(q, stars) +
       (_promoOpen || _code ? '<div class="promo-box"><input id="promoIn" placeholder="Promo code" autocomplete="off" autocapitalize="characters" spellcheck="false" value="' +
         esc(_code ? _code.code : "") + '" /><button class="pay-btn" onclick="applyCode()">Apply</button></div>'
         : '<button class="promo-link" onclick="openPromo()">Have a promo code?</button>') +
       (msg ? '<p class="promo-msg ' + (msg.ok ? "ok" : "bad") + '">' + esc(msg.text) + '</p>' : "") +
-      '<p class="pick-title">Pay <b>' + money(q.total) + '</b> with</p><div id="shopPick" class="crypto-choice" style="margin-top:0"></div>' +
+      '<div class="paymode" role="tablist" aria-label="Payment method">' +
+        '<button class="pm' + (stars ? " on" : "") + '" role="tab" aria-selected="' + !!stars + '" onclick="setPayMode(\'stars\')">⭐ Telegram Stars</button>' +
+        '<button class="pm' + (stars ? "" : " on") + '" role="tab" aria-selected="' + !stars + '" onclick="setPayMode(\'crypto\')">💎 Crypto</button></div>' +
+      (stars ? '<p class="note">Pay with the Stars of your Telegram account. Not enough? Telegram lets you buy them right in the payment window.</p>'
+        : '<p class="pick-title">Pay <b>' + money(q.total) + '</b> with</p><div id="shopPick" class="crypto-choice" style="margin-top:0"></div>' + buyLink()) +
       '<p class="note">' + (needsWriteAccess() ? "Telegram will ask you to let <b>@AlahnalyVIP_bot</b> message you: allow it, that's how your videos arrive."
-        : "Your videos are sent by <b>@AlahnalyVIP_bot</b> to your Telegram chat as soon as the payment arrives.") + '</p>' +
-      buyLink();
-    renderPicker();
+        : "Your videos are sent by <b>@AlahnalyVIP_bot</b> to your Telegram chat as soon as the payment arrives.") + '</p>';
+    if (stars) sheetFoot().innerHTML = '<button class="pay-btn" id="shopGo" onclick="shopContinue()">Pay ' + starsTxt(q.stars.total) + '</button>';
+    else renderPicker();
+  }
+
+  // Stars or crypto at checkout; the buyer's last choice is kept (Stars by default: no wallet needed).
+  function readPayMode() {
+    try { return localStorage.getItem("al_pay_mode") === "crypto" ? "crypto" : "stars"; } catch (e) { return "stars"; }
+  }
+
+  function setPayMode(m) {
+    _payMode = m;
+    try { localStorage.setItem("al_pay_mode", m); } catch (e) {}
+    renderCheckout(null);
   }
 
   function openPromo() {
@@ -2269,17 +2293,42 @@
     var btn = document.getElementById("shopGo");
     if (!btn || btn.disabled) return;   // one order per tap
     btn.disabled = true;
-    try { localStorage.setItem("al_pay_pick", _shopPick); } catch (e) {}
+    var stars = _payMode === "stars";
+    if (!stars) { try { localStorage.setItem("al_pay_pick", _shopPick); } catch (e) {} }
     askWriteAccess(function () {
-      payApi("/api/shop/order", { items: _cart.names, vip: _cart.vip, code: _code ? _code.code : "", option: _shopPick }).then(function (o) {
+      payApi("/api/shop/order", { items: _cart.names, vip: _cart.vip, code: _code ? _code.code : "", option: stars ? "stars" : _shopPick }).then(function (o) {
         track("pay");
         startShopPay(o, Date.now(), o.summary ? o.summary.items : _cart.names.slice());
+        if (stars) openStarsInvoice(o.invoice);
       }).catch(function (e) {
         btn.disabled = false;
         toast(e.status === 401 ? "Your session has expired: close and reopen the app" : e.message === "empty_cart" ? "Your cart is empty"
           : e.message === "price_unavailable" ? "Price unavailable for this coin right now, try USDT" : "Connection problem, try again");
       });
     });
+  }
+
+  // Telegram's own payment window for Stars; once paid, the status is read at once.
+  function openStarsInvoice(link) {
+    if (!_shopPay || !link) return;
+    _shopPay.invoice = link;
+    if (!tg || typeof tg.openInvoice !== "function") { toast("Update Telegram to pay with Stars"); return; }
+    tg.openInvoice(link, function (status) {
+      if (status === "paid") {
+        _shopPay.lastPoll = Date.now();
+        pollShopPay();
+      } else if (status === "failed") {
+        toast("The Stars payment didn't go through, try again");
+      }
+    });
+  }
+
+  // Window closed before paying: open it again (a fresh invoice when the app was reopened meanwhile).
+  function payStarsAgain() {
+    if (_shopPay && _shopPay.invoice) { openStarsInvoice(_shopPay.invoice); return; }
+    payApi("/api/shop/invoice", { order_id: _shopPay.order.order_id }).then(function (r) {
+      openStarsInvoice(r.invoice);
+    }).catch(function () { toast("Connection problem, try again"); });
   }
 
   // ─── Payment and delivery ───
@@ -2392,6 +2441,14 @@
       if (s.delivery_error === "blocked") foot.innerHTML = '<button class="pay-btn" onclick="openLink(BOT_LINK)">Open @AlahnalyVIP_bot</button>';
       return;
     }
+    if (o.option === "stars" && o.status === "pending") {   // waiting for the Telegram payment window
+      body.innerHTML = '<p class="deliv-ok">⭐ ' + starsTxt(+o.amount) + '</p>' +
+        '<p class="note">Complete the payment in the Telegram window: your videos are sent to your chat right after.</p>' +
+        '<div style="display:flex;justify-content:center">' + helpLink(o.order_id) + '</div>';
+      foot.innerHTML = '<button class="pay-btn" onclick="payStarsAgain()">Pay ' + starsTxt(+o.amount) + '</button>' +
+        '<button class="pay-link center" onclick="openCheckout()">Choose another payment method</button>';
+      return;
+    }
     if (o.status === "expired" || (o.status === "pending" && o.expires_at <= Date.now())) {
       body.innerHTML = '<p class="pay-wait">This amount has expired.</p>' +
         '<p class="pay-note" style="text-align:center">Already sent it? Keep this page open: a late payment of this exact amount is still recognised for 24 h.</p>' +
@@ -2484,6 +2541,8 @@
   function fmtUntil(ms) { var d = new Date(ms); return MONTHS[d.getUTCMonth()] + " " + d.getUTCDate() + ", 23:59 UTC"; }
 
   function money(c) { return "$" + (c / 100).toFixed(2); }
+
+  function starsTxt(n) { return String(n).replace(/\B(?=(\d{3})+(?!\d))/g, " ") + " ★"; }
 
   function plural(n) { return n + " video" + (n > 1 ? "s" : ""); }
 
