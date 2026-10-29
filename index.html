@@ -26,6 +26,9 @@
   <style>
     * { margin: 0; padding: 0; box-sizing: border-box; }
 
+    /* Images and videos: no long-press "Save" callout, no selection, no drag (text stays selectable) */
+    img, video { -webkit-touch-callout: none; -webkit-user-select: none; user-select: none; -webkit-user-drag: none; }
+
     body {
       font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
       background: #07090c;
@@ -1124,7 +1127,7 @@
       <!-- Big tile: blurred looping teaser cut from real livestream captures.
            Movement draws the eye; the blur keeps the tease (and the domain safe). -->
       <div class="tile tile-big">
-        <video src="teaser.mp4" poster="teaser_poster.jpg" autoplay muted loop playsinline preload="metadata"></video>
+        <video src="teaser.mp4" poster="teaser_poster.jpg" autoplay muted loop playsinline disablepictureinpicture preload="metadata"></video>
         <div class="tile-big-fade"></div>
         <span class="tile-badge">SNEAK PEEK</span>
       </div>
@@ -1133,11 +1136,11 @@
       <!-- Three animated tiles spread across the grid: big teaser top-left,
            this loop bottom-left, live loop bottom-right — photo in between. -->
       <div class="tile tile-lock">
-        <video src="teaser3.mp4" autoplay muted loop playsinline preload="metadata"></video>
+        <video src="teaser3.mp4" autoplay muted loop playsinline disablepictureinpicture preload="metadata"></video>
       </div>
       <div class="tile tile-lock" style="background-image:linear-gradient(rgba(0,0,0,0.25),rgba(0,0,0,0.25)),url('peek4.jpg')"></div>
       <div class="tile tile-lock">
-        <video src="teaser2.mp4" autoplay muted loop playsinline preload="metadata"></video>
+        <video src="teaser2.mp4" autoplay muted loop playsinline disablepictureinpicture preload="metadata"></video>
       </div>
     </div>
   </div>
@@ -1292,6 +1295,12 @@
 <script>
   const tg = window.Telegram?.WebApp;
   if (tg) { tg.ready(); tg.expand(); }
+
+  // Images and videos: no "Save image / video" menu (right click, long press) and no drag. Silent on
+  // purpose; text keeps its menu, so payment addresses and TxIDs can still be copied and pasted.
+  ['contextmenu', 'dragstart'].forEach((type) => document.addEventListener(type, (e) => {
+    if (e.target instanceof Element && e.target.closest('img, video')) e.preventDefault();
+  }, true));
 
   const CHANNEL_URL = "https://t.me/+kYZ-o4bbE2EwODA0";
   // Mini App deep link — reopens THIS page inside Telegram (so initData is set).
@@ -2218,7 +2227,7 @@
     if (!i) return;
     var body = openSheet("live", "");
     body.innerHTML = '<div class="det-media"><video src="' + esc(i.trailer) + '" poster="' + esc(i.cover) +
-      '" autoplay muted loop playsinline preload="auto"></video><span class="det-tag">PREVIEW · 20 S</span></div>' +
+      '" autoplay muted loop playsinline disablepictureinpicture preload="auto"></video><span class="det-tag">PREVIEW · 20 S</span></div>' +
       '<div><div class="det-title">🔴 Live · ' + fmtDay(i.date) + '</div><div class="det-meta">' + i.minutes + ' min · ' + sizeOf(i.mb) +
         (i.stars ? ' · ' + money(i.price) + ' or ' + starsTxt(i.stars) : '') + '</div></div>' +
       '<div class="det-points"><span>🎬 The full live, with sound</span><span>📥 Sent to your Telegram chat right after payment</span>' +
@@ -2832,7 +2841,7 @@
       }).join("") + "</div>" +
       '<p class="adm-label">Aperçu de 20 s <small>· touche pour le lancer</small></p><div class="adm-pick">' + k.map(function (n) {
         return '<button class="adm-tile vid' + (n === e.apercu ? " on" : "") + '" data-kind="apercu" data-n="' + n +
-          '" aria-label="Aperçu ' + n + '" onclick="adminPick(this)"><video src="' + esc(e.media.trailers[n - 1]) + '#t=0.1" muted loop playsinline preload="metadata"></video>' +
+          '" aria-label="Aperçu ' + n + '" onclick="adminPick(this)"><video src="' + esc(e.media.trailers[n - 1]) + '#t=0.1" muted loop playsinline disablepictureinpicture preload="metadata"></video>' +
           '<span class="adm-num">' + n + '</span><span class="adm-check">✓</span></button>';
       }).join("") + "</div>" +
       '<p class="adm-label">Prix</p><div class="adm-prices">' +
