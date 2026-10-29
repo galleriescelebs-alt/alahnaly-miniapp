@@ -1476,7 +1476,6 @@
 
   function goPick() {
     try { localStorage.setItem("al_pay_pick", _pick); } catch (e) {}
-    if (window._trackPay) window._trackPay();
     startPay(_pick);
   }
 
@@ -1557,6 +1556,7 @@
       var order = await payApi("/api/pay/quote", { option: optionId });
       status.style.display = "none";
       showPayment(order, Date.now());
+      if (window._trackPay) window._trackPay();   // the crypto payment page, with its countdown
     } catch (e) {
       try { console.error("[crypto]", e); } catch (_) {}
       setStatus(status, "Connection problem — tap Continue to retry.");
@@ -1913,6 +1913,7 @@
   var _cart = readCart();
   var _tab = "vip";
   var _shopSeen = false;   // the Shop tab is counted once per visit
+  var _cartSeen = false;   // and so is the cart's Checkout button
   var _sheet = null;            // { kind, back }
   var _code = null;             // promo code applied at checkout: { code, pct, until }
   var _promoOpen = false;
@@ -2282,10 +2283,16 @@
       }).join("") + '</div>';
     foot.innerHTML = summaryHtml(e) +
       (e.next ? '<p class="hint">Add ' + e.next.more + " more video" + (e.next.more > 1 ? "s" : "") + " to get −" + e.next.pct + "% on the whole cart</p>" : "") +
-      '<button class="pay-btn" onclick="openCheckout()">Checkout · ' + money(e.total) + '</button>';
+      '<button class="pay-btn" onclick="validateCart()">Checkout · ' + money(e.total) + '</button>';
   }
 
   // ─── Checkout: the worker's total, promo code (last step only), crypto ───
+  // The cart's Checkout button: the cart is validated.
+  function validateCart() {
+    if (!_cartSeen) { _cartSeen = true; track("checkout"); }
+    openCheckout();
+  }
+
   function openCheckout() {
     _code = null;
     _promoOpen = false;
@@ -2422,6 +2429,7 @@
     askWriteAccess(function () {
       payApi("/api/shop/order", { items: _cart.names, vip: _cart.vip, code: _code ? _code.code : "", option: stars ? "stars" : _shopPick }).then(function (o) {
         track("pay");
+        if (!stars) track("crypto");   // the crypto payment page, with its countdown
         startShopPay(o, Date.now(), o.summary ? o.summary.items : _cart.names.slice());
         if (stars) openStarsInvoice(o.invoice);
       }).catch(function (e) {
