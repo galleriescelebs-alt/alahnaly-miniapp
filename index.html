@@ -1912,6 +1912,7 @@
   var _shop = { items: [], byName: {}, owned: {}, month: null, loadedAt: 0, loading: null, tiers: [[5, 10]], vip: 799 };
   var _cart = readCart();
   var _tab = "vip";
+  var _shopSeen = false;   // the Shop tab is counted once per visit
   var _sheet = null;            // { kind, back }
   var _code = null;             // promo code applied at checkout: { code, pct, until }
   var _promoOpen = false;
@@ -1972,6 +1973,7 @@
     document.getElementById("ctaVip").classList.toggle("off", t !== "vip");
     if (t === "shop") {
       loadCatalog();
+      if (!_shopSeen) { _shopSeen = true; track("open"); }
     }
     updateCartUi();
   }
