@@ -1036,6 +1036,24 @@
     .pay-btn:disabled { opacity: 0.6; }
     .pay-banner { padding: 10px 12px; border-radius: 12px; border: 1px solid rgba(0,175,240,0.4); background: rgba(0,175,240,0.08); color: #7fd9ff; font-size: 13px; font-weight: 700; cursor: pointer; }
     .promo-link { align-self: center; border: none; background: none; color: #8a8f98; font-size: 12.5px; text-decoration: underline; cursor: pointer; padding: 2px 8px; }
+    /* « Have a promo code? » that can't be missed: a light sweeps across it and a little star twinkles, in the
+       colors of the promo under way (gold otherwise) */
+    .promo-link.shine {
+      --shine: #ffd95a; --shine-hi: #fff7d1;
+      padding: 4px 10px; font-size: 13px; font-weight: 300; text-decoration: none;
+      color: var(--shine);
+    }
+    .promo-link.shine.t-halloween { --shine: #ff9a3c; --shine-hi: #ffe2c2; }
+    .promo-link.shine.t-blackfriday { --shine: #f5c542; --shine-hi: #fff3c4; }
+    .promo-link.shine .txt {
+      background: linear-gradient(110deg, var(--shine) 0%, var(--shine) 38%, var(--shine-hi) 50%, var(--shine) 62%, var(--shine) 100%);
+      background-size: 260% 100%; -webkit-background-clip: text; background-clip: text; color: transparent;
+      animation: promo-shine 2.6s linear infinite;
+    }
+    .promo-link.shine .spark { display: inline-block; margin-right: 4px; font-size: 10px; vertical-align: 1px; animation: promo-twinkle 1.6s ease-in-out infinite; }
+    @keyframes promo-shine { from { background-position: 100% 0; } to { background-position: -160% 0; } }
+    @keyframes promo-twinkle { 0%, 100% { transform: scale(0.85) rotate(0deg); opacity: 0.65; } 50% { transform: scale(1.15) rotate(18deg); opacity: 1; } }
+    @media (prefers-reduced-motion: reduce) { .promo-link.shine .txt, .promo-link.shine .spark { animation: none; } }
     .promo-box { display: flex; gap: 8px; }
     .promo-box input {
       flex: 1; min-width: 0; padding: 11px 12px; border-radius: 12px;
@@ -1990,6 +2008,7 @@
   var _sheet = null;            // { kind, back }
   var _code = null;             // promo code applied at checkout: { code, pct, until }
   var _promoOpen = false;
+  var _codeSeen = false;        // a code applied, counted once per visit
   var _quote = null;            // the worker's last quote for the checkout
   var _shopPick = null;         // crypto option chosen at checkout
   var _shopPay = null;          // { order, shownAt, timer, lastPoll, names, paid, invoice }
@@ -2115,6 +2134,9 @@
   function renderPromo() {
     var el = document.getElementById("promoCard");
     if (!promoLive()) {
+      // Offer over: « Have a promo code? », if on screen at checkout, goes back to its own gold at once
+      var link = document.querySelector(".promo-link.shine");
+      if (link) link.className = "promo-link shine";
       el.hidden = true;
       clearInterval(_promoTimer);
       _promoTimer = null;
@@ -2477,6 +2499,7 @@
       } else if (_code && q.code && !_code.pct) {
         _code = { code: q.code, pct: q.pct, until: q.code_until };
         msg ={ ok: true, text: "Code " + q.code + " applied: −" + q.pct + "% · valid until " + fmtUntil(q.code_until) };
+        if (!_codeSeen) { _codeSeen = true; track("code"); }
       }
       _quote = q;
       renderCheckout(msg);
@@ -2497,7 +2520,8 @@
       (_promoOpen || _code ? '<div class="promo-box"><input id="promoIn" placeholder="Promo code" autocomplete="off" autocapitalize="characters" spellcheck="false" value="' +
         esc(_code ? _code.code : "") + '"' + (applied ? " readonly" : "") + " />" +
         (applied ? '<button class="pay-btn applied" disabled>✓ Applied</button>' : '<button class="pay-btn" onclick="applyCode()">Apply</button>') + "</div>"
-        : '<button class="promo-link" onclick="openPromo()">Have a promo code?</button>') +
+        : '<button class="promo-link shine' + (promoLive() ? promoTheme(_shop.promo.code).cls : "") + '" onclick="openPromo()">' +
+          '<span class="spark" aria-hidden="true">✨</span><span class="txt">Have a promo code?</span></button>') +
       (msg ? '<p class="promo-msg ' + (msg.ok ? "ok" : "bad") + '">' + esc(msg.text) + '</p>' : "") +
       '<div class="paymode" role="tablist" aria-label="Payment method">' +
         '<button class="pm' + (stars ? " on" : "") + '" role="tab" aria-selected="' + !!stars + '" onclick="setPayMode(\'stars\')">⭐ Telegram Stars</button>' +
