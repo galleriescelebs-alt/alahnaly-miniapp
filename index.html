@@ -892,6 +892,12 @@
       padding: 3px 8px; border-radius: 10px; background: rgba(7,9,12,0.6);
       backdrop-filter: blur(6px); -webkit-backdrop-filter: blur(6px);
     }
+    /* « New »: a live less than a week old (worker's catalogue) */
+    .new-tag {
+      position: absolute; top: 8px; right: 8px; font-size: 10.5px; font-weight: 800; letter-spacing: 0.3px;
+      padding: 3px 8px; border-radius: 10px; background: #ffd95a; color: #1c1500; box-shadow: 0 2px 10px rgba(255,217,90,0.35);
+    }
+    .det-media .new-tag { top: 10px; right: 10px; }
     .card-info { position: absolute; left: 9px; right: 9px; bottom: 9px; display: flex; flex-direction: column; gap: 7px; }
     .card-date { font-size: 13px; font-weight: 800; line-height: 1.2; text-shadow: 0 1px 6px rgba(0,0,0,0.6); }
     .card-add {
@@ -2033,7 +2039,7 @@
     document.getElementById("grid").innerHTML = list.map(function (i, k) {
       return '<div class="card" data-n="' + i.name + '" style="animation-delay:' + Math.min(k, 8) * 30 + 'ms" onclick="openLive(\'' + i.name + '\')">' +
         '<img src="' + esc(i.cover) + '" alt="Live of ' + fmtDay(i.date) + '" loading="lazy" decoding="async" />' +
-        '<div class="card-fade"></div><span class="card-dur">▶ ' + i.minutes + ' min</span>' +
+        '<div class="card-fade"></div><span class="card-dur">▶ ' + i.minutes + ' min</span>' + (i.new ? '<span class="new-tag">New</span>' : "") +
         '<div class="card-info"><div class="card-date">' + fmtDay(i.date) + '</div>' +
         '<button class="card-add" onclick="event.stopPropagation(); toggleCart(\'' + i.name + '\')"></button></div></div>';
     }).join("");
@@ -2239,7 +2245,8 @@
     if (!i) return;
     var body = openSheet("live", "");
     body.innerHTML = '<div class="det-media"><video src="' + esc(i.trailer) + '" poster="' + esc(i.cover) +
-      '" autoplay muted loop playsinline disablepictureinpicture preload="auto"></video><span class="det-tag">PREVIEW · 20 S</span></div>' +
+      '" autoplay muted loop playsinline disablepictureinpicture preload="auto"></video><span class="det-tag">PREVIEW · 20 S</span>' +
+      (i.new ? '<span class="new-tag">New</span>' : "") + '</div>' +
       '<div><div class="det-title">🔴 Live · ' + fmtDay(i.date) + '</div><div class="det-meta">' + i.minutes + ' min · ' + sizeOf(i.mb) +
         (i.stars ? ' · ' + money(i.price) + ' or ' + starsTxt(i.stars) : '') + '</div></div>' +
       '<div class="det-points"><span>🎬 The full live, with sound</span><span>📥 Sent to your Telegram chat right after payment</span>' +
