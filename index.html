@@ -1980,6 +1980,7 @@
   var _tab = "vip";
   var _shopSeen = false;   // the Shop tab is counted once per visit
   var _cartSeen = false;   // and so is the cart's Checkout button
+  var _addSeen = false, _cartOpenSeen = false;   // the first video added and the cart opened, once per visit too
   var _sheet = null;            // { kind, back }
   var _code = null;             // promo code applied at checkout: { code, pct, until }
   var _promoOpen = false;
@@ -2227,6 +2228,7 @@
     } else {
       if (_cart.names.length >= 60) { toast("Your cart is full"); return; }
       _cart.names.push(n);
+      if (!_addSeen) { _addSeen = true; track("add"); }
       haptic("light");
       toast("Added · " + fmtDay(i.date));
       var btn = document.getElementById("cartBtn");
@@ -2395,6 +2397,7 @@
 
   // ─── Cart sheet ───
   function openCart() {
+    if (!_cartOpenSeen) { _cartOpenSeen = true; track("cart"); }
     backToCart();
   }
 
@@ -3313,6 +3316,10 @@
     function ssGet(k)    { try { return sessionStorage.getItem(k); } catch (e) { return null; } }
     function ssSet(k, v) { try { sessionStorage.setItem(k, v); } catch (e) {} }
 
+    // Nothing is counted for the owner's own Telegram account (any device), nor on a device marked al_no_track.
+    var ownerHere = !!(tg && tg.initDataUnsafe && tg.initDataUnsafe.user && tg.initDataUnsafe.user.id === OWNER_ID);
+    function noTrack() { return ownerHere || lsGet('al_no_track') === '1'; }
+
     // text/plain is CORS-safelisted: no preflight, so beacons survive page unload (application/json gets dropped)
     function post(url, payload) {
       var data = JSON.stringify(payload);
@@ -3325,7 +3332,7 @@
     }
 
     function send() {
-      if (lsGet('al_no_track') === '1') return;
+      if (noTrack()) return;
       var referrer = document.referrer || '';
       var utm = '';
       try { utm = new URLSearchParams(window.location.search).get('utm_source') || ''; } catch (e) {}
@@ -3344,33 +3351,33 @@
     }
 
     window._trackJoin = function () {
-      if (lsGet('al_no_track') === '1') return;
+      if (noTrack()) return;
       post(ENDPOINT, { token: TOKEN, path: '/join', referrer: '', utm: '', is_new: 0, session_id: sid || '' });
     };
 
     window._trackPay = function () {
-      if (lsGet('al_no_track') === '1') return;
+      if (noTrack()) return;
       post(ENDPOINT, { token: TOKEN, path: '/pay', referrer: '', utm: '', is_new: 0, session_id: sid || '' });
     };
 
     window._trackSupport = function () {
-      if (lsGet('al_no_track') === '1') return;
+      if (noTrack()) return;
       post(ENDPOINT, { token: TOKEN, path: '/support', referrer: '', utm: '', is_new: 0, session_id: sid || '' });
     };
 
     window._trackSocial = function (name) {
-      if (lsGet('al_no_track') === '1') return;
+      if (noTrack()) return;
       post(ENDPOINT, { token: TOKEN, path: '/social-' + name, referrer: '', utm: '', is_new: 0, session_id: sid || '' });
     };
 
     window._trackRef = function () {
-      if (lsGet('al_no_track') === '1') return;
+      if (noTrack()) return;
       post(ENDPOINT, { token: TOKEN, path: '/ref-buy', referrer: '', utm: '', is_new: 0, session_id: sid || '' });
     };
 
-    // Shop: payment started ("pay") and purchase ("paid") only.
+    // Shop steps, each once per visit: open, add, cart, checkout, pay, crypto, paid (accepted by the analytics worker).
     window._trackShop = function (ev) {
-      if (lsGet('al_no_track') === '1') return;
+      if (noTrack()) return;
       post(ENDPOINT, { token: TOKEN, path: '/shop-' + ev, referrer: '', utm: '', is_new: 0, session_id: sid || '' });
     };
 
