@@ -1558,6 +1558,10 @@
       showPayment(order, Date.now());
       if (window._trackPay) window._trackPay();   // the crypto payment page, with its countdown
     } catch (e) {
+      if (e.message === "already_subscribed") {   // a Stars subscriber: Telegram already renews the access
+        setStatus(status, "You're already a VIP member: your Telegram subscription keeps your access, nothing to pay here.");
+        return;
+      }
       try { console.error("[crypto]", e); } catch (_) {}
       setStatus(status, "Connection problem — tap Continue to retry.");
       if (choice) choice.style.display = "flex";
@@ -1909,7 +1913,7 @@
     code_full: "This code has reached its limit.",
     code_limit: "Too many wrong codes: try again in an hour."
   };
-  var _shop = { items: [], byName: {}, owned: {}, month: null, loadedAt: 0, loading: null, tiers: [[5, 10]], vip: 799 };
+  var _shop = { items: [], byName: {}, owned: {}, month: null, loadedAt: 0, loading: null, tiers: [[5, 10]], vip: 799, member: null };   // member: the buyer in the VIP channel
   var _cart = readCart();
   var _tab = "vip";
   var _shopSeen = false;   // the Shop tab is counted once per visit
@@ -1994,6 +1998,8 @@
       (d.owned || []).forEach(function (n) { _shop.owned[n] = true; });
       if (d.tiers) _shop.tiers = d.tiers;
       if (d.vip_price) _shop.vip = d.vip_price;
+      _shop.member = d.vip_member || null;
+      if (vipTaken() && _cart.vip) { _cart.vip = false; saveCart(); }
       _shop.loadedAt = Date.now();
       _shop.loading = null;
       var before = _cart.names.length;
@@ -2064,13 +2070,16 @@
 
   function inCart(n) { return _cart.names.indexOf(n) >= 0; }
 
+  // A Telegram Stars subscriber already has the VIP channel (Telegram renews it): no VIP month in the cart.
+  function vipTaken() { return !!(_shop.member && _shop.member.kind === "telegram"); }
+
   function estimate() {
     var items = _cart.names.map(function (n) { return _shop.byName[n]; }).filter(Boolean)
       .sort(function (a, b) { return b.date < a.date ? -1 : b.date > a.date ? 1 : 0; });
     var subtotal = items.reduce(function (s, i) { return s + i.price; }, 0);
     var tier = _shop.tiers.find(function (t) { return items.length >= t[0]; });
     var rate = tier ? tier[1] : 0;
-    var vip = _cart.vip && items.length ? _shop.vip : 0;
+    var vip = _cart.vip && items.length && !vipTaken() ? _shop.vip : 0;
     var next = _shop.tiers.slice().reverse().find(function (t) { return items.length < t[0]; });
     return { items: items, count: items.length, subtotal: subtotal, rate: rate, vip: vip,
       total: Math.round(subtotal * (100 - rate) / 100) + vip, next: next ? { more: next[0] - items.length, pct: next[1] } : null };
@@ -2270,11 +2279,15 @@
       foot.innerHTML = '<button class="pay-btn" onclick="closeSheet(); setTab(\'shop\')">Browse the lives</button>';
       return;
     }
-    // The VIP month sits above the list: under a long cart nobody would scroll down to it.
+    // The VIP month sits above the list: under a long cart nobody would scroll down to it. Not offered to a
+    // Stars subscriber; with an access given by the bot, the month comes after the current one.
+    var access = _shop.member && _shop.member.kind === "access";
     body.innerHTML = banner +
-      '<div class="vip-row' + (_cart.vip ? " on" : "") + '" role="checkbox" aria-checked="' + _cart.vip + '" tabindex="0" onclick="toggleVip()">' +
-        '<span class="vip-check">' + (_cart.vip ? "✓" : "") + '</span><span class="ci-txt"><span class="ci-date">Add VIP channel access</span>' +
-        '<span class="ci-sub">1 month of the private channel, paid in the same go</span></span><span class="ci-price">' + money(_shop.vip) + '</span></div>' +
+      (vipTaken() ? "" : '<div class="vip-row' + (_cart.vip ? " on" : "") + '" role="checkbox" aria-checked="' + _cart.vip + '" tabindex="0" onclick="toggleVip()">' +
+        '<span class="vip-check">' + (_cart.vip ? "✓" : "") + '</span><span class="ci-txt"><span class="ci-date">' +
+        (access ? "Extend your VIP access" : "Add VIP channel access") + '</span><span class="ci-sub">' +
+        (access ? "1 more month, after your access ends on " + fmtDay(new Date(_shop.member.until).toISOString().slice(0, 10))
+          : "1 month of the private channel, paid in the same go") + '</span></span><span class="ci-price">' + money(_shop.vip) + '</span></div>') +
       '<div class="cart-head"><span>' + plural(e.count) + '</span><button class="cart-clear" onclick="clearCart()">🗑 Empty cart</button></div>' +
       '<div class="cart-list">' + e.items.map(function (i) {
         return '<div class="ci"><img src="' + esc(i.cover) + '" alt="" loading="lazy" /><span class="ci-txt"><span class="ci-date">' + fmtDay(i.date) +
@@ -2306,6 +2319,12 @@
     if (!_quote) body.innerHTML = '<p class="pay-wait"><span class="spin"></span>Checking your cart…</p>';
     payApi("/api/shop/quote", { items: _cart.names, vip: _cart.vip, code: _code ? _code.code : "" }).then(function (q) {
       syncCart(q);
+      if (q.vip_refused) {   // subscribed in Stars since the shop was opened: the VIP month leaves the cart
+        _shop.member = { kind: "telegram", until: q.vip_refused };
+        _cart.vip = false;
+        saveCart();
+        updateCartUi();
+      }
       if (!_sheet || _sheet.kind !== "checkout") return;
       if (!q.count) { backToCart(); return; }
       if (_code && !q.code) {
@@ -2327,6 +2346,8 @@
     var gone = (q.unavailable || []).length;
     var stars = _payMode === "stars" && q.stars;
     body.innerHTML = (gone ? '<p class="note warn">' + plural(gone) + (gone > 1 ? " are" : " is") + " no longer available and left your cart.</p>" : "") +
+      (q.vip_refused ? '<p class="note warn">You\'re already a VIP member: your Telegram subscription runs until ' +
+        fmtDay(new Date(q.vip_refused).toISOString().slice(0, 10)) + ", so the VIP month was taken out of your cart.</p>" : "") +
       summaryHtml(q, stars) +
       (_promoOpen || _code ? '<div class="promo-box"><input id="promoIn" placeholder="Promo code" autocomplete="off" autocapitalize="characters" spellcheck="false" value="' +
         esc(_code ? _code.code : "") + '" /><button class="pay-btn" onclick="applyCode()">Apply</button></div>'
