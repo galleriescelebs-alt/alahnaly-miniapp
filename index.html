@@ -3303,7 +3303,8 @@
     var MIN_SEND_MS  = 500;     // drop segments shorter than this
     var MAX_PAGE_MS  = 1800000; // cap engaged time at 30 min per page
 
-    var sid          = null;
+    // The visit's id exists before any click: a shop link opens the Shop while the page is still loading
+    var sid          = ssGet('al_sid') || (function () { var s = Math.random().toString(36).slice(2, 10) + Date.now().toString(36); ssSet('al_sid', s); return s; })();
     var path         = '/';
     var segStart     = document.visibilityState === 'hidden' ? 0 : Date.now();
     var lastActivity = Date.now();
@@ -3334,12 +3335,13 @@
     function send() {
       if (noTrack()) return;
       var referrer = document.referrer || '';
+      // Where the visit comes from: in Telegram, the start parameter of the link (« tg:shop », « tg:bot »,
+      // « tg: » when opened without one); on the web, utm_source
       var utm = '';
-      try { utm = new URLSearchParams(window.location.search).get('utm_source') || ''; } catch (e) {}
+      if (tg && tg.initData) utm = 'tg:' + ((tg.initDataUnsafe && tg.initDataUnsafe.start_param) || '');
+      else try { utm = new URLSearchParams(window.location.search).get('utm_source') || ''; } catch (e) {}
       var is_new = lsGet('al_visited') ? 0 : 1;
       if (is_new) lsSet('al_visited', '1');
-      sid = ssGet('al_sid');
-      if (!sid) { sid = Math.random().toString(36).slice(2, 10) + Date.now().toString(36); ssSet('al_sid', sid); }
       // Opened by the link of the bot's /start message (startapp=bot): once per opening, reloads aside
       if (tg && tg.initDataUnsafe && tg.initDataUnsafe.start_param === 'bot' && !ssGet('al_bot_sent')) {
         ssSet('al_bot_sent', '1');
