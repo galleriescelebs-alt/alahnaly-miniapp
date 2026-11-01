@@ -961,6 +961,25 @@
     .card-add:active { transform: scale(0.95); }
     .card-add.in { background: rgba(34,197,94,0.92); box-shadow: 0 4px 14px rgba(34,197,94,0.3); }
     .card-add.owned { background: rgba(255,255,255,0.16); box-shadow: none; }
+    /* Under the last live of a month, the months around it: a visitor who scrolled down keeps browsing.
+       The older month (the next page) in blue, on the right like in the months row. */
+    .month-nav { margin: 14px 16px 0; display: flex; gap: 8px; }
+    .mn-btn {
+      flex: 1; min-width: 0; display: flex; align-items: center; gap: 10px; padding: 12px 14px; border-radius: 16px;
+      border: 1px solid rgba(255,255,255,0.1); background: rgba(255,255,255,0.05); color: #fff;
+      text-align: left; cursor: pointer; transition: transform 0.15s;
+    }
+    .mn-btn:active { transform: scale(0.97); }
+    .mn-btn span { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 2px; }
+    .mn-btn b { font-size: 14.5px; font-weight: 800; }
+    .mn-btn small { font-size: 11.5px; font-weight: 700; color: rgba(255,255,255,0.55); }
+    .mn-btn svg { flex-shrink: 0; width: 20px; height: 20px; color: rgba(255,255,255,0.5); }
+    .mn-btn.older {
+      border-color: rgba(76,201,240,0.45); background: linear-gradient(145deg, rgba(0,175,240,0.22), rgba(0,175,240,0.04));
+      box-shadow: 0 4px 14px rgba(0,175,240,0.18), inset 0 1px 0 rgba(255,255,255,0.12);
+    }
+    .mn-btn.older svg { color: #4cc9f0; }
+    .mn-btn + .mn-btn.older { text-align: right; }
     .ctabar { transition: transform 0.3s ease, opacity 0.3s ease; }
     .ctabar.off { transform: translateY(130%); opacity: 0; pointer-events: none; }
     .ctabar-price .p2.good { color: #4ade80; }
@@ -1194,10 +1213,10 @@
   </div>
 
   <!-- Shown inside Telegram only (see initShop): the shop needs initData and keeps its previews
-       off the public page. -->
+       off the public page. There the shop comes first; the web page stays the VIP showcase. -->
   <div class="tabs" id="tabs" role="tablist" hidden>
-    <button class="tab on" id="tabVip" role="tab" aria-selected="true" onclick="setTab('vip')">🌶️ VIP channel</button>
-    <button class="tab" id="tabShop" role="tab" aria-selected="false" onclick="setTab('shop')">Shop 🛒</button>
+    <button class="tab" id="tabShop" role="tab" aria-selected="false" onclick="setTab('shop')">🛒 Shop</button>
+    <button class="tab on" id="tabVip" role="tab" aria-selected="true" onclick="setTab('vip')">VIP channel 🌶️</button>
   </div>
 
   <div id="vipTab">
@@ -1297,6 +1316,7 @@
     <p class="tiers">Bundle: <b>−10%</b> on the whole cart from 5 videos</p>
     <p class="shop-state" id="shopState"></p>
     <div class="grid" id="grid"></div>
+    <nav class="month-nav" id="monthNav" aria-label="Other months" hidden></nav>
   </section>
 
   <div class="socials" id="socials">
@@ -1445,14 +1465,17 @@
     openTelegram(CHANNEL_URL);
   }
 
-  // Tapping the preview mosaic glides to the offer card. Hand-rolled animation:
-  // native smooth scrolling is silently disabled when the OS has reduced-motion
-  // on, which makes scrollIntoView jump instead of glide.
+  // Tapping the preview mosaic glides to the offer card.
   function scrollToOffer() {
     var el = document.getElementById("offer");
     if (!el) return;
     var rect = el.getBoundingClientRect();
-    var target = rect.top + window.pageYOffset - (window.innerHeight - rect.height) / 2;
+    glideTo(rect.top + window.pageYOffset - (window.innerHeight - rect.height) / 2);
+  }
+
+  // Hand-rolled animation: native smooth scrolling is silently disabled when the OS
+  // has reduced-motion on, which makes scrollIntoView jump instead of glide.
+  function glideTo(target) {
     var start = window.pageYOffset;
     var dist = target - start;
     if (!dist) return;
@@ -2005,6 +2028,7 @@
   var _shopSeen = false;   // the Shop tab is counted once per visit
   var _cartSeen = false;   // and so is the cart's Checkout button
   var _addSeen = false, _cartOpenSeen = false;   // the first video added and the cart opened, once per visit too
+  var _monthSeen = false;       // and the month button under the list
   var _sheet = null;            // { kind, back }
   var _code = null;             // promo code applied at checkout: { code, pct, until }
   var _promoOpen = false;
@@ -2030,12 +2054,13 @@
     updateCartUi();
     var sp = (tg.initDataUnsafe && tg.initDataUnsafe.start_param) || "";
     var pending = readShopOrder();
-    if (!/^shop/.test(sp)) {
-      // Opened another way (the bot's /start link, its profile…): the shop takes over only for a payment still going on.
+    if (sp === "crypto" || /^vip/.test(sp) || vipPayStored()) {
+      // Opened for the VIP (the landing's crypto link, the renewal reminder's vip link) or with a VIP crypto
+      // payment going on: the VIP tab, the shop taking over only for a shop payment still going on.
       if (pending) resumeShopPay(pending, true);
       return;
     }
-    setTab("shop");
+    setTab("shop");   // any other opening (the bot's /start link, its profile, the shop links): the shop first
     loadCatalog().then(function () {
       if (!_shop.loadedAt) return;
       return pending ? resumeShopPay(pending, false) : false;
@@ -2050,6 +2075,14 @@
         openMine();
       }
     });
+  }
+
+  // A VIP crypto payment less than a day old, which resumePending shows again in the VIP tab.
+  function vipPayStored() {
+    try {
+      var p = JSON.parse(localStorage.getItem("al_pay_order") || "null");
+      return !!(p && p.id && Date.now() - p.ts <= 86400000);
+    } catch (e) { return false; }
   }
 
   function setTab(t) {
@@ -2201,13 +2234,31 @@
         '<button class="card-add" onclick="event.stopPropagation(); toggleCart(\'' + i.name + '\')"></button></div></div>';
     }).join("");
     list.forEach(updateCard);
+    var at = keys.indexOf(_shop.month), nav = document.getElementById("monthNav");
+    nav.innerHTML = monthLink(keys[at - 1], groups, false) + monthLink(keys[at + 1], groups, true);
+    nav.hidden = !nav.innerHTML;
     var on = row.querySelector(".month.on");   // keep the chosen month in view, without moving the page
     if (on) row.scrollLeft = on.offsetLeft - (row.clientWidth - on.offsetWidth) / 2;
   }
 
-  function pickMonth(k) {
+  // A month to go to from the bottom of the list (none: no button).
+  function monthLink(k, groups, older) {
+    if (!k) return "";
+    var n = groups[k].length, arrow = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" ' +
+      'stroke-linejoin="round" aria-hidden="true"><path d="' + (older ? "M9 6l6 6-6 6" : "M15 6l-6 6 6 6") + '"/></svg>';
+    var text = "<span><b>" + MONTHS[+k.slice(5, 7) - 1] + " " + k.slice(0, 4) + "</b><small>" + n + (n > 1 ? " lives" : " live") + "</small></span>";
+    return '<button class="mn-btn' + (older ? " older" : "") + '" onclick="pickMonth(\'' + k + '\', true)">' +
+      (older ? text + arrow : arrow + text) + "</button>";
+  }
+
+  // fromBottom: chosen under the list, so the page glides back up to the months and the new month's first lives.
+  function pickMonth(k, fromBottom) {
     _shop.month = k;
     renderShop();
+    if (!fromBottom) return;
+    if (!_monthSeen) { _monthSeen = true; track("month"); }
+    var bar = document.querySelector(".topbar");
+    glideTo(document.getElementById("months").getBoundingClientRect().top + window.pageYOffset - (bar ? bar.offsetHeight : 0) - 10);
   }
 
   function updateCard(i) {
@@ -3409,7 +3460,8 @@
       post(ENDPOINT, { token: TOKEN, path: '/ref-buy', referrer: '', utm: '', is_new: 0, session_id: sid || '' });
     };
 
-    // Shop steps, each once per visit: open, add, cart, checkout, pay, crypto, paid (accepted by the analytics worker).
+    // Shop steps, each once per visit: open, add, cart, checkout, code, month (the month button under the list),
+    // pay, crypto, paid (accepted by the analytics worker).
     window._trackShop = function (ev) {
       if (noTrack()) return;
       post(ENDPOINT, { token: TOKEN, path: '/shop-' + ev, referrer: '', utm: '', is_new: 0, session_id: sid || '' });
