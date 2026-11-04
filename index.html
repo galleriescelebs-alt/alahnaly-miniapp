@@ -3385,12 +3385,14 @@
     'use strict';
     var ENDPOINT     = 'https://miniapp-analytics.alahnaly-api.workers.dev/api/ping';
     var ENDPOINT_DUR = 'https://miniapp-analytics.alahnaly-api.workers.dev/api/duration';
+    var ENDPOINT_HERE = 'https://miniapp-analytics.alahnaly-api.workers.dev/api/here';
     var TOKEN        = 'al_ping_v1';
 
     var HEARTBEAT_MS = 20000;   // flush engaged time every 20s so the dashboard updates while the visitor is still here
     var IDLE_MS      = 60000;   // stop counting after 60s without any interaction
     var MIN_SEND_MS  = 500;     // drop segments shorter than this
     var MAX_PAGE_MS  = 1800000; // cap engaged time at 30 min per page
+    var HERE_IDLE_MS = 1800000; // on screen but untouched for 30 min: no longer counted as on the app
 
     // The visit's id exists before any click: a shop link opens the Shop while the page is still loading
     var sid          = ssGet('al_sid') || (function () { var s = Math.random().toString(36).slice(2, 10) + Date.now().toString(36); ssSet('al_sid', s); return s; })();
@@ -3473,6 +3475,16 @@
       post(ENDPOINT, { token: TOKEN, path: '/shop-' + ev, referrer: '', utm: '', is_new: 0, session_id: sid || '' });
     };
 
+    // The dashboard's "on the app" counter: a sign of life with each heartbeat while the page is on screen, a goodbye
+    // as soon as it leaves (a lost goodbye only means the worker stops counting the visit 50 s later).
+    var hereOn = false;
+    function onScreen() { return document.visibilityState === 'visible' && !(tg && tg.isActive === false); }
+    function here(on) {
+      if (noTrack() || (!on && !hereOn)) return;
+      hereOn = on;
+      post(ENDPOINT_HERE, { token: TOKEN, session_id: sid, on: on ? 1 : 0 });
+    }
+
     function closeSegment(endTs) {
       if (!segStart) return;
       var d = endTs - segStart;
@@ -3499,6 +3511,7 @@
         }
       }
       sendPending();
+      if (onScreen() && now - lastActivity < HERE_IDLE_MS) here(true);
     }
 
     function onActivity() {
@@ -3515,22 +3528,31 @@
       if (document.visibilityState === 'hidden') {
         closeSegment(now);
         sendPending();
+        here(false);
       } else {
         segStart = now;
         lastActivity = now;
+        if (onScreen()) here(true);
       }
     });
 
     window.addEventListener('pagehide', function () {
       closeSegment(Date.now());
       sendPending();
+      here(false);
     });
 
     window.addEventListener('pageshow', function (e) {
-      if (e.persisted) { segStart = Date.now(); lastActivity = segStart; }
+      if (e.persisted) { segStart = Date.now(); lastActivity = segStart; if (onScreen()) here(true); }
     });
 
+    if (tg && typeof tg.onEvent === 'function') {   // minimized inside Telegram, then back
+      tg.onEvent('deactivated', function () { here(false); });
+      tg.onEvent('activated', function () { lastActivity = Date.now(); here(true); });
+    }
+
     setInterval(heartbeat, HEARTBEAT_MS);
+    if (onScreen()) here(true);
 
     if (document.readyState === 'loading') {
       document.addEventListener('DOMContentLoaded', send);
