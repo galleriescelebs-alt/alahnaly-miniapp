@@ -1405,6 +1405,10 @@
   }, true));
 
   const CHANNEL_URL = "https://t.me/+kYZ-o4bbE2EwODA0";
+  // On iPhone, Telegram shows its Stars subscription screen only for a paid link tapped inside a chat. Opened from a
+  // mini app or a browser, the same link gets a plain "Join" window whose button closes it without joining. So the
+  // iPhone goes through the bot: /start vip answers with the paid link on a button.
+  const VIP_VIA_BOT = "https://t.me/AlahnalyVIP_bot?start=vip";
   // Mini App deep link — reopens THIS page inside Telegram (so initData is set).
   // ?startapp=crypto makes the page jump straight to the currency choice on open.
   const MINIAPP_LINK = "https://t.me/AlahnalyVIP_bot?startapp=crypto";
@@ -1462,7 +1466,9 @@
 
   function subscribe() {
     if (window._trackJoin) window._trackJoin();
-    openTelegram(CHANNEL_URL);
+    var iosApp = !!(tg && tg.platform === "ios");
+    openTelegram(iosApp || /iphone|ipad|ipod/i.test(navigator.userAgent || "") ? VIP_VIA_BOT : CHANNEL_URL);
+    if (iosApp) setTimeout(function () { tg.close(); }, 400);   // the chat opens behind the mini app: closed to show the bot's answer
   }
 
   // Tapping the preview mosaic glides to the offer card.
