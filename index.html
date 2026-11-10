@@ -1467,7 +1467,9 @@
   function subscribe() {
     if (window._trackJoin) window._trackJoin();
     var iosApp = !!(tg && tg.platform === "ios");
-    openTelegram(iosApp || /iphone|ipad|ipod/i.test(navigator.userAgent || "") ? VIP_VIA_BOT : CHANNEL_URL);
+    // The visit's id rides along (/start vip_<visit>): the bot then notes in the analytics that its message reached this visit
+    var visit = window._visitId ? window._visitId() : "";
+    openTelegram(iosApp || /iphone|ipad|ipod/i.test(navigator.userAgent || "") ? VIP_VIA_BOT + (visit ? "_" + visit : "") : CHANNEL_URL);
     if (iosApp) setTimeout(function () { tg.close(); }, 400);   // the chat opens behind the mini app: closed to show the bot's answer
   }
 
@@ -3447,6 +3449,9 @@
       if (noTrack()) return;
       post(ENDPOINT, { token: TOKEN, path: '/join', referrer: '', utm: '', is_new: 0, session_id: sid || '' });
     };
+
+    // This visit's id, for the bot's VIP message on iPhone (empty when nothing is counted, e.g. for the owner)
+    window._visitId = function () { return noTrack() ? '' : sid; };
 
     window._trackPay = function () {
       if (noTrack()) return;
