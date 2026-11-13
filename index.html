@@ -885,13 +885,14 @@
         linear-gradient(160deg, #2b1142 0%, #170a26 62%, #100a15 100%);
       border-color: rgba(255,138,31,0.6); box-shadow: 0 10px 30px rgba(255,110,20,0.16);
     }
+    /* Black Friday matched to the page's palette: warm black, champagne, a bordeaux glow */
     .promo-card.t-blackfriday {
-      --promo: #f5c542; --promo-soft: #ffe08a; --promo-edge: rgba(245,197,66,0.38);
-      background: radial-gradient(130% 120% at 100% 0%, rgba(245,197,66,0.16), rgba(245,197,66,0) 55%),
-        linear-gradient(160deg, #1d1d22 0%, #0e0e11 60%, #070708 100%);
-      border-color: rgba(245,197,66,0.55); box-shadow: 0 10px 30px rgba(0,0,0,0.45);
+      --promo: #e6c38f; --promo-soft: #f3dfbd; --promo-edge: rgba(230,195,143,0.4);
+      background: radial-gradient(130% 120% at 100% 0%, rgba(163,53,74,0.34), rgba(163,53,74,0) 58%),
+        linear-gradient(160deg, #1f1513 0%, #110b0a 60%, #080505 100%);
+      border-color: rgba(230,195,143,0.5); box-shadow: 0 10px 30px rgba(0,0,0,0.5);
     }
-    .t-blackfriday .promo-deco { color: #f5c542; }
+    .t-blackfriday .promo-deco { color: #e6c38f; }
     .promo-deco { position: absolute; pointer-events: none; font-size: 17px; opacity: 0.55; }
     .promo-deco.b1 { top: 10px; right: 14px; transform: rotate(-12deg); }
     .promo-deco.b2 { top: 15px; right: 46px; font-size: 12px; opacity: 0.35; transform: rotate(10deg); }
@@ -1058,7 +1059,7 @@
       color: var(--shine);
     }
     .promo-link.shine.t-halloween { --shine: #ff9a3c; --shine-hi: #ffe2c2; }
-    .promo-link.shine.t-blackfriday { --shine: #f5c542; --shine-hi: #fff3c4; }
+    .promo-link.shine.t-blackfriday { --shine: #e6c38f; --shine-hi: #fff1d6; }
     .promo-link.shine .txt {
       background: linear-gradient(110deg, var(--shine) 0%, var(--shine) 38%, var(--shine-hi) 50%, var(--shine) 62%, var(--shine) 100%);
       background-size: 260% 100%; -webkit-background-clip: text; background-clip: text; color: transparent;
@@ -2156,7 +2157,7 @@
     if (/HALLOWEEN/i.test(code)) {
       return { cls: " t-halloween", icon: "🎃", title: "Halloween sale", deco: '<span class="promo-deco b1">🦇</span><span class="promo-deco b2">🦇</span>' };
     }
-    if (/BLACK.?FRIDAY|CYBER/i.test(code)) {
+    if (/BLACK|CYBER/i.test(code)) {
       return { cls: " t-blackfriday", icon: "🖤", title: "Black Friday", deco: '<span class="promo-deco b1">✦</span><span class="promo-deco b2">✦</span>' };
     }
     return { cls: "", icon: "🏷️", title: "Promo code", deco: "" };
@@ -2394,8 +2395,9 @@
   function summaryHtml(q, inStars) {
     var s = inStars ? q.stars : q, fmt = inStars ? starsTxt : money;
     var off = s.subtotal + s.vip - s.total;
-    var label = s.code ? "Code " + esc(s.code) + " −" + s.pct + "%" + (s.code_limit && q.count > s.code_limit ? " (on " + s.code_limit + " videos)" : "")
-      : "Bundle −" + s.rate + "%";
+    // A code lowers the videos only, never the VIP month: said so when the month is in the cart.
+    var label = s.code ? "Code " + esc(s.code) + " −" + s.pct + "%" + (s.code_limit && q.count > s.code_limit ? " (on " + s.code_limit + " videos)"
+      : s.vip ? " on videos" : "") : "Bundle −" + s.rate + "%";
     return '<div class="sum"><div class="sum-row"><span>' + plural(q.count) + '</span><span>' + fmt(s.subtotal) + '</span></div>' +
       (s.vip ? '<div class="sum-row"><span>VIP channel · 1 month</span><span>' + fmt(s.vip) + '</span></div>' : "") +
       (off > 0 ? '<div class="sum-row disc"><span>' + label + '</span><span>−' + fmt(off) + '</span></div>' : "") +
@@ -3005,6 +3007,7 @@
     bad_code: "Code : 3 à 24 caractères, lettres, chiffres, - ou _.",
     bad_pct: "Réduction : entre 11 et 40 %.",
     bad_date: "Choisis une date de fin : aujourd'hui ou plus tard.",
+    bad_start: "Début : aujourd'hui ou plus tard, et pas après la fin.",
     bad_uses: "Utilisations max : un nombre à partir de 1, ou vide pour illimité.",
     bad_videos: "Vidéos max : entre 1 et 60.",
     code_exists: "Ce code existe déjà : un nom ne sert qu'une fois.",
@@ -3181,18 +3184,21 @@
         "un meilleur total, et ne sert qu'une fois par acheteur.</p>";
     }
     return _admin.codes.map(function (c) {
-      var st = codeState(c), until = new Date(c.until).toISOString().slice(0, 10);
+      var st = codeState(c), until = new Date(c.until).toISOString().slice(0, 10), live = st.key === "on" || st.key === "soon";
+      var from = c.from ? new Date(c.from).toISOString().slice(0, 10) : "";
       return '<div class="adm-code"><div class="adm-code-top"><span class="adm-code-name">' + esc(c.code) + "</span>" +
         '<span class="adm-code-pct">−' + c.pct + ' %</span><span class="adm-tag ' + st.cls + '">' + st.label + "</span></div>" +
-        '<p class="ci-sub">Jusqu\'au ' + frDay(until) + " à 23:59 UTC · " + c.max_videos + " vidéo" + (c.max_videos > 1 ? "s" : "") + " max par commande</p>" +
+        '<p class="ci-sub">' + (from ? "Du " + frDay(from) + " à 00:00 UTC au " : "Jusqu'au ") + frDay(until) + " à 23:59 UTC</p>" +
+        '<p class="ci-sub">' + c.max_videos + " vidéo" + (c.max_videos > 1 ? "s" : "") + " max par commande" + (live ? " · jamais le mois VIP" : "") + "</p>" +
         '<p class="ci-sub">Utilisé ' + c.uses + " fois" + (c.max_uses != null ? " sur " + c.max_uses : "") + " · une fois par acheteur</p>" +
-        (st.key === "on" ? '<p class="ci-sub">' + (c.shown ? "🏷️ Affiché dans la boutique" : "🔒 Privé : à donner toi-même") + "</p>" : "") +
+        (live ? '<p class="ci-sub">' + (c.shown ? (st.key === "soon" ? "🏷️ Affiché dans la boutique dès le début" : "🏷️ Affiché dans la boutique")
+          : "🔒 Privé : à donner toi-même") + "</p>" : "") +
         '<div class="adm-code-act"><button class="ci-resend" onclick="copyText(\'' + c.code + '\', this, \'Copié ✓\')">Copier</button>' +
-        (st.key === "on" ? '<button class="ci-resend" onclick="adminCodeShown(\'' + c.code + '\', ' + !c.shown + ', this)">' +
+        (live ? '<button class="ci-resend" onclick="adminCodeShown(\'' + c.code + '\', ' + !c.shown + ', this)">' +
           (c.shown ? "Retirer de la boutique" : "Afficher dans la boutique") + "</button>" : "") +
-        (st.key === "on" || st.key === "off" ? '<button class="ci-resend" onclick="adminCodeActive(\'' + c.code + '\', ' + !c.active + ', this)">' +
+        (live || st.key === "off" ? '<button class="ci-resend" onclick="adminCodeActive(\'' + c.code + '\', ' + !c.active + ', this)">' +
           (c.active ? "Désactiver" : "Réactiver") + "</button>" : "") +
-        (st.key === "on" ? "" : '<button class="ci-resend danger" onclick="adminCodeDelete(\'' + c.code + '\', this)">Supprimer</button>') +
+        (live ? "" : '<button class="ci-resend danger" onclick="adminCodeDelete(\'' + c.code + '\', this)">Supprimer</button>') +
         "</div></div>";
     }).join("");
   }
@@ -3200,7 +3206,8 @@
   function codeState(c) {
     if (c.until < Date.now()) return { key: "expired", label: "Expiré", cls: "gray" };
     if (c.max_uses != null && c.uses >= c.max_uses) return { key: "full", label: "Épuisé", cls: "gray" };
-    return c.active ? { key: "on", label: "Actif", cls: "ok" } : { key: "off", label: "Désactivé", cls: "gray" };
+    if (!c.active) return { key: "off", label: "Désactivé", cls: "gray" };
+    return c.from && c.from > Date.now() ? { key: "soon", label: "Programmé", cls: "" } : { key: "on", label: "Actif", cls: "ok" };
   }
 
   function adminCodeActive(code, active, btn) {
@@ -3256,6 +3263,9 @@
       }).join("") + "</div>" +
       '<label class="adm-field"><input id="acPct" inputmode="numeric" autocomplete="off" aria-label="Réduction en %" value="30" oninput="acPct()" /><span>%</span></label>' +
       '<p class="adm-help">Entre 11 et 40 % : toujours mieux que la remise par lot (−10 %).</p>' +
+      '<label class="adm-label" for="acFrom">À partir du</label>' +
+      '<input class="adm-input" id="acFrom" type="date" min="' + today + '" value="' + today + '" oninput="acUntil()" />' +
+      '<p class="adm-help" id="acFromNote"></p>' +
       '<label class="adm-label" for="acUntil">Valable jusqu\'au</label>' +
       '<input class="adm-input" id="acUntil" type="date" min="' + today + '" value="' + week + '" oninput="acUntil()" />' +
       '<p class="adm-help" id="acUntilNote"></p>' +
@@ -3263,7 +3273,7 @@
         '<input class="adm-input" id="acUses" inputmode="numeric" autocomplete="off" placeholder="Illimité" /></div>' +
       '<div class="adm-cell"><label class="adm-label" for="acVideos">Vidéos max</label>' +
         '<input class="adm-input" id="acVideos" inputmode="numeric" autocomplete="off" value="10" /></div></div>' +
-      '<p class="adm-help">Le code s\'applique aux N vidéos les plus chères du panier (10 par défaut) et au mois VIP s\'il y est. ' +
+      '<p class="adm-help">Le code s\'applique aux N vidéos les plus chères du panier (10 par défaut), jamais au mois VIP. ' +
         "Chaque acheteur ne peut l'utiliser qu'une fois.</p>" +
       '<button class="adm-switch" id="acShown" role="switch" aria-checked="false" onclick="acShown()"><span class="adm-knob"></span>' +
         "<span>Afficher dans la boutique</span></button>" +
@@ -3286,32 +3296,43 @@
     document.querySelectorAll(".adm-chip").forEach(function (c) { c.classList.toggle("on", +c.dataset.pct === v); });
   }
 
-  // The code ends at 23:59 UTC on the chosen day: the same moment in Paris time, for the owner.
+  // The code starts at 00:00 UTC on its first day (today: at once) and ends at 23:59 UTC on its last
+  // day: the same moments in Paris time, for the owner. The end can't be set before the start.
   function acUntil() {
-    var v = document.getElementById("acUntil").value, note = document.getElementById("acUntilNote");
-    if (!/^\d{4}-\d{2}-\d{2}$/.test(v)) { note.textContent = ""; return; }
-    var end = new Date(Date.UTC(+v.slice(0, 4), +v.slice(5, 7) - 1, +v.slice(8, 10), 23, 59)), paris = "";
+    var f = document.getElementById("acFrom"), u = document.getElementById("acUntil");
+    var from = f.value, v = u.value, today = new Date().toISOString().slice(0, 10);
+    var ok = /^\d{4}-\d{2}-\d{2}$/;
+    u.min = ok.test(from) && from > today ? from : today;
+    document.getElementById("acFromNote").textContent = !ok.test(from) ? ""
+      : from <= today ? "Actif dès sa création." : "Début le " + frDay(from) + " à 00:00 UTC" + parisAt(from, 0, 0) + ".";
+    document.getElementById("acUntilNote").textContent = ok.test(v) ? "Fin le " + frDay(v) + " à 23:59 UTC" + parisAt(v, 23, 59) + "." : "";
+  }
+
+  function parisAt(iso, h, m) {
+    var at = new Date(Date.UTC(+iso.slice(0, 4), +iso.slice(5, 7) - 1, +iso.slice(8, 10), h, m));
     try {
-      var day = end.toLocaleDateString("en-CA", { timeZone: "Europe/Paris" });
-      var time = end.toLocaleTimeString("fr-FR", { timeZone: "Europe/Paris", hour: "2-digit", minute: "2-digit" });
-      if (/^\d{4}-\d{2}-\d{2}$/.test(day)) paris = ", soit le " + frDay(day) + " à " + time + " heure de Paris";
+      var day = at.toLocaleDateString("en-CA", { timeZone: "Europe/Paris" });
+      var time = at.toLocaleTimeString("fr-FR", { timeZone: "Europe/Paris", hour: "2-digit", minute: "2-digit" });
+      if (/^\d{4}-\d{2}-\d{2}$/.test(day)) return ", soit le " + frDay(day) + " à " + time + " heure de Paris";
     } catch (e) {}
-    note.textContent = "Fin le " + frDay(v) + " à 23:59 UTC" + paris + ".";
+    return "";
   }
 
   function adminCreateCode() {
     function val(id) { return document.getElementById(id).value.trim(); }
-    var code = val("acCode").toUpperCase(), pct = Number(val("acPct")), until = val("acUntil");
-    var uses = val("acUses"), videos = Number(val("acVideos"));
+    var code = val("acCode").toUpperCase(), pct = Number(val("acPct")), until = val("acUntil"), from = val("acFrom");
+    var uses = val("acUses"), videos = Number(val("acVideos")), today = new Date().toISOString().slice(0, 10);
     var err = !/^[A-Z0-9_-]{3,24}$/.test(code) ? "bad_code"
       : !(Number.isInteger(pct) && pct >= 11 && pct <= 40) ? "bad_pct"
-      : !/^\d{4}-\d{2}-\d{2}$/.test(until) || until < new Date().toISOString().slice(0, 10) ? "bad_date"
+      : !/^\d{4}-\d{2}-\d{2}$/.test(until) || until < today ? "bad_date"
+      : from && (!/^\d{4}-\d{2}-\d{2}$/.test(from) || from < today || from > until) ? "bad_start"
       : uses && !(Number.isInteger(Number(uses)) && Number(uses) >= 1) ? "bad_uses"
       : !(Number.isInteger(videos) && videos >= 1 && videos <= 60) ? "bad_videos" : "";
     if (err) { adminMsg("acMsg", ADMIN_ERRORS[err]); return; }
     var b = document.getElementById("acGo");
     b.disabled = true;
-    payApi("/api/shop/admin/code", { code: code, pct: pct, until: until, max_uses: uses ? Number(uses) : null, max_videos: videos,
+    payApi("/api/shop/admin/code", { code: code, pct: pct, from: from > today ? from : null, until: until,
+      max_uses: uses ? Number(uses) : null, max_videos: videos,
       shown: document.getElementById("acShown").classList.contains("on") }).then(function (d) {
       _admin.codes.unshift(d.code);
       _adminView = "codes";
