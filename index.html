@@ -31,7 +31,7 @@
 
     body {
       font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-      background: #07090c;
+      background: #120d0c;
       color: #fff;
       min-height: 100vh;
       display: flex;
@@ -44,7 +44,7 @@
     .bg-photo {
       position: fixed;
       inset: 0;
-      background: url('bg.jpg') center/cover no-repeat;
+      background: url('bg_creme.jpg') center/cover no-repeat;
       filter: blur(28px) brightness(0.45) saturate(1.35);
       transform: scale(1.1);
       z-index: 0;
@@ -52,12 +52,12 @@
     .bg-overlay {
       position: fixed;
       inset: 0;
-      background: linear-gradient(to bottom, rgba(7,9,12,0.35) 0%, rgba(7,9,12,0.7) 55%, rgba(7,9,12,0.92) 100%);
+      background: linear-gradient(to bottom, rgba(18,13,12,0.35) 0%, rgba(18,13,12,0.7) 55%, rgba(18,13,12,0.92) 100%);
       z-index: 1;
     }
 
     @keyframes fadeUp { from { opacity: 0; transform: translateY(16px); } to { opacity: 1; transform: none; } }
-    @keyframes glow { 0%, 100% { box-shadow: 0 6px 28px rgba(0,175,240,0.5); } 50% { box-shadow: 0 8px 44px rgba(0,175,240,0.85); } }
+    @keyframes glow { 0%, 100% { box-shadow: 0 6px 28px rgba(163,53,74,0.5); } 50% { box-shadow: 0 8px 44px rgba(163,53,74,0.85); } }
 
     .container {
       position: relative;
@@ -77,12 +77,12 @@
       body { padding: 48px 0 0; }
       /* Boudoir glow: the painted rose/mauve ambiance shines around the card */
       .bg-photo { filter: blur(44px) brightness(0.8) saturate(1.3); }
-      .bg-overlay { background: linear-gradient(to bottom, rgba(7,9,12,0.15) 0%, rgba(7,9,12,0.35) 60%, rgba(7,9,12,0.55) 100%); }
+      .bg-overlay { background: linear-gradient(to bottom, rgba(18,13,12,0.15) 0%, rgba(18,13,12,0.35) 60%, rgba(18,13,12,0.55) 100%); }
       .container {
         margin-bottom: 48px;
         border-radius: 28px;
         border: 1px solid rgba(255,255,255,0.09);
-        background: rgba(10,14,19,0.55);
+        background: rgba(26,19,18,0.55);
         box-shadow: 0 30px 80px rgba(0,0,0,0.55);
         overflow: hidden;              /* rounds the hero cover corners */
         backdrop-filter: blur(20px);
@@ -108,7 +108,7 @@
       display: flex;
       align-items: center;
       gap: 10px;
-      background: rgba(10,14,19,0.85);
+      background: rgba(26,19,18,0.85);
       border-bottom: 1px solid rgba(255,255,255,0.1);
       padding: 10px 14px;
       backdrop-filter: blur(16px);
@@ -119,7 +119,7 @@
       display: block;
       width: 34px; height: 34px;
       border-radius: 50%;
-      border: 1.5px solid rgba(0,175,240,0.6);
+      border: 1.5px solid rgba(234,219,200,0.75);
       object-fit: cover;
     }
     .topbar-online {
@@ -131,7 +131,7 @@
       height: 10px;
       border-radius: 50%;
       background: #22c55e;
-      border: 2px solid #0a0e13;
+      border: 2px solid #1a1312;
     }
     .topbar-name {
       display: flex;
@@ -143,25 +143,19 @@
       white-space: nowrap;
     }
     .verif {
-      width: 19px; height: 19px;
-      border-radius: 50%;
-      background: #00AFF0;
+      width: 16px; height: 16px;
       display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 11px;
-      font-weight: 800;
-      color: #fff;
       flex-shrink: 0;
     }
-    .topbar .verif { width: 15px; height: 15px; font-size: 9px; }
+    .verif svg { width: 100%; height: 100%; display: block; }
+    .topbar .verif { width: 13px; height: 13px; }
 
     /* Hero: immersive cover + overlapping avatar */
     .hero { position: relative; animation: fadeUp 0.45s ease both; }
     .cover {
       height: 280px;
       overflow: hidden;
-      background: #0a1016;
+      background: #120d0c;
     }
     .cover img {
       width: 100%;
@@ -172,7 +166,7 @@
     .cover-fade {
       position: absolute;
       inset: 0;
-      background: linear-gradient(to bottom, rgba(7,9,12,0.1) 30%, rgba(7,9,12,0.55) 75%, rgba(7,9,12,0.82) 100%);
+      background: linear-gradient(to bottom, rgba(18,13,12,0.1) 30%, rgba(18,13,12,0.55) 75%, rgba(18,13,12,0.82) 100%);
     }
     .avatar-wrap {
       position: absolute;
@@ -186,8 +180,8 @@
       position: absolute;
       inset: -2px;
       border-radius: 50%;
-      background: #00AFF0;
-      box-shadow: 0 0 28px rgba(0,175,240,0.5);
+      background: rgba(234,219,200,0.9);
+      box-shadow: none;
     }
     .avatar-box img {
       position: absolute;
@@ -195,7 +189,7 @@
       width: 100%;
       height: 100%;
       border-radius: 50%;
-      border: 2px solid #07090c;
+      border: 2px solid #120d0c;
       object-fit: cover;
       object-position: center top;
     }
@@ -208,7 +202,7 @@
       height: 16px;
       border-radius: 50%;
       background: #22c55e;
-      border: 2px solid #07090c;
+      border: 2px solid #120d0c;
       box-shadow: 0 0 4px rgba(34,197,94,0.35);
     }
     /* Identity + social proof chips */
@@ -290,7 +284,7 @@
     .tile-big-fade {
       position: absolute;
       inset: 0;
-      background: linear-gradient(to top, rgba(7,9,12,0.85), transparent 45%);
+      background: linear-gradient(to top, rgba(18,13,12,0.85), transparent 45%);
     }
     .tile-badge {
       position: absolute;
@@ -298,10 +292,11 @@
       font-size: 10px;
       font-weight: 800;
       letter-spacing: 0.5px;
-      background: rgba(0,175,240,0.9);
+      background: rgba(163,53,74,0.9);
       border-radius: 10px;
       padding: 3px 9px;
-      box-shadow: 0 4px 16px rgba(0,175,240,0.4);
+      box-shadow: 0 4px 16px rgba(163,53,74,0.4);
+      color: #ffffff;
     }
     .tile-lock::after {
       content: '🔒';
@@ -319,8 +314,8 @@
       display: flex;
       align-items: center;
       gap: 14px;
-      background: rgba(0,175,240,0.09);
-      border: 1.5px solid rgba(0,175,240,0.4);
+      background: rgba(163,53,74,0.09);
+      border: 1.5px solid rgba(163,53,74,0.4);
       border-radius: 18px;
       padding: 16px 18px;
       animation: fadeUp 0.45s 0.18s ease both;
@@ -337,15 +332,15 @@
       width: 100%;
       padding: 13px;
       border-radius: 15px;
-      border: 1px dashed rgba(0,175,240,0.4);
+      border: 1px dashed rgba(163,53,74,0.4);
       background: transparent;
-      color: #7fd9ff;
+      color: #e8c9b6;
       font-size: 13.5px;
       font-weight: 700;
       cursor: pointer;
       transition: background 0.15s;
     }
-    .btn-crypto:active { background: rgba(0,175,240,0.1); }
+    .btn-crypto:active { background: rgba(163,53,74,0.1); }
     .btn-crypto:disabled { opacity: 0.6; cursor: default; }
     .crypto-choice {
       display: flex;
@@ -355,7 +350,7 @@
     }
     /* Crypto picker: token first, then its network */
     .pick-title { margin: 0; font-size: 14px; color: #c9ced6; text-align: center; }
-    .pick-title b { color: #4cc9f0; }
+    .pick-title b { color: #e8c9b6; }
     .pick-tokens { display: grid; grid-auto-flow: column; grid-auto-columns: 1fr; gap: 8px; }   /* as many equal columns as tokens */
     .pick-token,
     .pick-net {
@@ -380,10 +375,10 @@
     .pick-net:active { transform: scale(0.95); }
     .pick-token.sel,
     .pick-net.sel {
-      border-color: #00AFF0;
-      background: rgba(0,175,240,0.12);
+      border-color: #a3354a;
+      background: rgba(163,53,74,0.12);
       color: #fff;
-      box-shadow: 0 0 0 1px rgba(0,175,240,0.35), 0 6px 18px rgba(0,175,240,0.15);
+      box-shadow: 0 0 0 1px rgba(163,53,74,0.35), 0 6px 18px rgba(163,53,74,0.15);
     }
     .pick-label { margin: 4px 0 -2px 2px; font-size: 12px; color: #8a8f98; }
     .pick-nets { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 8px; }   /* a lone network fills the row */
@@ -429,7 +424,7 @@
     .crypto-status {
       margin: 14px 16px 0;
       font-size: 13px;
-      color: #00AFF0;
+      color: #a3354a;
       text-align: center;
       line-height: 1.4;
     }
@@ -437,7 +432,7 @@
       margin-top: 10px;
       padding: 16px 14px 12px;
       border-radius: 18px;
-      border: 1px solid rgba(0,175,240,0.3);
+      border: 1px solid rgba(163,53,74,0.3);
       background: rgba(255,255,255,0.04);
       flex-direction: column;
       gap: 12px;
@@ -459,14 +454,14 @@
       flex-shrink: 0;
       padding: 7px 12px;
       border-radius: 10px;
-      border: 1px solid rgba(0,175,240,0.4);
+      border: 1px solid rgba(163,53,74,0.4);
       background: transparent;
-      color: #7fd9ff;
+      color: #e8c9b6;
       font-size: 12.5px;
       font-weight: 700;
       cursor: pointer;
     }
-    .pay-copy:active { background: rgba(0,175,240,0.12); }
+    .pay-copy:active { background: rgba(163,53,74,0.12); }
     /* Addresses are long: full width for the text, Copy underneath (no one-letter last line). */
     .pay-field.addr { flex-direction: column; align-items: stretch; gap: 8px; }
     .pay-field.addr .pay-copy { margin-left: 0; align-self: flex-end; }
@@ -483,14 +478,14 @@
     .pay-note { margin: 0; font-size: 12px; color: #aab0b8; line-height: 1.45; }
     .pay-timer { margin: 0; font-size: 12px; color: #8a8f98; text-align: center; }
     .pay-timer b { color: #fff; font-variant-numeric: tabular-nums; }
-    .pay-wait { margin: 0; font-size: 13px; color: #00AFF0; text-align: center; line-height: 1.45; }
+    .pay-wait { margin: 0; font-size: 13px; color: #a3354a; text-align: center; line-height: 1.45; }
     .pay-ok { font-size: 16px; font-weight: 800; color: #fff; text-align: center; }
     .pay-btn {
       width: 100%;
       padding: 14px;
       border-radius: 14px;
       border: none;
-      background: #00AFF0;
+      background: #a3354a;
       color: #fff;
       font-size: 15px;
       font-weight: 800;
@@ -531,10 +526,10 @@
       height: 38px;
       padding: 0;
       border-radius: 50%;
-      border: 1px solid rgba(76,201,240,0.45);
-      background: linear-gradient(145deg, rgba(0,175,240,0.22), rgba(0,175,240,0.04));
-      box-shadow: 0 4px 14px rgba(0,175,240,0.18), inset 0 1px 0 rgba(255,255,255,0.12);
-      color: #4cc9f0;
+      border: 1px solid rgba(232,201,182,0.45);
+      background: linear-gradient(145deg, rgba(163,53,74,0.22), rgba(163,53,74,0.04));
+      box-shadow: 0 4px 14px rgba(163,53,74,0.18), inset 0 1px 0 rgba(255,255,255,0.12);
+      color: #e8c9b6;
       cursor: pointer;
       transition: transform 0.15s;
     }
@@ -573,8 +568,8 @@
     .perk-icon {
       width: 26px; height: 26px;
       border-radius: 8px;
-      background: rgba(0,175,240,0.13);
-      border: 1px solid rgba(0,175,240,0.25);
+      background: rgba(163,53,74,0.13);
+      border: 1px solid rgba(163,53,74,0.25);
       display: inline-flex;
       align-items: center;
       justify-content: center;
@@ -632,7 +627,7 @@
       display: flex;
       align-items: center;
       gap: 12px;
-      background: rgba(13,18,24,0.85);
+      background: rgba(26,19,18,0.85);
       border: 1px solid rgba(255,255,255,0.12);
       border-radius: 22px;
       padding: 12px 12px 12px 18px;
@@ -650,8 +645,8 @@
       padding: 14px 24px;
       border-radius: 15px;
       border: none;
-      background: linear-gradient(135deg, #00AFF0 0%, #0088cc 55%, #0055aa 100%);
-      color: #fff;
+      background: linear-gradient(135deg, #a3354a 0%, #8a2a3c 55%, #5e1726 100%);
+      color: #ffffff;
       font-size: 15px;
       font-weight: 800;
       letter-spacing: 0.3px;
@@ -696,7 +691,7 @@
       color: rgba(255,255,255,0.7);
       margin-bottom: 16px;
     }
-    .bh-text b { color: #00AFF0; font-weight: 700; }
+    .bh-text b { color: #a3354a; font-weight: 700; }
 
     /* Animated mini-browser demo */
     .bh-demo {
@@ -732,7 +727,7 @@
     }
     @keyframes bhDots {
       0%, 8% { background: transparent; transform: scale(1); }
-      12% { background: rgba(0,175,240,0.45); transform: scale(0.85); }
+      12% { background: rgba(163,53,74,0.45); transform: scale(0.85); }
       18%, 100% { background: transparent; transform: scale(1); }
     }
     .bh-demo-menu {
@@ -772,7 +767,7 @@
     }
     @keyframes bhHot {
       0%, 52% { background: transparent; }
-      60%, 90% { background: rgba(0,175,240,0.28); }
+      60%, 90% { background: rgba(163,53,74,0.28); }
       100% { background: transparent; }
     }
     /* Finger that taps up at the highlighted item (sits in the menu's bottom pad) */
@@ -797,12 +792,12 @@
       padding: 15px;
       border: none;
       border-radius: 14px;
-      background: linear-gradient(135deg, #00AFF0 0%, #0088cc 50%, #0055aa 100%);
+      background: linear-gradient(135deg, #a3354a 0%, #8a2a3c 50%, #5e1726 100%);
       color: #fff;
       font-size: 15px;
       font-weight: 700;
       cursor: pointer;
-      box-shadow: 0 6px 24px rgba(0,175,240,0.4);
+      box-shadow: 0 6px 24px rgba(163,53,74,0.4);
       transition: transform 0.15s;
     }
     .bh-btn:active { transform: scale(0.97); }
@@ -825,10 +820,10 @@
       margin-left: auto; position: relative; flex-shrink: 0;
       display: flex; align-items: center; justify-content: center;
       width: 38px; height: 38px; padding: 0; border-radius: 50%;
-      border: 1px solid rgba(76,201,240,0.45);
-      background: linear-gradient(145deg, rgba(0,175,240,0.22), rgba(0,175,240,0.04));
-      box-shadow: 0 4px 14px rgba(0,175,240,0.18), inset 0 1px 0 rgba(255,255,255,0.12);
-      color: #4cc9f0; cursor: pointer; transition: transform 0.15s;
+      border: 1px solid rgba(232,201,182,0.45);
+      background: linear-gradient(145deg, rgba(163,53,74,0.22), rgba(163,53,74,0.04));
+      box-shadow: 0 4px 14px rgba(163,53,74,0.18), inset 0 1px 0 rgba(255,255,255,0.12);
+      color: #e8c9b6; cursor: pointer; transition: transform 0.15s;
     }
     .cart-btn:active { transform: scale(0.92); }
     .cart-btn svg { width: 19px; height: 19px; }
@@ -837,9 +832,9 @@
     .cart-badge {
       position: absolute; top: -5px; right: -5px;
       min-width: 18px; height: 18px; padding: 0 5px; border-radius: 9px;
-      background: #fff; color: #0a0e13; font-size: 10.5px; font-weight: 800;
+      background: #fff; color: #1a1312; font-size: 10.5px; font-weight: 800;
       display: flex; align-items: center; justify-content: center;
-      box-shadow: 0 0 0 2px #0a0e13;
+      box-shadow: 0 0 0 2px #1a1312;
     }
     .tabs {
       margin: 20px 16px 0;
@@ -854,7 +849,7 @@
       font-size: 14px; font-weight: 800; cursor: pointer;
       transition: background 0.2s, color 0.2s, box-shadow 0.2s;
     }
-    .tab.on { background: rgba(0,175,240,0.16); color: #fff; box-shadow: inset 0 0 0 1px rgba(0,175,240,0.45); }
+    .tab.on { background: rgba(163,53,74,0.16); color: #fff; box-shadow: inset 0 0 0 1px rgba(163,53,74,0.45); }
     .shop { display: flex; flex-direction: column; animation: fadeUp 0.35s ease both; }
     .shop-lead { margin: 18px 22px 0; font-size: 13px; color: rgba(255,255,255,0.6); line-height: 1.5; text-align: center; }
     .shop-lead b { color: #fff; }
@@ -872,10 +867,10 @@
       color: rgba(255,255,255,0.7); font-size: 13px; font-weight: 700; cursor: pointer; white-space: nowrap;
     }
     .month small { margin-left: 6px; font-size: 11px; font-weight: 700; opacity: 0.55; }
-    .month.on { background: #00AFF0; border-color: #00AFF0; color: #fff; }
+    .month.on { background: #a3354a; border-color: #a3354a; color: #fff; }
     .month.on small { opacity: 0.85; }
     .tiers { margin: 12px 16px 0; font-size: 11.5px; color: rgba(255,255,255,0.5); text-align: center; }
-    .tiers b { color: #7fd9ff; }
+    .tiers b { color: #e8c9b6; }
     /* The promo code shown to everyone (chosen in the Admin): the time left until it really ends, a small
        grey icon to copy it, the buyer enters it at checkout. A code named for a holiday gets its look
        (HALLOWEEN…), the others the gold one. */
@@ -924,7 +919,7 @@
     .promo-sub { margin-top: 2px; font-size: 12px; color: rgba(255,255,255,0.65); }
     .promo-seg { display: flex; align-items: center; gap: 5px; margin-top: 10px; }
     .promo-seg > span { margin-right: 3px; font-size: 12px; font-weight: 700; color: rgba(255,255,255,0.7); }
-    .promo-seg div { min-width: 44px; padding: 5px 0 4px; border-radius: 10px; background: rgba(7,9,12,0.5); border: 1px solid var(--promo-edge); text-align: center; }
+    .promo-seg div { min-width: 44px; padding: 5px 0 4px; border-radius: 10px; background: rgba(18,13,12,0.5); border: 1px solid var(--promo-edge); text-align: center; }
     .promo-seg b { display: block; font-size: 17px; font-weight: 800; line-height: 1.15; color: var(--promo); font-variant-numeric: tabular-nums; }
     .promo-seg small { display: block; font-size: 8.5px; letter-spacing: 0.5px; text-transform: uppercase; color: rgba(255,255,255,0.5); }
     .promo-seg i { font-style: normal; font-weight: 800; color: var(--promo-edge); }
@@ -939,10 +934,10 @@
     }
     .card.in { border-color: rgba(34,197,94,0.7); }
     .card img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
-    .card-fade { position: absolute; inset: 0; background: linear-gradient(to top, rgba(7,9,12,0.92) 0%, rgba(7,9,12,0.2) 42%, transparent 60%); }
+    .card-fade { position: absolute; inset: 0; background: linear-gradient(to top, rgba(18,13,12,0.92) 0%, rgba(18,13,12,0.2) 42%, transparent 60%); }
     .card-dur {
       position: absolute; top: 8px; left: 8px; font-size: 11px; font-weight: 700;
-      padding: 3px 8px; border-radius: 10px; background: rgba(7,9,12,0.6);
+      padding: 3px 8px; border-radius: 10px; background: rgba(18,13,12,0.6);
       backdrop-filter: blur(6px); -webkit-backdrop-filter: blur(6px);
     }
     /* « New »: a live less than a week old (worker's catalogue) */
@@ -955,8 +950,8 @@
     .card-date { font-size: 13px; font-weight: 800; line-height: 1.2; text-shadow: 0 1px 6px rgba(0,0,0,0.6); }
     .card-add {
       width: 100%; padding: 8px 0; border-radius: 11px; border: none;
-      background: rgba(0,175,240,0.92); color: #fff; font-size: 12.5px; font-weight: 800; cursor: pointer;
-      box-shadow: 0 4px 14px rgba(0,175,240,0.3); transition: transform 0.15s, background 0.2s, box-shadow 0.2s;
+      background: rgba(163,53,74,0.92); color: #fff; font-size: 12.5px; font-weight: 800; cursor: pointer;
+      box-shadow: 0 4px 14px rgba(163,53,74,0.3); transition: transform 0.15s, background 0.2s, box-shadow 0.2s;
     }
     .card-add:active { transform: scale(0.95); }
     .card-add.in { background: rgba(34,197,94,0.92); box-shadow: 0 4px 14px rgba(34,197,94,0.3); }
@@ -975,10 +970,10 @@
     .mn-btn small { font-size: 11.5px; font-weight: 700; color: rgba(255,255,255,0.55); }
     .mn-btn svg { flex-shrink: 0; width: 20px; height: 20px; color: rgba(255,255,255,0.5); }
     .mn-btn.older {
-      border-color: rgba(76,201,240,0.45); background: linear-gradient(145deg, rgba(0,175,240,0.22), rgba(0,175,240,0.04));
-      box-shadow: 0 4px 14px rgba(0,175,240,0.18), inset 0 1px 0 rgba(255,255,255,0.12);
+      border-color: rgba(232,201,182,0.45); background: linear-gradient(145deg, rgba(163,53,74,0.22), rgba(163,53,74,0.04));
+      box-shadow: 0 4px 14px rgba(163,53,74,0.18), inset 0 1px 0 rgba(255,255,255,0.12);
     }
-    .mn-btn.older svg { color: #4cc9f0; }
+    .mn-btn.older svg { color: #e8c9b6; }
     .mn-btn + .mn-btn.older { text-align: right; }
     .ctabar { transition: transform 0.3s ease, opacity 0.3s ease; }
     .ctabar.off { transform: translateY(130%); opacity: 0; pointer-events: none; }
@@ -1019,33 +1014,33 @@
     }
     .sheet-foot:empty { display: none; }
     .sheet-foot:not(:empty) ~ .sheet-body, .sheet-body:has(+ .sheet-foot:not(:empty)) { padding-bottom: 12px; }
-    .det-media { position: relative; width: 62%; max-width: 260px; margin: 0 auto; aspect-ratio: 9 / 16; border-radius: 18px; overflow: hidden; background: #0a0e13; }
+    .det-media { position: relative; width: 62%; max-width: 260px; margin: 0 auto; aspect-ratio: 9 / 16; border-radius: 18px; overflow: hidden; background: #1a1312; }
     .det-media video { width: 100%; height: 100%; object-fit: cover; display: block; }
-    .det-tag { position: absolute; top: 10px; left: 10px; font-size: 10px; font-weight: 800; letter-spacing: 0.5px; background: rgba(0,175,240,0.9); border-radius: 10px; padding: 3px 9px; }
+    .det-tag { position: absolute; top: 10px; left: 10px; font-size: 10px; font-weight: 800; letter-spacing: 0.5px; background: rgba(163,53,74,0.9); border-radius: 10px; padding: 3px 9px; }
     .det-title { font-size: 18px; font-weight: 800; text-align: center; }
     .det-meta { margin-top: 4px; font-size: 12.5px; color: rgba(255,255,255,0.55); text-align: center; }
     .det-points { display: flex; flex-direction: column; gap: 7px; padding: 12px 14px; border-radius: 14px; background: rgba(255,255,255,0.04); font-size: 12.5px; color: rgba(255,255,255,0.78); }
     .cart-head { display: flex; align-items: center; justify-content: space-between; font-size: 13px; color: rgba(255,255,255,0.6); }
     .cart-list { display: flex; flex-direction: column; gap: 8px; }
     .ci { display: flex; align-items: center; gap: 12px; padding: 8px; border-radius: 14px; background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.07); }
-    .ci img { width: 42px; height: 56px; border-radius: 9px; object-fit: cover; flex-shrink: 0; background: #0a0e13; }
+    .ci img { width: 42px; height: 56px; border-radius: 9px; object-fit: cover; flex-shrink: 0; background: #1a1312; }
     .ci-txt { display: flex; flex-direction: column; min-width: 0; flex: 1; }
     .ci-date { font-size: 14px; font-weight: 800; }
     .ci-sub { font-size: 11.5px; color: rgba(255,255,255,0.5); }
     .ci-price { font-size: 14px; font-weight: 800; font-variant-numeric: tabular-nums; }
     .ci-x { width: 30px; height: 30px; flex-shrink: 0; border-radius: 50%; border: none; background: rgba(255,255,255,0.07); color: rgba(255,255,255,0.7); cursor: pointer; }
-    .ci-resend { flex-shrink: 0; padding: 7px 10px; border-radius: 10px; border: 1px solid rgba(0,175,240,0.4); background: transparent; color: #7fd9ff; font-size: 12px; font-weight: 700; cursor: pointer; }
+    .ci-resend { flex-shrink: 0; padding: 7px 10px; border-radius: 10px; border: 1px solid rgba(163,53,74,0.4); background: transparent; color: #e8c9b6; font-size: 12px; font-weight: 700; cursor: pointer; }
     .ci-resend:disabled { opacity: 0.6; }
     .ci-resend.danger { border-color: rgba(255,138,138,0.45); color: #ff8a8a; }
-    .vip-row { display: flex; align-items: center; gap: 12px; padding: 12px; border-radius: 14px; border: 1px dashed rgba(0,175,240,0.45); background: rgba(0,175,240,0.05); cursor: pointer; }
-    .vip-row.on { border-style: solid; background: rgba(0,175,240,0.12); }
-    .vip-check { width: 22px; height: 22px; flex-shrink: 0; border-radius: 7px; border: 1.5px solid rgba(0,175,240,0.7); display: flex; align-items: center; justify-content: center; font-size: 13px; font-weight: 800; }
-    .vip-row.on .vip-check { background: #00AFF0; border-color: #00AFF0; }
+    .vip-row { display: flex; align-items: center; gap: 12px; padding: 12px; border-radius: 14px; border: 1px dashed rgba(163,53,74,0.45); background: rgba(163,53,74,0.05); cursor: pointer; }
+    .vip-row.on { border-style: solid; background: rgba(163,53,74,0.12); }
+    .vip-check { width: 22px; height: 22px; flex-shrink: 0; border-radius: 7px; border: 1.5px solid rgba(163,53,74,0.7); display: flex; align-items: center; justify-content: center; font-size: 13px; font-weight: 800; }
+    .vip-row.on .vip-check { background: #a3354a; border-color: #a3354a; }
     .sum { display: flex; flex-direction: column; gap: 6px; padding: 12px 14px; border-radius: 14px; background: rgba(255,255,255,0.05); }
     .sum-row { display: flex; justify-content: space-between; gap: 10px; font-size: 13px; color: rgba(255,255,255,0.7); font-variant-numeric: tabular-nums; }
     .sum-row.disc { color: #4ade80; }
     .sum-row.total { margin-top: 4px; padding-top: 9px; border-top: 1px solid rgba(255,255,255,0.08); font-size: 16px; font-weight: 800; color: #fff; }
-    .hint { margin: 0; font-size: 12px; color: #7fd9ff; text-align: center; }
+    .hint { margin: 0; font-size: 12px; color: #e8c9b6; text-align: center; }
     .empty { padding: 26px 0 6px; text-align: center; color: rgba(255,255,255,0.55); font-size: 13.5px; line-height: 1.55; }
     .note { margin: 0; font-size: 12px; color: rgba(255,255,255,0.5); text-align: center; line-height: 1.5; }
     .note b { color: rgba(255,255,255,0.85); }
@@ -1053,7 +1048,7 @@
     .pay-link.center { display: block; margin: 0 auto; }
     .pay-btn.ghost { background: transparent; border: 1px solid rgba(255,255,255,0.18); color: rgba(255,255,255,0.85); }
     .pay-btn:disabled { opacity: 0.6; }
-    .pay-banner { padding: 10px 12px; border-radius: 12px; border: 1px solid rgba(0,175,240,0.4); background: rgba(0,175,240,0.08); color: #7fd9ff; font-size: 13px; font-weight: 700; cursor: pointer; }
+    .pay-banner { padding: 10px 12px; border-radius: 12px; border: 1px solid rgba(163,53,74,0.4); background: rgba(163,53,74,0.08); color: #e8c9b6; font-size: 13px; font-weight: 700; cursor: pointer; }
     .promo-link { align-self: center; border: none; background: none; color: #8a8f98; font-size: 12.5px; text-decoration: underline; cursor: pointer; padding: 2px 8px; }
     /* « Have a promo code? » that can't be missed: a light sweeps across it and a little star twinkles, in the
        colors of the promo under way (gold otherwise) */
@@ -1090,7 +1085,7 @@
     .deliv-bar { height: 6px; border-radius: 3px; background: rgba(255,255,255,0.08); overflow: hidden; }
     .deliv-bar span { display: block; height: 100%; border-radius: 3px; background: #22c55e; transition: width 0.4s ease; }
     .spin { display: inline-block; width: 13px; height: 13px; margin-right: 6px; vertical-align: -2px; border-radius: 50%;
-      border: 2px solid rgba(0,175,240,0.35); border-top-color: #00AFF0; animation: spin 0.8s linear infinite; }
+      border: 2px solid rgba(163,53,74,0.35); border-top-color: #a3354a; animation: spin 0.8s linear infinite; }
     @keyframes spin { to { transform: rotate(360deg); } }
     .toast {
       position: fixed; left: 50%; bottom: calc(100px + env(safe-area-inset-bottom)); z-index: 80;
@@ -1103,13 +1098,13 @@
     /* Stars | Crypto at checkout */
     .paymode { display: grid; grid-template-columns: 1fr 1fr; gap: 4px; padding: 4px; border-radius: 14px; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.08); }
     .pm { padding: 10px 0; border: none; border-radius: 10px; background: transparent; color: rgba(255,255,255,0.6); font-size: 13.5px; font-weight: 800; cursor: pointer; transition: background 0.2s, color 0.2s; }
-    .pm.on { background: rgba(0,175,240,0.16); color: #fff; box-shadow: inset 0 0 0 1px rgba(0,175,240,0.45); }
+    .pm.on { background: rgba(163,53,74,0.16); color: #fff; box-shadow: inset 0 0 0 1px rgba(163,53,74,0.45); }
     /* "No crypto yet? Buy crypto": a quiet link at the payment steps */
-    .starter-link { align-self: center; border: none; background: none; color: #7fd9ff; font-size: 12.5px; font-weight: 600; cursor: pointer; padding: 4px 8px; }
+    .starter-link { align-self: center; border: none; background: none; color: #e8c9b6; font-size: 12.5px; font-weight: 600; cursor: pointer; padding: 4px 8px; }
     .starter-link:active { opacity: 0.7; }
     /* Terms of sale: accepted by paying, readable in a sheet */
     .terms { white-space: pre-wrap; font-size: 12.5px; line-height: 1.55; color: rgba(255,255,255,0.8); overflow-wrap: anywhere; }
-    .terms-link { padding: 0; border: none; background: none; color: #7fd9ff; font: inherit; text-decoration: underline; cursor: pointer; }
+    .terms-link { padding: 0; border: none; background: none; color: #e8c9b6; font: inherit; text-decoration: underline; cursor: pointer; }
     .trust-terms { margin: 12px 16px 0; text-align: center; font-size: 11.5px; color: rgba(255,255,255,0.45); }
     /* Cart: emptied in one tap */
     .cart-clear {
@@ -1130,12 +1125,12 @@
     .adm-label small { font-weight: 600; color: rgba(255,255,255,0.45); }
     .adm-help { margin: -4px 0 0; font-size: 11.5px; color: rgba(255,255,255,0.5); line-height: 1.45; }
     .adm-pick { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; }
-    .adm-tile { position: relative; aspect-ratio: 3 / 4; padding: 0; overflow: hidden; border-radius: 12px; border: 2px solid rgba(255,255,255,0.08); background: #0a0e13; cursor: pointer; }
+    .adm-tile { position: relative; aspect-ratio: 3 / 4; padding: 0; overflow: hidden; border-radius: 12px; border: 2px solid rgba(255,255,255,0.08); background: #1a1312; cursor: pointer; }
     .adm-tile.vid { aspect-ratio: 9 / 16; }
     .adm-tile img, .adm-tile video { width: 100%; height: 100%; object-fit: cover; display: block; pointer-events: none; }
-    .adm-tile.on { border-color: #00AFF0; box-shadow: 0 0 0 2px rgba(0,175,240,0.3); }
-    .adm-num { position: absolute; left: 6px; bottom: 6px; padding: 2px 7px; border-radius: 8px; background: rgba(7,9,12,0.7); font-size: 11px; font-weight: 800; color: #fff; }
-    .adm-check { position: absolute; top: 6px; right: 6px; width: 22px; height: 22px; border-radius: 50%; display: none; align-items: center; justify-content: center; background: #00AFF0; color: #fff; font-size: 12px; font-weight: 800; }
+    .adm-tile.on { border-color: #a3354a; box-shadow: 0 0 0 2px rgba(163,53,74,0.3); }
+    .adm-num { position: absolute; left: 6px; bottom: 6px; padding: 2px 7px; border-radius: 8px; background: rgba(18,13,12,0.7); font-size: 11px; font-weight: 800; color: #fff; }
+    .adm-check { position: absolute; top: 6px; right: 6px; width: 22px; height: 22px; border-radius: 50%; display: none; align-items: center; justify-content: center; background: #a3354a; color: #fff; font-size: 12px; font-weight: 800; }
     .adm-tile.on .adm-check { display: flex; }
     .adm-prices { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 8px; }
     .adm-cell { display: flex; flex-direction: column; gap: 6px; min-width: 0; }
@@ -1152,7 +1147,7 @@
     .adm-switch.on .adm-knob::after { transform: translateX(18px); }
     .adm-chips { display: flex; flex-wrap: wrap; gap: 6px; }
     .adm-chip { padding: 7px 12px; border-radius: 16px; border: 1px solid rgba(255,255,255,0.14); background: rgba(255,255,255,0.05); color: rgba(255,255,255,0.8); font-size: 12.5px; font-weight: 700; cursor: pointer; }
-    .adm-chip.on { background: #00AFF0; border-color: #00AFF0; color: #fff; }
+    .adm-chip.on { background: #a3354a; border-color: #a3354a; color: #fff; }
     .adm-code { display: flex; flex-direction: column; gap: 4px; padding: 12px; border-radius: 14px; border: 1px solid rgba(255,255,255,0.07); background: rgba(255,255,255,0.04); }
     .adm-code p { margin: 0; }
     .adm-code-top { display: flex; align-items: center; gap: 8px; }
@@ -1176,7 +1171,7 @@
       <img class="topbar-avatar" src="avatar.jpg" alt="" />
       <span class="topbar-online" aria-hidden="true"></span>
     </span>
-    <span class="topbar-name">Alahna Ly <span class="verif">✓</span></span>
+    <span class="topbar-name">Alahna Ly <span class="verif" title="Verified"><svg viewBox="0 0 24 24" aria-hidden="true"><path fill="#1D9BF0" d="M23.65 12.00 L23.47 12.60 L22.96 13.15 L22.27 13.63 L21.56 14.03 L21.00 14.41 L20.70 14.83 L20.70 15.34 L20.93 15.98 L21.27 16.72 L21.55 17.51 L21.63 18.25 L21.43 18.85 L20.92 19.23 L20.19 19.38 L19.35 19.35 L18.54 19.26 L17.86 19.24 L17.38 19.40 L17.07 19.81 L16.89 20.47 L16.72 21.27 L16.48 22.07 L16.11 22.72 L15.60 23.08 L14.97 23.09 L14.29 22.78 L13.63 22.27 L13.02 21.72 L12.49 21.30 L12.00 21.15 L11.51 21.30 L10.98 21.72 L10.37 22.27 L9.71 22.78 L9.03 23.09 L8.40 23.08 L7.89 22.72 L7.52 22.07 L7.28 21.27 L7.11 20.47 L6.93 19.81 L6.62 19.40 L6.14 19.24 L5.46 19.26 L4.65 19.35 L3.81 19.38 L3.08 19.23 L2.57 18.85 L2.37 18.25 L2.45 17.51 L2.73 16.72 L3.07 15.98 L3.30 15.34 L3.30 14.83 L3.00 14.41 L2.44 14.03 L1.73 13.63 L1.04 13.15 L0.53 12.60 L0.35 12.00 L0.53 11.40 L1.04 10.85 L1.73 10.37 L2.44 9.97 L3.00 9.59 L3.30 9.17 L3.30 8.66 L3.07 8.02 L2.73 7.28 L2.45 6.49 L2.37 5.75 L2.57 5.15 L3.08 4.77 L3.81 4.62 L4.65 4.65 L5.46 4.74 L6.14 4.76 L6.62 4.60 L6.93 4.19 L7.11 3.53 L7.28 2.73 L7.52 1.93 L7.89 1.28 L8.40 0.92 L9.03 0.91 L9.71 1.22 L10.37 1.73 L10.98 2.28 L11.51 2.70 L12.00 2.85 L12.49 2.70 L13.02 2.28 L13.63 1.73 L14.29 1.22 L14.97 0.91 L15.60 0.92 L16.11 1.28 L16.48 1.93 L16.72 2.73 L16.89 3.53 L17.07 4.19 L17.38 4.60 L17.86 4.76 L18.54 4.74 L19.35 4.65 L20.19 4.62 L20.92 4.77 L21.43 5.15 L21.63 5.75 L21.55 6.49 L21.27 7.28 L20.93 8.02 L20.70 8.66 L20.70 9.17 L21.00 9.59 L21.56 9.97 L22.27 10.37 L22.96 10.85 L23.47 11.40 Z"/><path d="M7.6 12.3l3 3 5.9-6" fill="none" stroke="#fff" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round"/></svg></span></span>
     <button class="cart-btn" id="cartBtn" onclick="openCart()" aria-label="Cart" hidden>
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5.5 7.5h13l-1.2 12.1a1.5 1.5 0 0 1-1.5 1.4H8.2a1.5 1.5 0 0 1-1.5-1.4L5.5 7.5Z"/><path d="M9 10V6.5a3 3 0 0 1 6 0V10"/></svg>
       <span class="cart-badge" id="cartBadge" hidden>0</span>
@@ -1203,7 +1198,7 @@
   <div class="ident">
     <div class="ident-name">
       <h1>Alahna Ly 🦋</h1>
-      <span class="verif">✓</span>
+      <span class="verif" title="Verified"><svg viewBox="0 0 24 24" aria-hidden="true"><path fill="#1D9BF0" d="M23.65 12.00 L23.47 12.60 L22.96 13.15 L22.27 13.63 L21.56 14.03 L21.00 14.41 L20.70 14.83 L20.70 15.34 L20.93 15.98 L21.27 16.72 L21.55 17.51 L21.63 18.25 L21.43 18.85 L20.92 19.23 L20.19 19.38 L19.35 19.35 L18.54 19.26 L17.86 19.24 L17.38 19.40 L17.07 19.81 L16.89 20.47 L16.72 21.27 L16.48 22.07 L16.11 22.72 L15.60 23.08 L14.97 23.09 L14.29 22.78 L13.63 22.27 L13.02 21.72 L12.49 21.30 L12.00 21.15 L11.51 21.30 L10.98 21.72 L10.37 22.27 L9.71 22.78 L9.03 23.09 L8.40 23.08 L7.89 22.72 L7.52 22.07 L7.28 21.27 L7.11 20.47 L6.93 19.81 L6.62 19.40 L6.14 19.24 L5.46 19.26 L4.65 19.35 L3.81 19.38 L3.08 19.23 L2.57 18.85 L2.37 18.25 L2.45 17.51 L2.73 16.72 L3.07 15.98 L3.30 15.34 L3.30 14.83 L3.00 14.41 L2.44 14.03 L1.73 13.63 L1.04 13.15 L0.53 12.60 L0.35 12.00 L0.53 11.40 L1.04 10.85 L1.73 10.37 L2.44 9.97 L3.00 9.59 L3.30 9.17 L3.30 8.66 L3.07 8.02 L2.73 7.28 L2.45 6.49 L2.37 5.75 L2.57 5.15 L3.08 4.77 L3.81 4.62 L4.65 4.65 L5.46 4.74 L6.14 4.76 L6.62 4.60 L6.93 4.19 L7.11 3.53 L7.28 2.73 L7.52 1.93 L7.89 1.28 L8.40 0.92 L9.03 0.91 L9.71 1.22 L10.37 1.73 L10.98 2.28 L11.51 2.70 L12.00 2.85 L12.49 2.70 L13.02 2.28 L13.63 1.73 L14.29 1.22 L14.97 0.91 L15.60 0.92 L16.11 1.28 L16.48 1.93 L16.72 2.73 L16.89 3.53 L17.07 4.19 L17.38 4.60 L17.86 4.76 L18.54 4.74 L19.35 4.65 L20.19 4.62 L20.92 4.77 L21.43 5.15 L21.63 5.75 L21.55 6.49 L21.27 7.28 L20.93 8.02 L20.70 8.66 L20.70 9.17 L21.00 9.59 L21.56 9.97 L22.27 10.37 L22.96 10.85 L23.47 11.40 Z"/><path d="M7.6 12.3l3 3 5.9-6" fill="none" stroke="#fff" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
     </div>
     <p class="tagline">Private Telegram channel · Exclusive content</p>
     <div class="chips">
