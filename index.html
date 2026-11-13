@@ -2055,6 +2055,7 @@
   var _code = null;             // promo code applied at checkout: { code, pct, until }
   var _promoOpen = false;
   var _codeSeen = false;        // a code applied, counted once per visit
+  var _promoSeen = false;       // « Have a promo code? » tapped, counted once per visit
   var _quote = null;            // the worker's last quote for the checkout
   var _shopPick = null;         // crypto option chosen at checkout
   var _shopPay = null;          // { order, shownAt, timer, lastPoll, names, paid, invoice }
@@ -2628,6 +2629,7 @@
   }
 
   function openPromo() {
+    if (!_promoSeen) { _promoSeen = true; track("promo"); }
     _promoOpen = true;
     renderCheckout(null);
     var input = document.getElementById("promoIn");
