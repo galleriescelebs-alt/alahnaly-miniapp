@@ -947,6 +947,24 @@
       padding: 3px 8px; border-radius: 10px; background: #ffd95a; color: #1c1500; box-shadow: 0 2px 10px rgba(255,217,90,0.35);
     }
     .det-media .new-tag { top: 10px; right: 10px; }
+    /* « Popular »: bought at least 5 times (worker), shown once the live is no longer « New ». A neon sign: a glowing
+       tube around a dark pill, the flame and the word lit in the same colour. */
+    .new-tag.hot {
+      --neon: #ff4f8b;
+      display: inline-flex; align-items: center; gap: 4px; padding: 3px 8px 3px 6px;
+      background: rgba(18,13,12,0.72); color: #ffe3ec; border: 1px solid var(--neon);
+      text-shadow: 0 0 4px var(--neon), 0 0 10px var(--neon);
+      box-shadow: 0 0 5px var(--neon), 0 0 14px rgba(255,79,139,0.5), inset 0 0 6px rgba(255,79,139,0.45);
+      -webkit-backdrop-filter: blur(4px); backdrop-filter: blur(4px);
+    }
+    .new-tag.hot svg { width: 11px; height: 11px; flex-shrink: 0; color: var(--neon); filter: drop-shadow(0 0 2px var(--neon)) drop-shadow(0 0 5px var(--neon)); }
+    /* The tube breathes: its glow swells and settles slowly, never blinks */
+    @keyframes neonBreath {
+      0%, 100% { box-shadow: 0 0 3px var(--neon), 0 0 8px rgba(255,79,139,0.3), inset 0 0 4px rgba(255,79,139,0.3); text-shadow: 0 0 3px var(--neon), 0 0 6px var(--neon); }
+      50% { box-shadow: 0 0 7px var(--neon), 0 0 20px rgba(255,79,139,0.65), inset 0 0 8px rgba(255,79,139,0.55); text-shadow: 0 0 5px var(--neon), 0 0 14px var(--neon); }
+    }
+    .new-tag.hot { animation: neonBreath 2.8s ease-in-out infinite; }
+    @media (prefers-reduced-motion: reduce) { .new-tag.hot { animation: none; } }
     .card-info { position: absolute; left: 9px; right: 9px; bottom: 9px; display: flex; flex-direction: column; gap: 7px; }
     .card-date { font-size: 13px; font-weight: 800; line-height: 1.2; text-shadow: 0 1px 6px rgba(0,0,0,0.6); }
     .card-add {
@@ -2218,6 +2236,13 @@
     haptic("light");
   }
 
+  // One tag at most on a live: « New » for its first week, then the neon « Popular » if buyers took it at least 5 times.
+  var FLAME = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">' +
+    '<path d="M8.5 14.5A2.5 2.5 0 0 0 11 12c0-1.38-.5-2-1-3-1.07-2.14-.22-4.05 2-6 .5 2.5 2 4.9 4 6.5 2 1.6 3 3.5 3 5.5a7 7 0 1 1-14 0c0-1.15.43-2.29 1-3a2.5 2.5 0 0 0 2.5 2.5z"/></svg>';
+  function liveTag(i) {
+    return i.new ? '<span class="new-tag">New</span>' : i.popular ? '<span class="new-tag hot">' + FLAME + "Popular</span>" : "";
+  }
+
   function renderShop() {
     var groups = {};
     _shop.items.forEach(function (i) { var k = i.date.slice(0, 7); (groups[k] = groups[k] || []).push(i); });
@@ -2233,7 +2258,7 @@
     document.getElementById("grid").innerHTML = list.map(function (i, k) {
       return '<div class="card" data-n="' + i.name + '" style="animation-delay:' + Math.min(k, 8) * 30 + 'ms" onclick="openLive(\'' + i.name + '\')">' +
         '<img src="' + esc(i.cover) + '" alt="Live of ' + fmtDay(i.date) + '" loading="lazy" decoding="async" />' +
-        '<div class="card-fade"></div><span class="card-dur">▶ ' + i.minutes + ' min</span>' + (i.new ? '<span class="new-tag">New</span>' : "") +
+        '<div class="card-fade"></div><span class="card-dur">▶ ' + i.minutes + ' min</span>' + liveTag(i) +
         '<div class="card-info"><div class="card-date">' + fmtDay(i.date) + '</div>' +
         '<button class="card-add" onclick="event.stopPropagation(); toggleCart(\'' + i.name + '\')"></button></div></div>';
     }).join("");
@@ -2460,7 +2485,7 @@
     var body = openSheet("live", "");
     body.innerHTML = '<div class="det-media"><video src="' + esc(i.trailer) + '" poster="' + esc(i.cover) +
       '" autoplay muted loop playsinline disablepictureinpicture preload="auto"></video><span class="det-tag">PREVIEW · 20 S</span>' +
-      (i.new ? '<span class="new-tag">New</span>' : "") + '</div>' +
+      liveTag(i) + '</div>' +
       '<div><div class="det-title">🔴 Live · ' + fmtDay(i.date) + '</div><div class="det-meta">' + i.minutes + ' min · ' + sizeOf(i.mb) +
         (i.stars ? ' · ' + money(i.price) + ' or ' + starsTxt(i.stars) : '') + '</div></div>' +
       '<div class="det-points"><span>🎬 The full live, with sound</span><span>📥 Sent to your Telegram chat right after payment</span>' +
