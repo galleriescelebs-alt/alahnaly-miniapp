@@ -1783,6 +1783,13 @@
       if (_pay.timer) clearInterval(_pay.timer);
       try { localStorage.removeItem("al_pay_order"); } catch (e) {}
       if (window._trackJoin && !_pay.tracked) { _pay.tracked = true; window._trackJoin(); }
+      // Already in the channel (a month added to a running access): no invite was made, none is needed
+      if (!o.invite_link) {
+        card.innerHTML = '<div class="pay-ok">✅ Payment received</div>' +
+          '<p class="pay-wait">' + (o.access_until ? 'Your VIP access now runs until <b>' + esc(fmtDay(new Date(o.access_until).toISOString().slice(0, 10))) + '</b>.<br>' : '') +
+          'You\'re already in the channel, nothing else to do.</p>' + helpLink(o.order_id);
+        return;
+      }
       card.innerHTML = '<div class="pay-ok">✅ Payment received — welcome!</div>' +
         '<button class="pay-btn" id="payJoin">Open the private channel</button>' +
         '<p class="pay-note" style="text-align:center">Single-use link, valid 24 h. @AlahnalyVIP_bot also sends it to you.</p>' +
