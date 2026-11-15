@@ -2101,7 +2101,7 @@
         _shop.month = m[1].slice(0, 7);
         renderShop();
         openLive("alahnaly_" + m[1]);
-      } else if (sp === "shop_mine") {
+      } else if (/^shop_mine/.test(sp)) {   // shop_mine (the bot's /purchases), shop_mine_done (the end of a delivery)…
         openMine();
       }
     });
