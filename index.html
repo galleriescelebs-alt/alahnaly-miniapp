@@ -122,17 +122,6 @@
       border: 1.5px solid #6b4a38;
       object-fit: cover;
     }
-    .topbar-online {
-      position: absolute;
-      right: 0;
-      bottom: 0;
-      box-sizing: border-box;
-      width: 10px;
-      height: 10px;
-      border-radius: 50%;
-      background: #22c55e;
-      border: 2px solid #1a1312;
-    }
     .topbar-name {
       display: flex;
       align-items: center;
@@ -192,18 +181,6 @@
       border: 2px solid #120d0c;
       object-fit: cover;
       object-position: center top;
-    }
-    .avatar-online {
-      position: absolute;
-      right: 6px;
-      bottom: 6px;
-      box-sizing: border-box;
-      width: 16px;
-      height: 16px;
-      border-radius: 50%;
-      background: #22c55e;
-      border: 2px solid #120d0c;
-      box-shadow: 0 0 4px rgba(34,197,94,0.35);
     }
     /* Identity + social proof chips */
     .ident {
@@ -1191,7 +1168,6 @@
   <div class="topbar-inner">
     <span class="topbar-avatar-box">
       <img class="topbar-avatar" src="avatar.jpg" alt="" />
-      <span class="topbar-online" aria-hidden="true"></span>
     </span>
     <span class="topbar-name">Alahna Ly <span class="verif" title="Verified"><svg viewBox="0 0 24 24" aria-hidden="true"><path fill="#1D9BF0" d="M23.65 12.00 L23.47 12.60 L22.96 13.15 L22.27 13.63 L21.56 14.03 L21.00 14.41 L20.70 14.83 L20.70 15.34 L20.93 15.98 L21.27 16.72 L21.55 17.51 L21.63 18.25 L21.43 18.85 L20.92 19.23 L20.19 19.38 L19.35 19.35 L18.54 19.26 L17.86 19.24 L17.38 19.40 L17.07 19.81 L16.89 20.47 L16.72 21.27 L16.48 22.07 L16.11 22.72 L15.60 23.08 L14.97 23.09 L14.29 22.78 L13.63 22.27 L13.02 21.72 L12.49 21.30 L12.00 21.15 L11.51 21.30 L10.98 21.72 L10.37 22.27 L9.71 22.78 L9.03 23.09 L8.40 23.08 L7.89 22.72 L7.52 22.07 L7.28 21.27 L7.11 20.47 L6.93 19.81 L6.62 19.40 L6.14 19.24 L5.46 19.26 L4.65 19.35 L3.81 19.38 L3.08 19.23 L2.57 18.85 L2.37 18.25 L2.45 17.51 L2.73 16.72 L3.07 15.98 L3.30 15.34 L3.30 14.83 L3.00 14.41 L2.44 14.03 L1.73 13.63 L1.04 13.15 L0.53 12.60 L0.35 12.00 L0.53 11.40 L1.04 10.85 L1.73 10.37 L2.44 9.97 L3.00 9.59 L3.30 9.17 L3.30 8.66 L3.07 8.02 L2.73 7.28 L2.45 6.49 L2.37 5.75 L2.57 5.15 L3.08 4.77 L3.81 4.62 L4.65 4.65 L5.46 4.74 L6.14 4.76 L6.62 4.60 L6.93 4.19 L7.11 3.53 L7.28 2.73 L7.52 1.93 L7.89 1.28 L8.40 0.92 L9.03 0.91 L9.71 1.22 L10.37 1.73 L10.98 2.28 L11.51 2.70 L12.00 2.85 L12.49 2.70 L13.02 2.28 L13.63 1.73 L14.29 1.22 L14.97 0.91 L15.60 0.92 L16.11 1.28 L16.48 1.93 L16.72 2.73 L16.89 3.53 L17.07 4.19 L17.38 4.60 L17.86 4.76 L18.54 4.74 L19.35 4.65 L20.19 4.62 L20.92 4.77 L21.43 5.15 L21.63 5.75 L21.55 6.49 L21.27 7.28 L20.93 8.02 L20.70 8.66 L20.70 9.17 L21.00 9.59 L21.56 9.97 L22.27 10.37 L22.96 10.85 L23.47 11.40 Z"/><path d="M7.6 12.3l3 3 5.9-6" fill="none" stroke="#fff" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round"/></svg></span></span>
     <button class="cart-btn" id="cartBtn" onclick="openCart()" aria-label="Cart" hidden>
@@ -1212,7 +1188,6 @@
       <div class="avatar-box">
         <div class="avatar-ring"></div>
         <img src="avatar.jpg" alt="Alahna Ly" />
-        <span class="avatar-online" aria-hidden="true"></span>
       </div>
     </div>
   </div>
