@@ -900,6 +900,9 @@
     .promo-title { margin-top: 3px; font-size: 15px; font-weight: 800; line-height: 1.3; }
     .promo-title b { font-size: 19px; color: var(--promo); }
     .promo-title sup { margin-left: 1px; font-size: 0.6em; }
+    .promo-upto { font-size: 13px; color: var(--promo); }
+    /* The full price, struck, before the sale price (automatic sale) */
+    s.was { font-weight: 600; opacity: 0.6; text-decoration-thickness: 1.5px; }
     .promo-code { letter-spacing: 0.6px; color: var(--promo-soft); }
     .promo-copy {
       position: relative; display: inline-flex; align-items: center; justify-content: center; width: 20px; height: 20px; margin-left: 5px;
@@ -1262,8 +1265,8 @@
   <div class="price-card" id="offer">
     <span class="star">⭐</span>
     <div>
-      <div class="big">600 Stars <span>/ month</span></div>
-      <div class="sub">≈ $7.99 · no commitment, cancel anytime</div>
+      <div class="big">800 Stars <span>/ month</span></div>
+      <div class="sub">No commitment, cancel anytime</div>
       <div class="no-ppv">❌ No PPV after subscription</div>
     </div>
   </div>
@@ -1327,7 +1330,7 @@
     </div>
     <div class="promo-card" id="promoCard" hidden></div>
     <div class="months" id="months" role="tablist" aria-label="Months"></div>
-    <p class="tiers">Bundle: <b>−10%</b> on the whole cart from 5 videos</p>
+    <p class="tiers" id="tiersNote">Bundle: <b>−10%</b> on the whole cart from 5 videos</p>
     <p class="shop-state" id="shopState"></p>
     <div class="grid" id="grid"></div>
     <nav class="month-nav" id="monthNav" aria-label="Other months" hidden></nav>
@@ -1353,8 +1356,8 @@
 <div class="ctabar" id="ctaVip">
   <div class="ctabar-inner">
     <div class="ctabar-price">
-      <span class="p1">600 ⭐ <span>/ month</span></span>
-      <span class="p2">≈ $7.99 · private Telegram channel</span>
+      <span class="p1">800 ⭐ <span>/ month</span></span>
+      <span class="p2">Private Telegram channel</span>
     </div>
     <button class="btn-subscribe" onclick="subscribe()">Join now</button>
   </div>
@@ -1418,7 +1421,7 @@
     if (e.target instanceof Element && e.target.closest('img, video')) e.preventDefault();
   }, true));
 
-  const CHANNEL_URL = "https://t.me/+kYZ-o4bbE2EwODA0";
+  const CHANNEL_URL = "https://t.me/+Pk0juKijvLdkMGRk";   // the VIP's Stars subscription link, 800 ★/month since 18/11 (VIP_LINK of the worker)
   // On iPhone, Telegram shows its Stars subscription screen only for a paid link tapped inside a chat. Opened from a
   // mini app or a browser, the same link gets a plain "Join" window whose button closes it without joining. So the
   // iPhone goes through the bot: /start vip answers with the paid link on a button.
@@ -1557,7 +1560,7 @@
     var tokens = PAY_OPTIONS.filter(function (o, i) {
       return PAY_OPTIONS.findIndex(function (p) { return p.name === o.name; }) === i;
     });
-    box.innerHTML = '<p class="pick-title">Pay <b>$7.99</b> with</p>' +
+    box.innerHTML = '<p class="pick-title">Pay <b>$9.99</b> with</p>' +
       '<div class="pick-tokens">' + tokens.map(function (o) {
         return '<button class="pick-token" data-token="' + o.name + '" onclick="pickToken(\'' + o.name + '\')">' +
           '<img src="' + o.icon + '" alt="" width="30" height="30" />' + o.name + '</button>';
@@ -2047,11 +2050,12 @@
   var CODE_ERRORS = {
     code_invalid: "This code doesn't exist or has expired.",
     code_used: "You've already used this code.",
-    code_worse: "Your bundle discount is already better than this code, so we kept it.",
+    code_worse: "Your current discount is already better than this code, so we kept it.",
+    code_auto: "This offer is already applied to your cart.",
     code_full: "This code has reached its limit.",
     code_limit: "Too many wrong codes: try again in an hour."
   };
-  var _shop = { items: [], byName: {}, owned: {}, month: null, loadedAt: 0, loading: null, tiers: [[5, 10]], vip: 799, member: null };   // member: the buyer in the VIP channel
+  var _shop = { items: [], byName: {}, owned: {}, month: null, loadedAt: 0, loading: null, tiers: [[5, 10]], vip: 999, vipStars: 800, member: null };   // member: the buyer in the VIP channel
   var _cart = readCart();
   var _tab = "vip";
   var _shopSeen = false;   // the Shop tab is counted once per visit
@@ -2149,10 +2153,29 @@
       (d.owned || []).forEach(function (n) { _shop.owned[n] = true; });
       if (d.tiers) _shop.tiers = d.tiers;
       if (d.vip_price) _shop.vip = d.vip_price;
+      if (d.vip_stars) _shop.vipStars = d.vip_stars;
       _shop.member = d.vip_member || null;
       if (vipTaken() && _cart.vip) { _cart.vip = false; saveCart(); }
       _shop.promo = d.promo || null;
       renderPromo();
+      // The worker says when the prices change next (an automatic sale starting or ending): the catalogue is read again
+      // at that second, timed on the worker's clock (now), not the phone's, and what is open on screen follows
+      clearTimeout(_shop.changeTimer);
+      if (d.next_change && d.now) {
+        var wait = d.next_change > d.now ? d.next_change - d.now + 2000 : 30000;
+        if (wait < 20 * 864e5) _shop.changeTimer = setTimeout(function () {
+          loadCatalog(true).then(function () {
+            if (!_sheet) return;
+            if (_sheet.kind === "checkout") refreshQuote(null);
+            else if (_sheet.kind === "cart") renderCart();
+            else if (_sheet.kind === "live" && _sheet.name) {   // its price line and button only: the preview keeps playing
+              var i = _shop.byName[_sheet.name], meta = document.querySelector("#sheetBody .det-meta");
+              if (i && meta) meta.innerHTML = i.minutes + " min · " + sizeOf(i.mb) + (i.stars ? " · " + priceHtml(i) : "");
+              renderLiveActions(_sheet.name);
+            }
+          });
+        }, wait);
+      }
       _shop.loadedAt = Date.now();
       _shop.loading = null;
       var before = _cart.names.length;
@@ -2178,15 +2201,27 @@
 
   function promoLive() { var p = _shop.promo; return !!(p && p.until > Date.now()); }
 
-  // A code named for a holiday gets its look; the others the gold one.
+  // A code named for a holiday gets its look; the others the gold one. sale: the offer's name when it is the
+  // automatic sale (its banner, the cart's discount line).
   function promoTheme(code) {
     if (/HALLOWEEN/i.test(code)) {
-      return { cls: " t-halloween", icon: "🎃", title: "Halloween sale", deco: '<span class="promo-deco b1">🦇</span><span class="promo-deco b2">🦇</span>' };
+      return { cls: " t-halloween", icon: "🎃", title: "Halloween sale", sale: "Halloween sale", deco: '<span class="promo-deco b1">🦇</span><span class="promo-deco b2">🦇</span>' };
     }
     if (/BLACK|CYBER/i.test(code)) {
-      return { cls: " t-blackfriday", icon: "🖤", title: "Black Friday", deco: '<span class="promo-deco b1">✦</span><span class="promo-deco b2">✦</span>' };
+      return { cls: " t-blackfriday", icon: "🖤", title: "Black Friday", sale: "Black Friday", deco: '<span class="promo-deco b1">✦</span><span class="promo-deco b2">✦</span>' };
     }
-    return { cls: "", icon: "🏷️", title: "Promo code", deco: "" };
+    return { cls: "", icon: "🏷️", title: "Promo code", sale: "Special offer", deco: "" };
+  }
+
+  // The automatic sale (worker's catalogue, promo.auto): nothing to type, every live has its sale price.
+  function saleOn() { return promoLive() && !!_shop.promo.auto; }
+
+  // A live's price in the app: in Stars only, what (nearly) every buyer pays with. Dollars appear only at checkout, once
+  // the buyer picks crypto (owner's rule, 18/11). « 500 ★ », and during the sale « ~~500~~ 300 ★ » (short: the struck
+  // price without its ★). Every live has its Stars price (worker's catalogue).
+  function priceHtml(i, short) {
+    return saleOn() && i.sale_stars != null && i.sale_stars < i.stars
+      ? '<s class="was">' + (short ? String(i.stars) : starsTxt(i.stars)) + "</s> " + starsTxt(i.sale_stars) : starsTxt(i.stars);
   }
 
   var COPY_ICON = '<svg class="cp" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">' +
@@ -2196,6 +2231,9 @@
 
   function renderPromo() {
     var el = document.getElementById("promoCard");
+    // During the automatic sale the bundle's line under the months goes, not to mix two offers (the cart still takes
+    // the bundle if it is ever the cheaper)
+    document.getElementById("tiersNote").hidden = saleOn();
     if (!promoLive()) {
       // Offer over: « Have a promo code? », if on screen at checkout, goes back to its own gold at once
       var link = document.querySelector(".promo-link.shine");
@@ -2203,18 +2241,40 @@
       el.hidden = true;
       clearInterval(_promoTimer);
       _promoTimer = null;
+      // The automatic sale just ended with the shop open: the lives and the cart go back to their full prices, and a
+      // checkout on screen asks the worker again (its total, and so the payment, are at full price from now on)
+      if (_shop.promo && _shop.promo.auto) {
+        _shop.promo = null;
+        renderShop();
+        updateCartUi();
+        renderCart();
+        if (_sheet && _sheet.kind === "checkout") refreshQuote(null);
+      }
       return;
     }
     var p = _shop.promo, t = promoTheme(p.code);
     el.className = "promo-card" + t.cls;
     el.hidden = false;
+    if (p.auto) {
+      // The automatic sale: nothing to type, each live already shows its sale price. « Up to »: the worker rounds each
+      // price up to a tidy amount; best = the biggest discount a live really gets in Stars, as the packs' banner.
+      el.innerHTML = t.deco + '<div class="promo-eyebrow">' + t.icon + " " + t.sale + "</div>" +
+        '<div class="promo-title"><span class="promo-upto">Up to</span> <b>−' + (p.best || p.pct) + "%<sup>*</sup></b> on every live</div>" +
+        '<div class="promo-seg" id="promoClock"></div>' +
+        '<p class="promo-note">*Each live shows its own ' + esc(t.sale) + " price.</p>";
+      promoTick();
+      if (!_promoTimer) _promoTimer = setInterval(promoTick, 1000);
+      return;
+    }
     el.innerHTML = t.deco + '<div class="promo-eyebrow">' + t.icon + " " + t.title + "</div>" +
-      '<div class="promo-title"><b>−' + p.pct + "%<sup>*</sup></b> with code <span class=\"promo-code\">" + esc(p.code) + "</span>" +
+      // « Up to »: the worker rounds a code's price up to a tidy amount, so −pct% is the best a cart gets (the
+      // checkout shows each cart's own discount, before paying)
+      '<div class="promo-title"><span class="promo-upto">Up to</span> <b>−' + p.pct + "%<sup>*</sup></b> with code <span class=\"promo-code\">" + esc(p.code) + "</span>" +
       (p.used ? '<span class="promo-used"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">' +
         '<path d="M20 6 9 17l-5-5"/></svg>Used</span>'
         : '<button class="promo-copy" onclick="copyPromo(this)" aria-label="Copy the code" title="Copy">' + COPY_ICON + "</button>") + "</div>" +
       '<div class="promo-sub">' + (p.used ? "Already used on your account" : "Enter it at checkout") + '</div><div class="promo-seg" id="promoClock"></div>' +
-      '<p class="promo-note">*On up to ' + plural(p.max_videos) + " per order, once per account.</p>";
+      '<p class="promo-note">*Final price shown at checkout. On up to ' + plural(p.max_videos) + " per order, once per account.</p>";
     promoTick();
     if (!_promoTimer) _promoTimer = setInterval(promoTick, 1000);
   }
@@ -2305,7 +2365,7 @@
     card.classList.toggle("in", inc);
     var b = card.querySelector(".card-add");
     b.className = "card-add" + (owned ? " owned" : inc ? " in" : "");
-    b.textContent = owned ? "✓ Owned" : inc ? "✓ In your cart" : "+ Add · " + money(i.price);
+    b.innerHTML = owned ? "✓ Owned" : inc ? "✓ In your cart" : "+ Add · " + priceHtml(i, true);
   }
 
   // ─── Cart (kept on this device) ───
@@ -2324,16 +2384,27 @@
   // A Telegram Stars subscriber already has the VIP channel (Telegram renews it): no VIP month in the cart.
   function vipTaken() { return !!(_shop.member && _shop.member.kind === "telegram"); }
 
+  // The cart as the worker prices it (without a typed code), in $ and in Stars (stars: what the shop shows): the
+  // bundle discount or the automatic sale, the cheaper, never both; the VIP month never discounted.
   function estimate() {
     var items = _cart.names.map(function (n) { return _shop.byName[n]; }).filter(Boolean)
       .sort(function (a, b) { return b.date < a.date ? -1 : b.date > a.date ? 1 : 0; });
-    var subtotal = items.reduce(function (s, i) { return s + i.price; }, 0);
     var tier = _shop.tiers.find(function (t) { return items.length >= t[0]; });
-    var rate = tier ? tier[1] : 0;
-    var vip = _cart.vip && items.length && !vipTaken() ? _shop.vip : 0;
-    var next = _shop.tiers.slice().reverse().find(function (t) { return items.length < t[0]; });
-    return { items: items, count: items.length, subtotal: subtotal, rate: rate, vip: vip,
-      total: Math.round(subtotal * (100 - rate) / 100) + vip, next: next ? { more: next[0] - items.length, pct: next[1] } : null };
+    var rate = tier ? tier[1] : 0, vipOn = !!(_cart.vip && items.length && !vipTaken()), sale = saleOn() ? _shop.promo : null;
+    function priced(key, saleKey, vip) {
+      var subtotal = items.reduce(function (s, i) { return s + (i[key] || 0); }, 0);
+      var volume = Math.round(subtotal * (100 - rate) / 100) + vip;
+      var onSale = sale && items.every(function (i) { return i[saleKey] != null; })
+        ? items.reduce(function (s, i) { return s + i[saleKey]; }, 0) + vip : null;
+      var useSale = onSale != null && onSale < volume, total = useSale ? onSale : volume;
+      return { subtotal: subtotal, vip: vip, rate: useSale ? 0 : rate, code: null, sale: useSale ? sale.code : null,
+        off: useSale && subtotal ? Math.floor((subtotal + vip - onSale) * 100 / subtotal) : 0, total: total };
+    }
+    var usd = priced("price", "sale", vipOn ? _shop.vip : 0), st = priced("stars", "sale_stars", vipOn ? _shop.vipStars : 0);
+    // « N more for −10% »: only while the bundle would be this cart's discount (not under the sale)
+    var next = st.sale ? null : _shop.tiers.slice().reverse().find(function (t) { return items.length < t[0]; });
+    return { items: items, count: items.length, subtotal: usd.subtotal, rate: usd.rate, vip: usd.vip, sale: usd.sale, off: usd.off,
+      code: null, total: usd.total, stars: st, next: next ? { more: next[0] - items.length, pct: next[1] } : null };
   }
 
   function toggleCart(n) {
@@ -2418,19 +2489,23 @@
     // No bottom bar shown (shop tab, empty cart): no room kept for it.
     document.body.classList.toggle("no-cta", _tab === "shop" && !n);
     if (!n) return;
-    document.getElementById("cbTotal").innerHTML = money(e.total) + " <span>· " + plural(n) + (e.vip ? " + VIP" : "") + "</span>";
+    var s = e.stars;
+    document.getElementById("cbTotal").innerHTML = starsTxt(s.total) + " <span>· " + plural(n) + (e.vip ? " + VIP" : "") + "</span>";
     var info = document.getElementById("cbInfo");
-    info.classList.toggle("good", !!e.rate);
-    info.textContent = e.rate ? "Bundle −" + e.rate + "% included" : e.next ? e.next.more + " more for −" + e.next.pct + "% on everything" : "";
+    info.classList.toggle("good", !!(s.rate || s.sale));
+    info.textContent = s.sale ? promoTheme(s.sale).sale + " −" + s.off + "% included" : s.rate ? "Bundle −" + s.rate + "% included"
+      : e.next ? e.next.more + " more for −" + e.next.pct + "% on everything" : "";
   }
 
   // inStars: the same cart priced in Stars (the worker's quote carries both).
   function summaryHtml(q, inStars) {
     var s = inStars ? q.stars : q, fmt = inStars ? starsTxt : money;
     var off = s.subtotal + s.vip - s.total;
-    // A code lowers the videos only, never the VIP month: said so when the month is in the cart.
-    var label = s.code ? "Code " + esc(s.code) + " −" + s.pct + "%" + (s.code_limit && q.count > s.code_limit ? " (on " + s.code_limit + " videos)"
-      : s.vip ? " on videos" : "") : "Bundle −" + s.rate + "%";
+    // A code lowers the videos only, never the VIP month: said so when the month is in the cart. Its % (and the
+    // sale's) is the one this cart really gets (off: the price is rounded up to a tidy amount); the code's own % from
+    // an older worker.
+    var label = s.code ? "Code " + esc(s.code) + " −" + (s.off != null ? s.off : s.pct) + "%" + (s.code_limit && q.count > s.code_limit ? " (on " + s.code_limit + " videos)"
+      : s.vip ? " on videos" : "") : s.sale ? esc(promoTheme(s.sale).sale) + " −" + s.off + "%" + (s.vip ? " on videos" : "") : "Bundle −" + s.rate + "%";
     return '<div class="sum"><div class="sum-row"><span>' + plural(q.count) + '</span><span>' + fmt(s.subtotal) + '</span></div>' +
       (s.vip ? '<div class="sum-row"><span>VIP channel · 1 month</span><span>' + fmt(s.vip) + '</span></div>' : "") +
       (off > 0 ? '<div class="sum-row disc"><span>' + label + '</span><span>−' + fmt(off) + '</span></div>' : "") +
@@ -2495,7 +2570,7 @@
       '" autoplay muted loop playsinline disablepictureinpicture preload="auto"></video><span class="det-tag">PREVIEW · 20 S</span>' +
       liveTag(i) + '</div>' +
       '<div><div class="det-title">🔴 Live · ' + fmtDay(i.date) + '</div><div class="det-meta">' + i.minutes + ' min · ' + sizeOf(i.mb) +
-        (i.stars ? ' · ' + money(i.price) + ' or ' + starsTxt(i.stars) : '') + '</div></div>' +
+        (i.stars ? ' · ' + priceHtml(i) : '') + '</div></div>' +
       '<div class="det-points"><span>🎬 The full live, with sound</span><span>📥 Sent to your Telegram chat right after payment</span>' +
       '<span>♾️ Yours to keep: save it on your phone or computer</span></div>';
     var v = body.querySelector("video");
@@ -2511,7 +2586,7 @@
     if (_shop.owned[n]) foot.innerHTML = '<button class="pay-btn ghost" onclick="openMine()">✓ You own this live · My purchases</button>';
     else if (inCart(n)) foot.innerHTML = '<button class="pay-btn" onclick="openCart()">View cart (' + _cart.names.length + ')</button>' +
       '<button class="pay-link center" onclick="toggleCart(\'' + n + '\')">Remove from cart</button>';
-    else foot.innerHTML = '<button class="pay-btn" onclick="toggleCart(\'' + n + '\')">Add to cart · ' + money(i.price) + '</button>';
+    else foot.innerHTML = '<button class="pay-btn" onclick="toggleCart(\'' + n + '\')">Add to cart · ' + priceHtml(i, true) + '</button>';
   }
 
   // ─── Cart sheet ───
@@ -2542,16 +2617,16 @@
         '<span class="vip-check">' + (_cart.vip ? "✓" : "") + '</span><span class="ci-txt"><span class="ci-date">' +
         (access ? "Extend your VIP access" : "Add VIP channel access") + '</span><span class="ci-sub">' +
         (access ? "1 more month, after your access ends on " + fmtDay(new Date(_shop.member.until).toISOString().slice(0, 10))
-          : "1 month of the private channel, paid in the same go") + '</span></span><span class="ci-price">' + money(_shop.vip) + '</span></div>') +
+          : "1 month of the private channel, paid in the same go") + '</span></span><span class="ci-price">' + starsTxt(_shop.vipStars) + '</span></div>') +
       '<div class="cart-head"><span>' + plural(e.count) + '</span><button class="cart-clear" onclick="clearCart()">🗑 Empty cart</button></div>' +
       '<div class="cart-list">' + e.items.map(function (i) {
         return '<div class="ci"><img src="' + esc(i.cover) + '" alt="" loading="lazy" /><span class="ci-txt"><span class="ci-date">' + fmtDay(i.date) +
-          '</span><span class="ci-sub">' + i.minutes + ' min · ' + sizeOf(i.mb) + '</span></span><span class="ci-price">' + money(i.price) + '</span>' +
+          '</span><span class="ci-sub">' + i.minutes + ' min · ' + sizeOf(i.mb) + '</span></span><span class="ci-price">' + priceHtml(i, true) + '</span>' +
           '<button class="ci-x" aria-label="Remove ' + fmtDay(i.date) + '" onclick="toggleCart(\'' + i.name + '\')">✕</button></div>';
       }).join("") + '</div>';
-    foot.innerHTML = summaryHtml(e) +
+    foot.innerHTML = summaryHtml(e, true) +
       (e.next ? '<p class="hint">Add ' + e.next.more + " more video" + (e.next.more > 1 ? "s" : "") + " to get −" + e.next.pct + "% on the whole cart</p>" : "") +
-      '<button class="pay-btn" onclick="validateCart()">Checkout · ' + money(e.total) + '</button>';
+      '<button class="pay-btn" onclick="validateCart()">Checkout · ' + starsTxt(e.stars.total) + '</button>';
   }
 
   // ─── Checkout: the worker's total, promo code (last step only), crypto ───
@@ -2587,7 +2662,8 @@
         _code = null;
       } else if (_code && q.code && !_code.pct) {
         _code = { code: q.code, pct: q.pct, until: q.code_until };
-        msg ={ ok: true, text: "Code " + q.code + " applied: −" + q.pct + "% · valid until " + fmtUntil(q.code_until) };
+        // No % here: the cart's own discount is on the line just above (Stars and crypto can differ)
+        msg ={ ok: true, text: "Code " + q.code + " applied · valid until " + fmtUntil(q.code_until) };
         if (!_codeSeen) { _codeSeen = true; track("code"); }
       }
       _quote = q;
@@ -2609,7 +2685,7 @@
       (_promoOpen || _code ? '<div class="promo-box"><input id="promoIn" placeholder="Promo code" autocomplete="off" autocapitalize="characters" spellcheck="false" value="' +
         esc(_code ? _code.code : "") + '"' + (applied ? " readonly" : "") + " />" +
         (applied ? '<button class="pay-btn applied" disabled>✓ Applied</button>' : '<button class="pay-btn" onclick="applyCode()">Apply</button>') + "</div>"
-        : '<button class="promo-link shine' + (promoLive() ? promoTheme(_shop.promo.code).cls : "") + '" onclick="openPromo()">' +
+        : '<button class="promo-link shine' + (promoLive() && !_shop.promo.auto ? promoTheme(_shop.promo.code).cls : "") + '" onclick="openPromo()">' +
           '<span class="spark" aria-hidden="true">✨</span><span class="txt">Have a promo code?</span></button>') +
       (msg ? '<p class="promo-msg ' + (msg.ok ? "ok" : "bad") + '">' + esc(msg.text) + '</p>' : "") +
       '<div class="paymode" role="tablist" aria-label="Payment method">' +
@@ -3046,7 +3122,9 @@
     bad_videos: "Vidéos max : entre 1 et 60.",
     code_exists: "Ce code existe déjà : un nom ne sert qu'une fois.",
     bad_price: "Prix en $ : entre 0,99 et 99,99.",
-    bad_stars: "Prix en ★ : un nombre entier entre 1 et 10 000."
+    bad_stars: "Prix en ★ : un nombre entier entre 1 et 10 000.",
+    // Crypto always a little under what the Stars bring in (≈ 0,013 $ per Star once withdrawn)
+    crypto_dear: "Le prix en $ (crypto) doit rester un peu sous ce que rapportent les Stars : 1 ★ ≈ 0,013 $ (500 ★ ≈ 6,50 $, donc 6,49 $ au plus)."
   };
 
   function isOwner() {
@@ -3223,13 +3301,16 @@
       return '<div class="adm-code"><div class="adm-code-top"><span class="adm-code-name">' + esc(c.code) + "</span>" +
         '<span class="adm-code-pct">−' + c.pct + ' %</span><span class="adm-tag ' + st.cls + '">' + st.label + "</span></div>" +
         '<p class="ci-sub">' + (from ? "Du " + frDay(from) + " à 00:00 UTC au " : "Jusqu'au ") + frDay(until) + " à 23:59 UTC</p>" +
-        '<p class="ci-sub">' + c.max_videos + " vidéo" + (c.max_videos > 1 ? "s" : "") + " max par commande" + (live ? " · jamais le mois VIP" : "") + "</p>" +
-        '<p class="ci-sub">Utilisé ' + c.uses + " fois" + (c.max_uses != null ? " sur " + c.max_uses : "") + " · une fois par acheteur</p>" +
-        (live ? '<p class="ci-sub">' + (c.shown ? (st.key === "soon" ? "🏷️ Affiché dans la boutique dès le début" : "🏷️ Affiché dans la boutique")
-          : "🔒 Privé : à donner toi-même") + "</p>" : "") +
+        // Shown = the automatic sale: every live at its sale price for everyone, no code, no limit per buyer or cart
+        (c.shown ? '<p class="ci-sub">Tous les lives · sans limite par acheteur' + (live ? " · jamais le mois VIP" : "") + "</p>"
+          : '<p class="ci-sub">' + c.max_videos + " vidéo" + (c.max_videos > 1 ? "s" : "") + " max par commande" + (live ? " · jamais le mois VIP" : "") + "</p>") +
+        '<p class="ci-sub">' + (c.shown ? "Acheteurs : " + c.uses : "Utilisé " + c.uses + " fois") + (c.max_uses != null ? " sur " + c.max_uses : "") +
+          (c.shown ? "" : " · une fois par acheteur") + "</p>" +
+        (live ? '<p class="ci-sub">' + (c.shown ? (st.key === "soon" ? "🏷️ Promo automatique dès le début : prix barrés, sans code"
+          : "🏷️ Promo automatique : prix barrés pour tous, sans code") : "🔒 Privé : à donner toi-même") + "</p>" : "") +
         '<div class="adm-code-act"><button class="ci-resend" onclick="copyText(\'' + c.code + '\', this, \'Copié ✓\')">Copier</button>' +
         (live ? '<button class="ci-resend" onclick="adminCodeShown(\'' + c.code + '\', ' + !c.shown + ', this)">' +
-          (c.shown ? "Retirer de la boutique" : "Afficher dans la boutique") + "</button>" : "") +
+          (c.shown ? "Arrêter la promo automatique" : "En faire la promo automatique") + "</button>" : "") +
         (live || st.key === "off" ? '<button class="ci-resend" onclick="adminCodeActive(\'' + c.code + '\', ' + !c.active + ', this)">' +
           (c.active ? "Désactiver" : "Réactiver") + "</button>" : "") +
         (live ? "" : '<button class="ci-resend danger" onclick="adminCodeDelete(\'' + c.code + '\', this)">Supprimer</button>') +
@@ -3277,7 +3358,7 @@
     btn.disabled = true;
     payApi("/api/shop/admin/code-shown", { code: code, shown: shown }).then(function (d) {
       _admin.codes = _admin.codes.map(function (c) { return c.code === code ? d.code : c; });
-      toast(shown ? "Code affiché dans la boutique" : "Code retiré de la boutique");
+      toast(shown ? "Promo automatique activée" : "Promo automatique arrêtée : code privé");
       renderAdmin();
     }).catch(function () {
       btn.disabled = false;
@@ -3307,11 +3388,12 @@
         '<input class="adm-input" id="acUses" inputmode="numeric" autocomplete="off" placeholder="Illimité" /></div>' +
       '<div class="adm-cell"><label class="adm-label" for="acVideos">Vidéos max</label>' +
         '<input class="adm-input" id="acVideos" inputmode="numeric" autocomplete="off" value="10" /></div></div>' +
-      '<p class="adm-help">Le code s\'applique aux N vidéos les plus chères du panier (10 par défaut), jamais au mois VIP. ' +
-        "Chaque acheteur ne peut l'utiliser qu'une fois.</p>" +
+      '<p class="adm-help">Code privé : il s\'applique aux N vidéos les plus chères du panier (10 par défaut), jamais au mois VIP, ' +
+        "une seule fois par acheteur. Promo automatique (case ci-dessous) : tous les lives, sans limite, jamais le mois VIP.</p>" +
       '<button class="adm-switch" id="acShown" role="switch" aria-checked="false" onclick="acShown()"><span class="adm-knob"></span>' +
-        "<span>Afficher dans la boutique</span></button>" +
-      '<p class="adm-help">Coché : tous les visiteurs voient le code en haut de la boutique, avec le compte à rebours jusqu\'à sa fin. ' +
+        "<span>Promo automatique (sans code)</span></button>" +
+      '<p class="adm-help">Coché : promo pour tous, sans code à taper. Chaque live affiche son prix barré et son prix promo, arrondi ' +
+        "au-dessus (multiple de 50 ★, X,99 $) ; bandeau « Up to −X% » avec le compte à rebours ; sans limite par acheteur ni de vidéos. " +
         "Décoché : code privé, à donner toi-même (mets « Utilisations max : 1 » pour une seule personne).</p>";
     sheetFoot().innerHTML = '<p class="promo-msg bad" id="acMsg" hidden></p><button class="pay-btn" id="acGo" onclick="adminCreateCode()">Créer le code</button>';
     acUntil();
