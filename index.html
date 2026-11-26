@@ -3549,7 +3549,9 @@
       }
       if (ssGet('al_sent')) return;
       ssSet('al_sent', '1');
-      post(ENDPOINT, { token: TOKEN, path: path, referrer: referrer, utm: utm, is_new: is_new, session_id: sid });
+      // In Telegram, the visit's account comes with its first step: initData, signed by Telegram, that the analytics
+      // checks with Telegram's public key (the owner's own visits are never sent, see noTrack)
+      post(ENDPOINT, { token: TOKEN, path: path, referrer: referrer, utm: utm, is_new: is_new, session_id: sid, init: (tg && tg.initData) || '' });
     }
 
     window._trackJoin = function () {
