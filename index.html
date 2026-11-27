@@ -2236,7 +2236,7 @@
       el.innerHTML = t.deco + '<div class="promo-eyebrow">' + t.icon + " " + t.sale + "</div>" +
         '<div class="promo-title"><span class="promo-upto">Up to</span> <b>−' + (p.best || p.pct) + "%<sup>*</sup></b> on every live</div>" +
         '<div class="promo-seg" id="promoClock"></div>' +
-        '<p class="promo-note">*Each live shows its own ' + esc(t.sale) + " price.</p>";
+        '<p class="promo-note">*Discount varies by video.</p>';
       promoTick();
       if (!_promoTimer) _promoTimer = setInterval(promoTick, 1000);
       return;
